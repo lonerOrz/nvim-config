@@ -28,12 +28,21 @@ return {
   {
     "williamboman/mason-lspconfig.nvim",
     event = { "BufReadPre", "BufNewFile" }, -- 延迟加载
-    config = function()
+    dependencies = {
+      { "mason-org/mason.nvim", opts = {} },
+      "neovim/nvim-lspconfig",
+    },
+    opts = {
+      automatic_enable = {
+        exclude = { "nil_ls" },
+      },
+    },
+    config = function(_, opts)
       -- 设置 Mason 和 LSP 配置
-      require("mason-lspconfig").setup()
+      require("mason-lspconfig").setup(opts)
 
-      local lspconfig = require("lspconfig")
-      local capabilities = require("blink.cmp").get_lsp_capabilities()
+      -- local lspconfig = require("lspconfig")
+      -- local capabilities = require("blink.cmp").get_lsp_capabilities()
 
       -- 遍历已安装的服务器并为每个服务器进行配置
       -- for _, server_name in ipairs(require("mason-lspconfig").get_installed_servers()) do
@@ -77,9 +86,24 @@ return {
         highlight! link DiagnosticHint DiagnosticWarn
       ]])
 
-      local capabilities = require("blink.cmp").get_lsp_capabilities()
       local lspconfig = require("lspconfig")
+      local blink_cmp = require("blink.cmp")
+      local util = require("lspconfig.util")
 
+      lspconfig.nil_ls.setup({
+        capabilities = blink_cmp.get_lsp_capabilities(),
+        root_dir = util.root_pattern("flake.nix", ".git"),
+        settings = {
+          ["nil"] = {
+            nix = {
+              flake = {
+                autoEvalInputs = false,
+                autoArchive = false,
+              },
+            },
+          },
+        },
+      })
       -- lspconfig['lua_ls'].setup({ capabilities = capabilities })
 
       -- Use LspAttach autocommand to only map the following keys
