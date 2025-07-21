@@ -286,13 +286,19 @@ return {
 				-- hl_group = "lualine_b_normal",
 			})
 
-			-- Insert status into lualine
-			opts = require("lualine").get_config()
-			table.insert(opts.winbar.lualine_b, 1, {
+			-- Insert status into lualine safely
+			local lualine = require("lualine")
+			local config = lualine.get_config()
+
+			config.winbar = config.winbar or {}
+			config.winbar.lualine_b = config.winbar.lualine_b or {}
+
+			table.insert(config.winbar.lualine_b, 1, {
 				symbols.get,
 				cond = symbols.has,
 			})
-			require("lualine").setup(opts)
+
+			lualine.setup(config)
 		end,
 	},
 }
