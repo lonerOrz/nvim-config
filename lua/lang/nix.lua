@@ -6,6 +6,7 @@ return {
 		opts = {
 			ensure_installed = { "nix" },
 		},
+		opts_extend = { "ensure_installed" }, -- 以列表形式扩展opts的ensure_installed
 	},
 	{
 		"nvimtools/none-ls.nvim",
@@ -30,45 +31,50 @@ return {
 	{
 		"neovim/nvim-lspconfig",
 		ft = "nix",
-		config = function()
-			if vim.b._nixd_loaded then
-				return
-			end
-			vim.b._nixd_loaded = true
+		opts = {
+			nixconfig = {
+				config = function()
+					if vim.b._nixd_loaded then
+						return
+					end
+					vim.b._nixd_loaded = true
 
-			local lspconfig = require("lspconfig")
-			local blink_cmp = require("blink.cmp")
-			local util = require("lspconfig.util")
+					local lspconfig = require("lspconfig")
+					local blink_cmp = require("blink.cmp")
+					local util = require("lspconfig.util")
 
-			-- 大部分使用的是 mason-lspconfig 自动启用流程
-			-- nixd 不在 mason 里，所以需要手动配置
-			lspconfig.nixd.setup({
-				cmd = { "nixd" },
-				filetypes = { "nix" },
-				root_dir = util.root_pattern("flake.nix", ".git"),
-				settings = {
-					nixd = {
-						nixpkgs = {
-							expr = "import (builtins.getFlake(toString ./.)).inputs.nixpkgs { }",
-						},
-						stable = {
-							expr = "import (builtins.getFlake(toString ./.)).inputs.nixpkgs-stable { }",
-						},
-						formatting = {
-							command = { "nixfmt" },
-						},
-						options = {
-							nixos = {
-								expr = '(builtins.getFlake ("git+file://" + toString ./.)).nixosConfigurations.loneros.options',
+					-- 大部分使用的是 mason-lspconfig 自动启用流程
+					-- nixd 不在 mason 里，所以需要手动配置
+					lspconfig.nixd.setup({
+						cmd = { "nixd" },
+						filetypes = { "nix" },
+						root_dir = util.root_pattern("flake.nix", ".git"),
+						settings = {
+							nixd = {
+								nixpkgs = {
+									expr = "import (builtins.getFlake(toString ./.)).inputs.nixpkgs { }",
+								},
+								stable = {
+									expr = "import (builtins.getFlake(toString ./.)).inputs.nixpkgs-stable { }",
+								},
+								formatting = {
+									command = { "nixfmt" },
+								},
+								options = {
+									nixos = {
+										expr = '(builtins.getFlake ("git+file://" + toString ./.)).nixosConfigurations.loneros.options',
+									},
+									home_manager = {
+										expr = 'let flake = builtins.getFlake(toString ./.); in flake.homeConfigurations."loner@loneros".options',
+									},
+									-- 可以按需再加 nixos/darwin
+								},
 							},
-							home_manager = {
-								expr = 'let flake = builtins.getFlake(toString ./.); in flake.homeConfigurations."loner@loneros".options',
-							},
-							-- 可以按需再加 nixos/darwin
 						},
-					},
-				},
-			})
-		end,
+					})
+				end,
+			},
+		},
+		opts_extend = { "nixconfig" },
 	},
 }
