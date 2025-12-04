@@ -17,6 +17,9 @@ return {
 
 	{
 		"olimorris/codecompanion.nvim",
+		-- PIN version to v17.33.0(commit: e7762c68daf24c3e356401f5223eeb5217047754)
+		tag = "v17.33.0",
+		pin = true,
 		dependencies = {
 			"nvim-lua/plenary.nvim",
 			"nvim-treesitter/nvim-treesitter",

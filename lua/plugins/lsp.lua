@@ -4,8 +4,8 @@ return {
 		cmd = { "Mason", "MasonInstall", "MasonUpdate" },
 		opts = {
 			ensure_installed = {
-				-- "lua-language-server",
-				-- "rust-analyzer",
+				"lua-language-server",
+				"rust-analyzer",
 			},
 		},
 		config = function(_, opts)
@@ -28,8 +28,7 @@ return {
 	},
 	{
 		"williamboman/mason-lspconfig.nvim",
-		-- event = { "BufReadPre", "BufNewFile" }, -- 延迟加载
-		event = "VeryLazy",
+		event = { "BufReadPre", "BufNewFile" }, -- 延迟加载
 		dependencies = {
 			{ "mason-org/mason.nvim", opts = {} },
 			"neovim/nvim-lspconfig",
@@ -39,155 +38,154 @@ return {
 				exclude = { "nil_ls" },
 			},
 		},
-		config = function(_, opts)
-			-- 设置 Mason 和 LSP 配置
-			require("mason-lspconfig").setup(opts)
-
-			-- local lspconfig = require("lspconfig")
-			-- local capabilities = require("blink.cmp").get_lsp_capabilities()
-
-			-- 遍历已安装的服务器并为每个服务器进行配置
-			-- for _, server_name in ipairs(require("mason-lspconfig").get_installed_servers()) do
-			--   lspconfig[server_name].setup({
-			--     capabilities = capabilities,
-			--   })
-			-- end
-		end,
 	},
 	{
 		"glepnir/lspsaga.nvim",
 		event = { "BufReadPre", "BufNewFile" },
 		dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" },
 		config = function()
+			print("Lspsaga loaded!") -- 添加调试信息
 			require("lspsaga").setup({
 				symbol_in_winbar = { enable = true, separator = "  ", show_file = true },
 			})
 		end,
 	},
+
 	{
 		"neovim/nvim-lspconfig",
 		event = { "BufReadPre", "BufNewFile" },
 		dependencies = { "saghen/blink.cmp", "williamboman/mason.nvim" },
 
-		-- example calling setup directly for each LSP
-		config = function()
-			vim.diagnostic.config({
+		opts = {
+			--- 🧩 全局 Diagnostic 配置
+			diagnostic = {
 				underline = true,
 				signs = false,
 				update_in_insert = false,
 				virtual_text = { spacing = 2, prefix = "●" },
 				severity_sort = true,
-				float = {
-					border = "rounded",
+				float = { border = "rounded" },
+			},
+
+			--- Mason 统一 setup
+			mason_handlers = {},
+
+			--- LSP 服务器配置（可被其他模块扩展，如 nixd）
+			servers = {},
+
+			--- LspAttach keymaps
+			on_attach = true,
+		},
+
+		config = function(_, opts)
+			-- 🧩 Diagnostic 全局配置
+			vim.diagnostic.config(opts.diagnostic)
+
+			-- 增强可见性
+			vim.cmd([[
+      highlight! DiagnosticUnderlineError guisp=#FF0000 gui=undercurl
+      highlight! DiagnosticVirtualTextError guifg=#FF4C4C
+      highlight! link DiagnosticHint DiagnosticWarn
+    ]])
+
+			-- LSP Capabilities from blink.cmp
+			local blink_cmp = require("blink.cmp")
+			local capabilities = blink_cmp.get_lsp_capabilities()
+
+			-- 保存 capabilities 到全局变量以供其他模块使用
+			_G.lsp_capabilities = capabilities
+
+			-- mason-lspconfig setup + handlers
+			local mason_lspconfig = require("mason-lspconfig")
+			mason_lspconfig.setup({
+				handlers = {
+					function(server_name)
+						local server_opts = vim.tbl_deep_extend("force", {
+							capabilities = capabilities,
+						}, opts.servers[server_name] or {})
+						-- 使用 vim.lsp.config() 设置服务器配置
+						vim.lsp.config(server_name, server_opts)
+						-- 然后启用服务器
+						vim.lsp.enable(server_name)
+					end,
 				},
 			})
-			-- ====== 加强诊断提示颜色和符号可见性 ======
-			vim.cmd([[
-        highlight! DiagnosticUnderlineError guisp=#FF0000 gui=undercurl
-        highlight! DiagnosticVirtualTextError guifg=#FF4C4C
-        highlight! link DiagnosticHint DiagnosticWarn
-      ]])
 
-			local lspconfig = require("lspconfig")
-			local blink_cmp = require("blink.cmp")
-			local util = require("lspconfig.util")
+			-- 为所有配置的服务器设置配置（包括非 mason 服务器）
+			for server_name, server_opts in pairs(opts.servers) do
+				if server_opts then
+					-- 合并配置与全局 capabilities
+					local final_opts = vim.tbl_deep_extend("force", {
+						capabilities = capabilities,
+					}, server_opts or {})
+					-- 设置服务器配置
+					vim.lsp.config(server_name, final_opts)
+					-- 启用服务器
+					vim.lsp.enable(server_name)
+				end
+			end
 
-			-- 如果使用 nil_ls
-			-- lspconfig.nil_ls.setup({
-			-- 	capabilities = blink_cmp.get_lsp_capabilities(),
-			-- 	root_dir = util.root_pattern("flake.nix", ".git"),
-			-- 	settings = {
-			-- 		["nil"] = {
-			-- 			nix = {
-			-- 				flake = {
-			-- 					autoEvalInputs = false,
-			-- 					autoArchive = false,
-			-- 				},
-			-- 			},
-			-- 		},
-			-- 	},
-			-- })
-			-- lspconfig['lua_ls'].setup({ capabilities = capabilities })
-
-			-- Use LspAttach autocommand to only map the following keys
-			-- aftpsaga hover_docr the language server attaches to the current buffer
+			-- 🔧 LspAttach 后设置快捷键
 			vim.api.nvim_create_autocmd("LspAttach", {
 				group = vim.api.nvim_create_augroup("UserLspConfig", {}),
 				callback = function(ev)
+					print("LSP attached to buffer " .. ev.buf) -- 打印 buffer ID
+					print("Filetype: " .. vim.bo.filetype) -- 打印当前文件类型
 					vim.diagnostic.open_float(nil, { focusable = true })
-					local opts = { buffer = ev.buf }
 
-					-- 查看文档说明（hover） vim.lsp.buf.hover
+					-- 🧠 Hover Doc
 					vim.keymap.set("n", "K", "<CMD>Lspsaga hover_doc<CR>", {
 						buffer = ev.buf,
 						desc = "[LSP] Hover documentation",
 					})
 
-					-- 查看错误提示浮窗（diagnostic） vim.diagnostic.open_float
-					-- vim.keymap.set("n", "<leader>cd", "<CMD>Lspsaga show_workspace_diagnostics<CR>", {
-					--   buffer = ev.buf,
-					--   desc = "[LSP] Show diagnostics",
-					-- })
-
-					-- 显示函数签名（signature help
+					-- 🪄 Signature Help
 					vim.keymap.set("n", "gk", vim.lsp.buf.signature_help, {
 						buffer = ev.buf,
 						desc = "[LSP] Signature help",
 					})
 
-					-- 跳转到定义（go to definition）
+					-- 🧭 Go to Definition
 					vim.keymap.set("n", "gd", vim.lsp.buf.definition, {
 						buffer = ev.buf,
 						desc = "[LSP] Go to definition",
 					})
 
-					-- 查找引用（谁用到了它）
+					-- 🔍 References
 					vim.keymap.set("n", "gr", vim.lsp.buf.references, {
 						buffer = ev.buf,
 						desc = "[LSP] Find references",
 					})
 
-					-- 回跳（返回跳转前的位置）← 这是 Neovim 内建的
+					-- ⏪ Jump Back
 					vim.keymap.set("n", "<C-o>", "<C-o>", {
 						buffer = ev.buf,
 						desc = "[LSP] Jump back",
 					})
 
-					-- 重命名符号（rename）
+					-- ✏️ Rename
 					vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, {
 						buffer = ev.buf,
 						desc = "[LSP] Rename symbol",
 					})
 
-					-- 触发 code action（代码修复、导入等）
+					-- 💡 Code Action
 					vim.keymap.set("n", "<leader>ca", "<cmd>Lspsaga code_action<CR>", {
 						buffer = ev.buf,
 						desc = "[LSP] Code action",
 					})
 
-					-- 添加当前目录为 workspace folder
-					vim.keymap.set("n", "<leader>wa", vim.lsp.buf.add_workspace_folder, {
-						buffer = ev.buf,
-						desc = "[LSP] Add workspace folder",
-					})
-
-					-- 移除当前目录或指定目录的 workspace folder
-					vim.keymap.set("n", "<leader>wr", vim.lsp.buf.remove_workspace_folder, {
-						buffer = ev.buf,
-						desc = "[LSP] Remove workspace folder",
-					})
-
-					-- 列出当前所有 workspace folders（调试时用）
+					-- 🗂️ Workspace 管理
+					vim.keymap.set("n", "<leader>wa", vim.lsp.buf.add_workspace_folder, { buffer = ev.buf })
+					vim.keymap.set("n", "<leader>wr", vim.lsp.buf.remove_workspace_folder, { buffer = ev.buf })
 					vim.keymap.set("n", "<leader>wl", function()
 						print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-					end, {
-						buffer = ev.buf,
-						desc = "[LSP] List workspace folders",
-					})
+					end, { buffer = ev.buf })
 				end,
 			})
 		end,
 	},
+
 	{
 		"folke/lazydev.nvim",
 		ft = "lua", -- only load on lua files
