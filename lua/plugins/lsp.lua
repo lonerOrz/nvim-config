@@ -44,10 +44,25 @@ return {
 		event = { "BufReadPre", "BufNewFile" },
 		dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" },
 		config = function()
-			print("Lspsaga loaded!") -- 添加调试信息
+			print("Lspsaga loaded!") -- 调试信息
+
 			require("lspsaga").setup({
-				symbol_in_winbar = { enable = true, separator = "  ", show_file = true },
+				-- Winbar 显示配置
+				symbol_in_winbar = {
+					enable = true,
+					show_file = true,
+					separator = "  ",
+				},
+
+				-- Lightbulb 配置，控制 code action 提示
+				lightbulb = {
+					enable = true, -- 启用 lightbulb
+					sign = false, -- 禁止在行号显示 💡
+				},
 			})
+
+			-- 可选：清理旧的 lightbulb sign，避免遗留
+			vim.fn.sign_unplace("LspsagaLightBulb")
 		end,
 	},
 
