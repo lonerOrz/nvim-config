@@ -34,3 +34,12 @@ vim.keymap.set("x", "<", "<gv", { noremap = true, silent = true })
 
 -- 保存文件
 vim.keymap.set("n", "<C-S>", "<CMD>w<CR>", { desc = "Save file" })
+
+-- 翻译选中文本
+vim.keymap.set("v", "<leader>tt", [[: !xargs -I {} ts "{}"<CR>]], { desc = "Translate selection" })
+
+-- Undotree (Neovim 0.12+ built-in)
+vim.keymap.set("n", "<leader>u", function()
+  pcall(vim.cmd, "packadd nvim.undotree")
+  require("undotree").open()
+end, { desc = "Open undotree" })

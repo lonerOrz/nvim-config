@@ -44,8 +44,6 @@ return {
 		event = { "BufReadPre", "BufNewFile" },
 		dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" },
 		config = function()
-			print("Lspsaga loaded!") -- 调试信息
-
 			require("lspsaga").setup({
 				-- Winbar 显示配置
 				symbol_in_winbar = {
