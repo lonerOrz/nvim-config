@@ -156,8 +156,8 @@ if is_wsl then
 			["*"] = "clip.exe",
 		},
 		paste = {
-			["+"] = "powershell.exe -NoProfile -Command Get-Clipboard",
-			["*"] = "powershell.exe -NoProfile -Command Get-Clipboard",
+			["+"] = "powershell.exe -NoProfile -Command Get-Clipboard | iconv -f utf-16le -t utf-8 | tr -d '\\r'",
+			["*"] = "powershell.exe -NoProfile -Command Get-Clipboard | iconv -f utf-16le -t utf-8 | tr -d '\\r'",
 		},
 		cache_enabled = 0,
 	}
