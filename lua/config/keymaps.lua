@@ -40,6 +40,6 @@ vim.keymap.set("v", "<leader>tt", [[: !xargs -I {} ts "{}"<CR>]], { desc = "Tran
 
 -- Undotree (Neovim 0.12+ built-in)
 vim.keymap.set("n", "<leader>u", function()
-  pcall(vim.cmd, "packadd nvim.undotree")
-  require("undotree").open()
+	pcall(vim.cmd, "packadd nvim.undotree")
+	require("undotree").open()
 end, { desc = "Open undotree" })
