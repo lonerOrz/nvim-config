@@ -1,7 +1,9 @@
 return {
 	"cordx56/rustowl",
+	-- Install rustowl manually. If you prefer `cargo binstall rustowl`,
+	-- install cargo-binstall first with `cargo install cargo-binstall`.
+	enabled = vim.fn.executable("rustowl") == 1,
 	version = "*", -- Latest stable version
-	build = "cargo binstall rustowl",
 	lazy = false, -- This plugin is already lazy
 	opts = {
 		client = {

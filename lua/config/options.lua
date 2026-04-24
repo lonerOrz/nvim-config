@@ -46,9 +46,6 @@ vim.wo.wrap = false -- 禁用自动换行
 
 vim.opt.termguicolors = true -- 使用 24-bit RGB 色彩
 
--- 可以选择在其他地方添加打开浮窗的配置
-vim.diagnostic.open_float(nil, { focusable = true }) -- 默认打开浮窗并聚焦
-
 -- undo 持久化
 vim.opt.undofile = true
 vim.opt.undodir = vim.fn.stdpath("state") .. "/undo"
@@ -75,9 +72,6 @@ vim.o.foldenable = true
 vim.o.foldcolumn = "1"
 vim.o.foldlevel = 99
 vim.o.foldlevelstart = 99
--- 启用 Treesitter 折叠，折叠方法使用 expr，foldexpr 调用 treesitter 的折叠表达式
-vim.o.foldmethod = "expr"
-vim.o.foldexpr = "nvim_treesitter#foldexpr()"
 -- 更安全地提取节点文本
 local function get_node_text_safe(node, bufnr)
 	local start_row, start_col, end_row, end_col = node:range()
@@ -94,7 +88,6 @@ end
 
 function _G.CustomFoldText()
 	local ts = vim.treesitter
-	local ts_utils = require("nvim-treesitter.ts_utils")
 	local start_line = vim.v.foldstart
 	local end_line = vim.v.foldend
 	local folded_lines = end_line - start_line + 1
@@ -150,7 +143,6 @@ vim.opt.foldtext = "v:lua.CustomFoldText()"
 
 vim.env.PATH = vim.env.PATH .. ":/bin"
 
--- windows 剪切板
 local is_wsl = vim.fn.has("wsl") == 1
 	or vim.env.WSL_DISTRO_NAME ~= nil
 	or (vim.uv.os_uname().release or ""):match("Microsoft") ~= nil
