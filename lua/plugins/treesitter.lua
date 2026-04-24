@@ -1,8 +1,10 @@
 return {
 	{
 		"nvim-treesitter/nvim-treesitter",
+		branch = "main",
 		lazy = false,
 		build = ":TSUpdate",
+
 		opts = {
 			ensure_installed = {
 				"bash",
@@ -35,35 +37,59 @@ return {
 				"vim",
 				"vimdoc",
 				"yaml",
+				"rust",
 			},
-			sync_install = false,
-			auto_install = true,
 		},
-		config = function(_, opts)
-			local ts = require("nvim-treesitter.configs")
 
-			-- use nvim-treesitter.configs.setup() 启用模块
+		config = function(_, opts)
+			local ts = require("nvim-treesitter")
+
+			-- =========================
+			-- Basic setup using the new API
+			-- =========================
 			ts.setup({
-				ensure_installed = opts.ensure_installed,
-				sync_install = opts.sync_install,
-				auto_install = opts.auto_install,
-				highlight = { enable = true },
-				indent = { enable = true },
+				install_dir = vim.fn.stdpath("data") .. "/site",
 			})
 
-			-- custom fold
+			-- =========================
+			-- Install parsers asynchronously to avoid UI blocking
+			-- =========================
+			vim.schedule(function()
+				ts.install(opts.ensure_installed)
+			end)
+
+			-- =========================
+			-- Enable Treesitter and configure folding
+			-- =========================
 			local group = vim.api.nvim_create_augroup("UserTreesitter", { clear = true })
+
 			vim.api.nvim_create_autocmd("FileType", {
 				group = group,
 				callback = function(args)
-					local ft = vim.bo[args.buf].filetype
+					local bufnr = args.buf
+					local ft = vim.bo[bufnr].filetype
 
-					if ft == "" or ft == "help" then
+					-- Skip special buffers
+					if ft == "" or ft == "help" or vim.bo[bufnr].buftype ~= "" then
 						return
 					end
 
-					vim.opt_local.foldmethod = "expr"
-					vim.opt_local.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+					-- Start Treesitter for this buffer
+					pcall(vim.treesitter.start, bufnr)
+
+					-- Delay execution and safely bind window to avoid "Invalid window id"
+					vim.schedule(function()
+						if not vim.api.nvim_buf_is_valid(bufnr) then
+							return
+						end
+
+						for _, win in ipairs(vim.api.nvim_list_wins()) do
+							if vim.api.nvim_win_is_valid(win) and vim.api.nvim_win_get_buf(win) == bufnr then
+								vim.wo[win].foldmethod = "expr"
+								vim.wo[win].foldexpr = "v:lua.vim.treesitter.foldexpr()"
+							end
+						end
+					end)
 				end,
 			})
 		end,
