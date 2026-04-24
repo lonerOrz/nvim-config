@@ -16,10 +16,11 @@ return {
 		dependencies = {
 			"nvim-tree/nvim-web-devicons",
 			"AndreM222/copilot-lualine",
+			"folke/trouble.nvim",
 		},
 		opts = {
 			options = {
-				theme = "catppuccin",
+				theme = "catppuccin-mocha",
 				-- theme = "base16",
 				always_divide_middle = false,
 				-- component_separators = { left = "", right = "" },
@@ -33,23 +34,32 @@ return {
 				lualine_y = { "encoding", "fileformat", "filetype", "progress" },
 				lualine_z = { "location" },
 			},
-			-- winbar 交由 lspsaga 来显示 lsp 相关
-			-- winbar = {
-			--   lualine_a = {},
-			--   lualine_b = {
-			--     { function() return " " end, color = 'Comment'},
-			--   },
-			--   lualine_x = {
-			--     "lsp_status"
-			--   }
-			-- },
-			-- inactive_winbar = {
-			--   -- Always show winbar
-			--   lualine_b = { function() return " " end },
-			-- },
+			winbar = {
+				lualine_a = {},
+				lualine_b = {},
+				lualine_c = {},
+				lualine_x = {},
+				lualine_y = {},
+				lualine_z = {},
+			},
+			inactive_winbar = {
+				lualine_a = {},
+				lualine_b = {},
+				lualine_c = {},
+				lualine_x = {},
+				lualine_y = {},
+				lualine_z = {},
+			},
 		},
 		config = function(_, opts)
 			local theme = require("catppuccin.palettes").get_palette("mocha")
+			local symbols = require("trouble").statusline({
+				mode = "lsp_document_symbols",
+				groups = {},
+				title = false,
+				filter = { range = true },
+				format = "{kind_icon}{symbol.name:Normal}",
+			})
 			-- local theme = require("base16-colorscheme").colors
 
 			local function show_macro_recording()
@@ -87,6 +97,14 @@ return {
 
 			table.insert(opts.sections.lualine_x, 1, macro_recording)
 			table.insert(opts.sections.lualine_c, copilot)
+			table.insert(opts.winbar.lualine_c, 1, {
+				symbols.get,
+				cond = symbols.has,
+			})
+			table.insert(opts.inactive_winbar.lualine_c, 1, {
+				symbols.get,
+				cond = symbols.has,
+			})
 
 			require("lualine").setup(opts)
 		end,

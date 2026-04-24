@@ -1,7 +1,4 @@
 return {
-	-- =========================
-	-- Treesitter
-	-- =========================
 	{
 		"nvim-treesitter/nvim-treesitter",
 		ft = "rust",
@@ -11,24 +8,17 @@ return {
 		opts_extend = { "ensure_installed" },
 	},
 
-	-- =========================
-	-- Formatter (rustfmt via none-ls)
-	-- =========================
 	{
-		"nvimtools/none-ls.nvim",
+		"neovim/nvim-lspconfig",
 		ft = "rust",
-		event = { "BufReadPre", "BufNewFile" },
-
 		opts = function(_, opts)
-			local null_ls = require("null-ls")
-
-			opts.sources = vim.list_extend(opts.sources or {}, {
-				null_ls.builtins.formatting.rustfmt,
+			opts.servers.rust_analyzer = vim.tbl_deep_extend("force", opts.servers.rust_analyzer or {}, {
+				filetypes = { "rust" },
+				-- Rust formatting is provided explicitly by rust-analyzer.
+				settings = {
+					["rust-analyzer"] = {},
+				},
 			})
-
-			return opts
 		end,
-
-		opts_extend = { "sources" },
 	},
 }

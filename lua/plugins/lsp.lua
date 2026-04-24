@@ -28,7 +28,7 @@ return {
 	},
 	{
 		"williamboman/mason-lspconfig.nvim",
-		event = { "BufReadPre", "BufNewFile" }, -- 延迟加载
+		event = { "BufReadPre", "BufNewFile" },
 		dependencies = {
 			{ "mason-org/mason.nvim", opts = {} },
 			"neovim/nvim-lspconfig",
@@ -45,13 +45,6 @@ return {
 		dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" },
 		config = function()
 			require("lspsaga").setup({
-				-- Winbar 显示配置
-				symbol_in_winbar = {
-					enable = true,
-					show_file = true,
-					separator = "  ",
-				},
-
 				-- Lightbulb 配置，控制 code action 提示
 				lightbulb = {
 					enable = true, -- 启用 lightbulb
@@ -85,9 +78,6 @@ return {
 
 			--- LSP 服务器配置（可被其他模块扩展，如 nixd）
 			servers = {},
-
-			--- LspAttach keymaps
-			on_attach = true,
 		},
 
 		config = function(_, opts)
@@ -108,32 +98,25 @@ return {
 			-- 保存 capabilities 到全局变量以供其他模块使用
 			_G.lsp_capabilities = capabilities
 
-			-- mason-lspconfig setup + handlers
 			local mason_lspconfig = require("mason-lspconfig")
+			local mason_mappings = mason_lspconfig.get_mappings()
 			mason_lspconfig.setup({
 				handlers = {
 					function(server_name)
 						local server_opts = vim.tbl_deep_extend("force", {
 							capabilities = capabilities,
 						}, opts.servers[server_name] or {})
-						-- 使用 vim.lsp.config() 设置服务器配置
 						vim.lsp.config(server_name, server_opts)
-						-- 然后启用服务器
-						vim.lsp.enable(server_name)
 					end,
 				},
 			})
 
-			-- 为所有配置的服务器设置配置（包括非 mason 服务器）
 			for server_name, server_opts in pairs(opts.servers) do
-				if server_opts then
-					-- 合并配置与全局 capabilities
+				if server_opts and not mason_mappings.lspconfig_to_package[server_name] then
 					local final_opts = vim.tbl_deep_extend("force", {
 						capabilities = capabilities,
 					}, server_opts or {})
-					-- 设置服务器配置
 					vim.lsp.config(server_name, final_opts)
-					-- 启用服务器
 					vim.lsp.enable(server_name)
 				end
 			end
@@ -142,10 +125,6 @@ return {
 			vim.api.nvim_create_autocmd("LspAttach", {
 				group = vim.api.nvim_create_augroup("UserLspConfig", {}),
 				callback = function(ev)
-					print("LSP attached to buffer " .. ev.buf) -- 打印 buffer ID
-					print("Filetype: " .. vim.bo.filetype) -- 打印当前文件类型
-					vim.diagnostic.open_float(nil, { focusable = true })
-
 					-- 🧠 Hover Doc
 					vim.keymap.set("n", "K", "<CMD>Lspsaga hover_doc<CR>", {
 						buffer = ev.buf,
@@ -192,7 +171,7 @@ return {
 					vim.keymap.set("n", "<leader>wa", vim.lsp.buf.add_workspace_folder, { buffer = ev.buf })
 					vim.keymap.set("n", "<leader>wr", vim.lsp.buf.remove_workspace_folder, { buffer = ev.buf })
 					vim.keymap.set("n", "<leader>wl", function()
-						print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+						vim.notify(vim.inspect(vim.lsp.buf.list_workspace_folders()))
 					end, { buffer = ev.buf })
 				end,
 			})
@@ -286,30 +265,6 @@ return {
 		-- lualine 的显示
 		config = function(_, opts)
 			require("trouble").setup(opts)
-			local symbols = require("trouble").statusline({
-				mode = "lsp_document_symbols",
-				groups = {},
-				title = false,
-				filter = { range = true },
-				format = "{kind_icon}{symbol.name:Normal}",
-				-- The following line is needed to fix the background color
-				-- Set it to the lualine section you want to use
-				-- hl_group = "lualine_b_normal",
-			})
-
-			-- Insert status into lualine safely
-			local lualine = require("lualine")
-			local config = lualine.get_config()
-
-			config.winbar = config.winbar or {}
-			config.winbar.lualine_b = config.winbar.lualine_b or {}
-
-			table.insert(config.winbar.lualine_b, 1, {
-				symbols.get,
-				cond = symbols.has,
-			})
-
-			lualine.setup(config)
 		end,
 	},
 }

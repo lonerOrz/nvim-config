@@ -1,13 +1,31 @@
-vim.lsp.enable("lua_ls")
-
 return {
 	{
 		"nvim-treesitter/nvim-treesitter",
-		optional = true, -- 只有设置过nvim-treesitter才会加载
+		optional = true,
 		opts = {
 			ensure_installed = { "lua" },
 		},
-		opts_extend = { "ensure_installed" }, -- 以列表形式扩展opts的ensure_installed
+		opts_extend = { "ensure_installed" },
+	},
+
+	{
+		"neovim/nvim-lspconfig",
+		ft = "lua",
+		opts = function(_, opts)
+			opts.servers.lua_ls = vim.tbl_deep_extend("force", opts.servers.lua_ls or {}, {
+				filetypes = { "lua" },
+				settings = {
+					Lua = {
+						completion = {
+							callSnippet = "Replace",
+						},
+						diagnostics = {
+							globals = { "vim" },
+						},
+					},
+				},
+			})
+		end,
 	},
 
 	{

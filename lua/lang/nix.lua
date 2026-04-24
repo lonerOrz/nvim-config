@@ -8,6 +8,7 @@ return {
 		},
 		opts_extend = { "ensure_installed" },
 	},
+
 	{
 		"nvimtools/none-ls.nvim",
 		ft = "nix",
