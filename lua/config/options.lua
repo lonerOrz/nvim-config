@@ -150,14 +150,26 @@ local is_wsl = vim.fn.has("wsl") == 1
 -- Only bridge to the Windows clipboard when running inside WSL.
 if is_wsl then
 	vim.g.clipboard = {
-		name = "wsl-clipboard",
+		name = "win32yank",
+		-- copy = {
+		-- 	["+"] = "clip.exe",
+		-- 	["*"] = "clip.exe",
+		-- },
+		-- paste = {
+		-- 	["+"] = "powershell.exe -NoProfile -Command Get-Clipboard | iconv -f utf-16le -t utf-8 | tr -d '\\r'",
+		-- 	["*"] = "powershell.exe -NoProfile -Command Get-Clipboard | iconv -f utf-16le -t utf-8 | tr -d '\\r'",
+		-- },
+
+		-- Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+		-- irm get.scoop.sh | iex
+		-- scoop install win32yank
 		copy = {
-			["+"] = "clip.exe",
-			["*"] = "clip.exe",
+			["+"] = "win32yank.exe -i --crlf",
+			["*"] = "win32yank.exe -i --crlf",
 		},
 		paste = {
-			["+"] = "powershell.exe -NoProfile -Command Get-Clipboard | iconv -f utf-16le -t utf-8 | tr -d '\\r'",
-			["*"] = "powershell.exe -NoProfile -Command Get-Clipboard | iconv -f utf-16le -t utf-8 | tr -d '\\r'",
+			["+"] = "win32yank.exe -o --lf",
+			["*"] = "win32yank.exe -o --lf",
 		},
 		cache_enabled = 0,
 	}
