@@ -2,9 +2,9 @@ return {
 	"nvimtools/none-ls.nvim",
 	event = { "BufReadPre", "BufNewFile" },
 	dependencies = { "nvim-lua/plenary.nvim" },
-	opts = function(_, user_opts)
+	opts = function(_, opts)
 		local null_ls = require("null-ls")
-		local format_augroup = vim.api.nvim_create_augroup("LspFormatting", {})
+		local lsp_format_group = vim.api.nvim_create_augroup("LspFormatting", {})
 
 		local function get_format_clients(bufnr)
 			return vim.tbl_filter(function(client)
@@ -51,9 +51,9 @@ return {
 		vim.g.enable_autoformat = load_toggle_state()
 
 		if not vim.g.format_lsp_attach_initialized then
-			local format_keymap_group = vim.api.nvim_create_augroup("FormatKeymaps", { clear = true })
+			local lsp_attach_group = vim.api.nvim_create_augroup("FormatKeymaps", { clear = true })
 			vim.api.nvim_create_autocmd("LspAttach", {
-				group = format_keymap_group,
+				group = lsp_attach_group,
 				callback = function(args)
 					local client = vim.lsp.get_client_by_id(args.data.client_id)
 					if client and client:supports_method("textDocument/formatting") then
@@ -61,9 +61,9 @@ return {
 							format_buffer(args.buf)
 						end, { buffer = args.buf, desc = "Format buffer with LSP" })
 
-						vim.api.nvim_clear_autocmds({ group = format_augroup, buffer = args.buf })
+						vim.api.nvim_clear_autocmds({ group = lsp_format_group, buffer = args.buf })
 						vim.api.nvim_create_autocmd("BufWritePre", {
-							group = format_augroup,
+							group = lsp_format_group,
 							buffer = args.buf,
 							callback = function()
 								if vim.g.enable_autoformat then
@@ -102,7 +102,7 @@ return {
 		}
 
 		-- lazy 会自动合并多个 opts.sources，这里我们显式处理合并
-		local merged_sources = vim.list_extend(default_sources, user_opts.sources or {})
+		local merged_sources = vim.list_extend(default_sources, opts.sources or {})
 
 		return {
 			sources = merged_sources,
