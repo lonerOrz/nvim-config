@@ -130,9 +130,7 @@ return {
 						return { "lazydev", "copilot", "lsp", "path", "snippets", "buffer" }
 					end
 				end,
-				per_filetype = {
-					codecompanion = { "codecompanion" },
-				},
+				per_filetype = {},
 
 				providers = {
 					lazydev = {

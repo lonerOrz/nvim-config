@@ -11,6 +11,9 @@ return {
 			},
 		},
 	},
+	-- 底部状态栏 (lualine)
+	-- lualine_a (左下角): 模式 | lualine_b (左侧中): 分支/diff/诊断 | lualine_c (左侧): LSP状态
+	-- lualine_x (右侧中): 宏录制 | lualine_y (右侧中): 编码/格式/类型/进度 | lualine_z (右下角): 位置
 	{
 		"nvim-lualine/lualine.nvim",
 		dependencies = {
@@ -21,10 +24,7 @@ return {
 		opts = {
 			options = {
 				theme = "catppuccin-mocha",
-				-- theme = "base16",
 				always_divide_middle = false,
-				-- component_separators = { left = "", right = "" },
-				-- section_separators = { left = "", right = "" },
 			},
 			sections = {
 				lualine_a = { "mode" },
@@ -33,22 +33,6 @@ return {
 				lualine_x = {},
 				lualine_y = { "encoding", "fileformat", "filetype", "progress" },
 				lualine_z = { "location" },
-			},
-			winbar = {
-				lualine_a = {},
-				lualine_b = {},
-				lualine_c = {},
-				lualine_x = {},
-				lualine_y = {},
-				lualine_z = {},
-			},
-			inactive_winbar = {
-				lualine_a = {},
-				lualine_b = {},
-				lualine_c = {},
-				lualine_x = {},
-				lualine_y = {},
-				lualine_z = {},
 			},
 		},
 		config = function(_, opts)
@@ -60,7 +44,6 @@ return {
 				filter = { range = true },
 				format = "{kind_icon}{symbol.name:Normal}",
 			})
-			-- local theme = require("base16-colorscheme").colors
 
 			local function show_macro_recording()
 				local recording_register = vim.fn.reg_recording()
@@ -97,19 +80,13 @@ return {
 
 			table.insert(opts.sections.lualine_x, 1, macro_recording)
 			table.insert(opts.sections.lualine_c, copilot)
-			table.insert(opts.winbar.lualine_c, 1, {
-				symbols.get,
-				cond = symbols.has,
-			})
-			table.insert(opts.inactive_winbar.lualine_c, 1, {
-				symbols.get,
-				cond = symbols.has,
-			})
-
+			-- 顶部 winbar: 左上角路径+LSP符号由 lspsaga-nvim 自动设置
+			-- 不手动插入 winbar 组件，避免闪烁
 			require("lualine").setup(opts)
 		end,
 	},
 
+	-- 顶部缓冲区标签栏 (barbar)
 	{
 		"romgrk/barbar.nvim",
 		version = "^1.0.0", -- optional: only update when a new 1.x version is released
@@ -142,29 +119,10 @@ return {
 			-- Automatically hide the tabline when there are this many buffers left.
 			-- Set to any value >=0 to enable.
 			auto_hide = 1,
-
-			-- Set the filetypes which barbar will offset itself for
-			sidebar_filetypes = {
-				NvimTree = true, -- Use the default values: {event = 'BufWinLeave', text = '', align = 'left'}
-			},
 		},
 	},
 
-	{
-		"nvim-tree/nvim-tree.lua",
-		version = "*",
-		dependencies = {
-			"nvim-tree/nvim-web-devicons",
-		},
-		keys = {
-			{ "<leader>e", "<CMD>NvimTreeToggle<CR>", mode = { "n" }, desc = "[NvimTree] Toggle NvimTree" },
-		},
-		opts = {
-			hijack_netrw = true,
-			open_on_setup = true,
-		},
-	},
-
+	-- 彩虹括号 (在编辑区域内显示)
 	{
 		"HiPhish/rainbow-delimiters.nvim",
 		main = "rainbow-delimiters.setup",
@@ -172,6 +130,7 @@ return {
 		opts = {},
 	},
 
+	-- 底部命令行/消息/弹出框 (noice)
 	{
 		"folke/noice.nvim",
 		event = "VeryLazy",
@@ -216,6 +175,7 @@ return {
 		},
 	},
 
+	-- 左侧diff标记 (mini.diff)
 	{
 		"echasnovski/mini.diff",
 		event = "VeryLazy",
@@ -223,10 +183,10 @@ return {
 		opts = {},
 	},
 
+	-- 按键提示弹窗 (which-key，通常在屏幕底部或中间)
 	{
 		"folke/which-key.nvim",
 		event = "VeryLazy",
-		dependencies = { "nvim-tree/nvim-web-devicons" },
 		opts = {
 			---@type false | "classic" | "modern" | "helix"
 			preset = "helix",
@@ -260,6 +220,7 @@ return {
 		},
 	},
 
+	-- 多功能UI组件 (snacks: 左侧状态列/浮动终端/通知/选择器等)
 	{
 		"folke/snacks.nvim",
 		priority = 1000,
