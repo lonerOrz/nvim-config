@@ -147,8 +147,26 @@ local is_wsl = vim.fn.has("wsl") == 1
 	or vim.env.WSL_DISTRO_NAME ~= nil
 	or (vim.uv.os_uname().release or ""):match("Microsoft") ~= nil
 
+local is_ssh = vim.env.SSH_TTY ~= nil
+
+-- SSH 用 OSC52
+if is_ssh then
+	local osc52 = require("vim.ui.clipboard.osc52")
+
+	vim.g.clipboard = {
+		name = "OSC 52",
+		copy = {
+			["+"] = osc52.copy("+"),
+			["*"] = osc52.copy("*"),
+		},
+		paste = {
+			["+"] = osc52.paste("+"),
+			["*"] = osc52.paste("*"),
+		},
+	}
+
 -- Only bridge to the Windows clipboard when running inside WSL.
-if is_wsl then
+elseif is_wsl then
 	vim.g.clipboard = {
 		name = "win32yank",
 		-- copy = {
