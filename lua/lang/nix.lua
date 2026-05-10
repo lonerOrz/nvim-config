@@ -37,6 +37,10 @@ return {
 			opts.servers.nixd = {
 				cmd = { "nixd", "--inlay-hints", "--semantic-tokens" },
 				root_markers = { "flake.nix", ".git" },
+				on_attach = function()
+					-- Automatically enable inlay hints for the current buffer
+					vim.lsp.inlay_hint.enable(true)
+				end,
 				settings = {
 					nixd = {
 						nixpkgs = {
@@ -45,7 +49,7 @@ return {
 						formatting = { command = { "nixfmt" } },
 						options = {
 							nixos = {
-								expr = '(builtins.getFlake ("git+file://" + toString ./.)).nixosConfigurations.loneros.options',
+								expr = "(builtins.getFlake (toString ./.)).nixosConfigurations.loneros.options",
 							},
 						},
 					},
