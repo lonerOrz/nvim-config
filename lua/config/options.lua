@@ -149,12 +149,11 @@ local is_wsl = vim.fn.has("wsl") == 1
 
 local is_ssh = vim.env.SSH_TTY ~= nil
 
--- SSH 用 OSC52
 if is_ssh then
 	local osc52 = require("vim.ui.clipboard.osc52")
 
 	vim.g.clipboard = {
-		name = "OSC 52",
+		name = "OSC52",
 		copy = {
 			["+"] = osc52.copy("+"),
 			["*"] = osc52.copy("*"),
@@ -164,30 +163,16 @@ if is_ssh then
 			["*"] = osc52.paste("*"),
 		},
 	}
-
--- Only bridge to the Windows clipboard when running inside WSL.
-elseif is_wsl then
+elseif is_wsl and vim.fn.executable("wl-copy") == 1 then
 	vim.g.clipboard = {
-		name = "win32yank",
-		-- copy = {
-		-- 	["+"] = "clip.exe",
-		-- 	["*"] = "clip.exe",
-		-- },
-		-- paste = {
-		-- 	["+"] = "powershell.exe -NoProfile -Command Get-Clipboard | iconv -f utf-16le -t utf-8 | tr -d '\\r'",
-		-- 	["*"] = "powershell.exe -NoProfile -Command Get-Clipboard | iconv -f utf-16le -t utf-8 | tr -d '\\r'",
-		-- },
-
-		-- Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
-		-- irm get.scoop.sh | iex
-		-- scoop install win32yank
+		name = "wslg",
 		copy = {
-			["+"] = "win32yank.exe -i --crlf",
-			["*"] = "win32yank.exe -i --crlf",
+			["+"] = { "wl-copy" },
+			["*"] = { "wl-copy" },
 		},
 		paste = {
-			["+"] = "win32yank.exe -o --lf",
-			["*"] = "win32yank.exe -o --lf",
+			["+"] = { "wl-paste", "--no-newline" },
+			["*"] = { "wl-paste", "--no-newline" },
 		},
 		cache_enabled = 0,
 	}
