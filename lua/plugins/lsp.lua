@@ -1,7 +1,7 @@
 return {
 	-- Mason Dependency Manager
 	{
-		"williamboman/mason.nvim",
+		"mason-org/mason.nvim",
 		cmd = { "Mason", "MasonInstall", "MasonUpdate" },
 		opts = {
 			ensure_installed = { "lua-language-server", "rust-analyzer" },
@@ -27,7 +27,7 @@ return {
 
 	-- Mason LSPConfig Integration
 	{
-		"williamboman/mason-lspconfig.nvim",
+		"mason-org/mason-lspconfig.nvim",
 		event = { "BufReadPre", "BufNewFile" },
 		dependencies = {
 			{ "mason-org/mason.nvim", opts = {} },
@@ -55,7 +55,7 @@ return {
 	{
 		"neovim/nvim-lspconfig",
 		event = { "BufReadPre", "BufNewFile" },
-		dependencies = { "saghen/blink.cmp", "williamboman/mason.nvim" },
+		dependencies = { "saghen/blink.cmp", "mason-org/mason.nvim" },
 		opts = {
 			diagnostic = {
 				underline = true,
@@ -120,7 +120,6 @@ return {
 					-- Go-to Navigation (g)
 					vim.keymap.set("n", "gd", vim.lsp.buf.definition, { buffer = ev.buf, desc = "Go to definition" })
 					vim.keymap.set("n", "gr", vim.lsp.buf.references, { buffer = ev.buf, desc = "Find references" })
-					vim.keymap.set("n", "<C-o>", "<C-o>", { buffer = ev.buf, desc = "Jump back" })
 
 					-- Code Actions & Refactoring (<leader>c)
 					vim.keymap.set("n", "<leader>cr", vim.lsp.buf.rename, { buffer = ev.buf, desc = "Rename symbol" })
