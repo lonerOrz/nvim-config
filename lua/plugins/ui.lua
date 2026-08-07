@@ -77,12 +77,57 @@ return {
 		end,
 	},
 
-	-- Buffer Tabline (Barbar)
+	-- Git Signs & Inline Diff Integration (Gitsigns)
+	{
+		"lewis6991/gitsigns.nvim",
+		event = { "BufReadPre", "BufNewFile" },
+		opts = {
+			signs = {
+				add = { text = "▎" },
+				change = { text = "▎" },
+				delete = { text = "▎" },
+				topdelete = { text = "▔" },
+				changedelete = { text = "▎" },
+				untracked = { text = "┆" },
+			},
+			on_attach = function(buffer)
+				local gs = require("gitsigns")
+				local function map(mode, l, r, desc)
+					vim.keymap.set(mode, l, r, { buffer = buffer, desc = desc })
+				end
+
+				-- Hunk Navigation
+				map("n", "]h", function()
+					if vim.wo.diff then
+						vim.cmd.normal({ "]c", bang = true })
+					else
+						gs.nav_hunk("next")
+					end
+				end, "Next Git Hunk")
+
+				map("n", "[h", function()
+					if vim.wo.diff then
+						vim.cmd.normal({ "[c", bang = true })
+					else
+						gs.nav_hunk("prev")
+					end
+				end, "Prev Git Hunk")
+
+				-- Actions under <leader>l (Git & Lazygit Group)
+				map("n", "<leader>lh", gs.preview_hunk_inline, "Preview Hunk Inline")
+				map("n", "<leader>lb", function()
+					gs.blame_line({ full = true })
+				end, "Blame Line")
+				map("n", "<leader>lw", gs.toggle_word_diff, "Toggle Inline Word Diff")
+			end,
+		},
+	},
+
+	-- Buffer Tabline (Barbar - Clean and Independent)
 	{
 		"romgrk/barbar.nvim",
 		version = "^1.0.0",
 		dependencies = {
-			"lewis6991/gitsigns.nvim",
 			"nvim-tree/nvim-web-devicons",
 		},
 		init = function()
@@ -126,11 +171,6 @@ return {
 					[vim.diagnostic.severity.INFO] = { enabled = true, icon = "󰋼 " },
 					[vim.diagnostic.severity.HINT] = { enabled = true, icon = "󰌵 " },
 				},
-				gitsigns = {
-					added = { enabled = true, icon = "+" },
-					changed = { enabled = true, icon = "~" },
-					deleted = { enabled = true, icon = "-" },
-				},
 			},
 		},
 	},
@@ -169,14 +209,6 @@ return {
 				{ filter = { event = "msg_show", kind = "" }, opts = { skip = true } },
 			},
 		},
-	},
-
-	-- Git Diff Signs
-	{
-		"echasnovski/mini.diff",
-		event = "VeryLazy",
-		version = "*",
-		opts = {},
 	},
 
 	-- Keymap Popup Hints (Which-Key)
@@ -518,13 +550,6 @@ return {
 					require("snacks").lazygit()
 				end,
 				desc = "Open Lazygit",
-			},
-			{
-				"<leader>lb",
-				function()
-					require("snacks").git.blame_line()
-				end,
-				desc = "Git blame line",
 			},
 
 			-- Code & Refactor Tools (<leader>c)
