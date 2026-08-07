@@ -47,7 +47,6 @@ return {
 			require("lspsaga").setup({
 				lightbulb = { enable = true, sign = false },
 			})
-			vim.fn.sign_unplace("LspsagaLightBulb")
 		end,
 	},
 
@@ -92,6 +91,7 @@ return {
 							opts.servers[server_name] or {}
 						)
 						vim.lsp.config(server_name, server_opts)
+						vim.lsp.enable(server_name)
 					end,
 				},
 			})

@@ -13,21 +13,11 @@ return {
 	{
 		"nvimtools/none-ls.nvim",
 		ft = "nix",
-		opts = {
-			sources = {
-				{
-					name = "nixfmt_rfc",
-					method = require("null-ls").methods.FORMATTING,
-					filetypes = { "nix" },
-					generator = require("null-ls.helpers").formatter_factory({
-						command = "nixfmt",
-						args = {},
-						to_stdin = true,
-						ignore_stderr = true,
-					}),
-				},
-			},
-		},
+		opts = function(_, opts)
+			local null_ls = require("null-ls")
+			opts.sources = opts.sources or {}
+			table.insert(opts.sources, null_ls.builtins.formatting.nixfmt)
+		end,
 		opts_extend = { "sources" },
 	},
 
