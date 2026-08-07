@@ -4,7 +4,7 @@ return {
 		"mason-org/mason.nvim",
 		cmd = { "Mason", "MasonInstall", "MasonUpdate" },
 		opts = {
-			ensure_installed = { "lua-language-server", "rust-analyzer" },
+			ensure_installed = {},
 		},
 		config = function(_, opts)
 			require("mason").setup(opts)
@@ -70,6 +70,11 @@ return {
 		config = function(_, opts)
 			vim.diagnostic.config(opts.diagnostic)
 
+			pcall(vim.keymap.del, "n", "grn")
+			pcall(vim.keymap.del, "n", "gra")
+			pcall(vim.keymap.del, "n", "grr")
+			pcall(vim.keymap.del, "n", "gri")
+
 			vim.cmd([[
       highlight! DiagnosticUnderlineError guisp=#FF0000 gui=undercurl
       highlight! DiagnosticVirtualTextError guifg=#FF4C4C
@@ -78,7 +83,6 @@ return {
 
 			local blink_cmp = require("blink.cmp")
 			local capabilities = blink_cmp.get_lsp_capabilities()
-			_G.lsp_capabilities = capabilities
 
 			local mason_lspconfig = require("mason-lspconfig")
 			local mason_mappings = mason_lspconfig.get_mappings()

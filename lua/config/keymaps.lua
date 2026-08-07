@@ -24,10 +24,12 @@ vim.keymap.set("x", "<", "<gv", { noremap = true, silent = true })
 
 -- Utilities
 vim.keymap.set("v", "<leader>tt", [[: !xargs -I {} ts "{}"<CR>]], { desc = "Translate selection" })
+
+-- Neovim 0.12 Native Undotree
 vim.keymap.set("n", "<leader>u", function()
 	pcall(vim.cmd, "packadd nvim.undotree")
 	require("undotree").open()
-end, { desc = "Open undotree" })
+end, { desc = "Open native undotree" })
 
 -- Universal Floating Preview Window Scroller
 local function scroll_floating_preview(lines)

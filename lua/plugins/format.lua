@@ -26,9 +26,6 @@ return {
 		opts = {
 			-- Default formatters for config, markup, and shell scripts
 			formatters_by_ft = {
-				sh = { "shfmt" },
-				bash = { "shfmt" },
-				zsh = { "shfmt" },
 				toml = { "taplo" },
 				xml = { "xmlformatter" },
 				json = { "prettier" },
