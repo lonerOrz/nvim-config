@@ -624,11 +624,6 @@ return {
 					Snacks.toggle.profiler():map("<leader>tpp")
 					Snacks.toggle.profiler_highlights():map("<leader>tph")
 
-					vim.keymap.del("n", "grn")
-					vim.keymap.del("n", "gra")
-					vim.keymap.del("n", "grr")
-					vim.keymap.del("n", "gri")
-
 					vim.api.nvim_set_hl(0, "SnacksPickerListCursorLine", { bg = "#313244" })
 				end,
 			})

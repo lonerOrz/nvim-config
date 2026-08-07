@@ -50,38 +50,33 @@ return {
 			opts.sections = opts.sections or {}
 			opts.sections.lualine_c = opts.sections.lualine_c or {}
 
-			-- Dynamic status string
-			local function get_codeium_status()
+			local function get_codeium_state()
 				local state = "idle"
 				pcall(function()
 					state = require("codeium.virtual_text").status().state
 				end)
-
-				if state == "waiting" then
-					return " Waiting..."
-				end
-				return " Codeium"
-			end
-
-			-- Dynamic status color
-			local function get_codeium_color()
-				local theme = require("catppuccin.palettes").get_palette("mocha")
-				local state = "idle"
-				pcall(function()
-					state = require("codeium.virtual_text").status().state
-				end)
-
-				if state == "waiting" then
-					return { fg = theme.peach }
-				elseif state == "completions" then
-					return { fg = theme.green }
-				end
-				return { fg = theme.mauve }
+				return state
 			end
 
 			table.insert(opts.sections.lualine_c, {
-				get_codeium_status,
-				color = get_codeium_color,
+				function()
+					local state = get_codeium_state()
+					if state == "waiting" then
+						return " Waiting..."
+					end
+					return " Codeium"
+				end,
+				color = function()
+					local theme = require("catppuccin.palettes").get_palette("mocha")
+					local state = get_codeium_state()
+
+					if state == "waiting" then
+						return { fg = theme.peach }
+					elseif state == "completions" then
+						return { fg = theme.green }
+					end
+					return { fg = theme.mauve }
+				end,
 			})
 
 			return opts
