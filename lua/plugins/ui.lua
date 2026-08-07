@@ -133,12 +133,7 @@ return {
 				pinned = { filename = true, icon = "󰐃", devicon = true },
 				separator = { left = "▎", right = "" },
 				separator_at_end = false,
-				diagnostics = {
-					[vim.diagnostic.severity.ERROR] = { enabled = true, icon = "󰅚 " },
-					[vim.diagnostic.severity.WARN] = { enabled = true, icon = "󰀦 " },
-					[vim.diagnostic.severity.INFO] = { enabled = true, icon = "󰋼 " },
-					[vim.diagnostic.severity.HINT] = { enabled = true, icon = "󰌵 " },
-				},
+				diagnostics = false,
 			},
 		},
 	},
