@@ -1,28 +1,26 @@
 # 🧠 nvim-config
 
 > A modern, modular Neovim configuration powered by [lazy.nvim],
-> with full LSP support,
-> tree-sitter syntax,
-> Git integration,
-> and beautiful UI — tailored for Nix and beyond.
+> with full LSP support, Blink completion, Tree-sitter syntax,
+> Snacks suite, and Yazi terminal file manager.
 
 ![screenshot](.github/assets/show.png)
 
 ## ✨ Features
 
 - ⚙️ Modular plugin loading with `lazy.nvim`
-- 🧠 LSP support (e.g. `nixd`, `lua_ls`)
-- 🧹 Formatting via `nixfmt-rfc-style` and `none-ls`
-- 🔍 Fuzzy finder, file explorer, git integration
-- 🎨 Beautiful UI with Nerd Font and `catppuccin` colorscheme
-- 📝 Snippets, completion, Markdown preview
-- 📋 Session management and keybinding hints
+- 🧠 LSP support (`nixd`, `lua_ls`, `rust-analyzer`)
+- 🧹 Formatting via `stylua`, `black`, `prettier`, and `none-ls`
+- 🔍 Fast picker & file management (`snacks.picker`, `fzf-lua`, `yazi.nvim`)
+- 🎨 Beautiful UI with Nerd Font, `noice.nvim`, and `catppuccin` colorscheme
+- 📝 Modern completion powered by `blink.cmp` & GitHub Copilot
+- 📋 Session management (`auto-session`) and smart Keybinding hints (`which-key`)
 
 ## 🧰 Requirements
 
-- [Neovim](https://neovim.io/) >= 0.9
-- [`nixd`](https://github.com/nix-community/nixd)
-- [`nixfmt-rfc-style`](https://github.com/nix-community/nixfmt)
+- [Neovim](https://neovim.io/) >= 0.10
+- [`nixd`](https://github.com/nix-community/nixd) / [`nixfmt`](https://github.com/nix-community/nixfmt)
+- [Yazi](https://github.com/sxyazi/yazi) & [Lazygit](https://github.com/jesseduffield/lazygit)
 - [Nerd Font](https://www.nerdfonts.com/)
 
 ## 🚀 Installation
@@ -32,7 +30,7 @@ git clone https://github.com/lonerOrz/nvim-config.git ~/.config/nvim
 nvim
 ```
 
-首次启动时，`lazy.nvim` 会自动安装并拉取配置中定义的所有插件。你可以使用以下命令检查健康状态：
+Upon initial launch, `lazy.nvim` will automatically download and install all configured plugins. You can inspect system health using:
 
 ```vim
 :checkhealth
@@ -41,39 +39,40 @@ nvim
 ## 🔌 Plugin Categories
 
 - **Plugin management**: `lazy.nvim`
-- **UI**: `catppuccin`, `lualine`, `nvim-web-devicons`, `nui`, `neo-tree`, `which-key`
-- **LSP & Formatting**: `nvim-lspconfig`, `nixd`, `none-ls`, `lazydev`
-- **Completion & Snippets**: `nvim-cmp`, `LuaSnip`, `cmp_luasnip`
-- **Fuzzy finding**: `telescope.nvim`
-- **Git integration**: `lazygit.nvim`, `gitsigns.nvim`
-- **Productivity**: `auto-session`, `markview.nvim`
+- **UI & Dashboard**: `catppuccin`, `lualine`, `barbar.nvim`, `noice.nvim`, `snacks.nvim`, `which-key.nvim`
+- **LSP & Formatting**: `nvim-lspconfig`, `mason-org/mason.nvim`, `lspsaga.nvim`, `none-ls.nvim`, `lazydev.nvim`, `trouble.nvim`
+- **Completion & AI**: `blink.cmp`, `copilot.lua`, `blink-copilot`
+- **Fuzzy Finding & Tools**: `snacks.picker`, `fzf-lua`, `yazi.nvim`
+- **Git & Diff**: `mini.diff`, `gitsigns.nvim`, `snacks.lazygit`
+- **Productivity**: `auto-session`, `markview.nvim`, `flash.nvim`, `compile-mode.nvim`
 
-## 🎹 Key Bindings
+## 🎹 Key Bindings Summary
 
-| Shortcut     | Description      |
+| Shortcut | Description |
 | ------------ | ---------------- |
-| `<leader>ff` | Find file        |
-| `<leader>fg` | Live grep        |
-| `<leader>fb` | Buffer list      |
-| `<leader>ft` | Toggle file tree |
-| `<leader>gs` | Launch Lazygit   |
-| `<leader>ss` | Save session     |
-| `<leader>sl` | Load session     |
+| `<leader>sf` or `<leader><space>` | Find project files |
+| `<leader>sg` | Live grep project |
+| `<leader>sb` or `<leader>,` | List open buffers |
+| `<leader>ya` | Open Yazi file manager |
+| `<leader>lg` | Launch Lazygit |
+| `<leader>ps` | Search sessions |
+| `<leader>pr` | Restore session |
+| `<leader>bs` | Open Scratchpad |
+| `<leader>cf` | Format current buffer |
 
-完整快捷键可通过 `which-key` 弹出菜单查看。
+Full keymaps are interactively available via `which-key` (press `<leader>` and wait briefly).
 
 ## 📁 Project Structure
 
 ```txt
 .
-├── init.lua               # Entry point
+├── init.lua               # Entry point & environment setup
 ├── lazy-lock.json         # Plugin lockfile
 ├── lua/
 │   ├── colors/            # Theme & highlight config
-│   ├── config/            # Core settings, lazy setup
-│   ├── lang/              # LSP configurations
-│   ├── plugins/           # Plugin modules
-│   └── utils/             # Helper functions
+│   ├── config/            # Core settings, keymaps, lazy setup
+│   ├── lang/              # LSP & language-specific configurations
+│   └── plugins/           # Plugin modules
 ```
 
 ## 📄 License
@@ -84,5 +83,4 @@ This project is licensed under the [MIT License](LICENSE).
 
 - GitHub: [https://github.com/lonerOrz/nvim-config](https://github.com/lonerOrz/nvim-config)
 - Fonts: [https://www.nerdfonts.com](https://www.nerdfonts.com)
-- Formatter: [nixfmt-rfc-style](https://github.com/nix-community/nixfmt)
 - Colorscheme: [catppuccin/nvim](https://github.com/catppuccin/nvim)

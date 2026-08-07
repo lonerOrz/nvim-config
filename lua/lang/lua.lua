@@ -1,4 +1,5 @@
 return {
+	-- Treesitter Parser
 	{
 		"nvim-treesitter/nvim-treesitter",
 		optional = true,
@@ -8,28 +9,9 @@ return {
 		opts_extend = { "ensure_installed" },
 	},
 
+	-- Mason Packages (LSP & Formatter binaries)
 	{
-		"neovim/nvim-lspconfig",
-		ft = "lua",
-		opts = function(_, opts)
-			opts.servers.lua_ls = vim.tbl_deep_extend("force", opts.servers.lua_ls or {}, {
-				filetypes = { "lua" },
-				settings = {
-					Lua = {
-						completion = {
-							callSnippet = "Replace",
-						},
-						diagnostics = {
-							globals = { "vim" },
-						},
-					},
-				},
-			})
-		end,
-	},
-
-	{
-		"williamboman/mason.nvim",
+		"mason-org/mason.nvim",
 		optional = true,
 		opts = {
 			ensure_installed = {
@@ -40,23 +22,54 @@ return {
 		opts_extend = { "ensure_installed" },
 	},
 
+	-- LSP Server Configuration
 	{
-		"nvimtools/none-ls.nvim",
-		opts = {
-			sources = {
-				require("null-ls").builtins.formatting.stylua,
-			},
-		},
-		opts_extend = { "sources" },
+		"neovim/nvim-lspconfig",
+		ft = "lua",
+		opts = function(_, opts)
+			local blink_cmp = require("blink.cmp")
+			local capabilities = blink_cmp.get_lsp_capabilities()
+
+			local lua_ls_opts = {
+				filetypes = { "lua" },
+				capabilities = capabilities,
+				settings = {
+					Lua = {
+						completion = {
+							callSnippet = "Replace",
+						},
+						diagnostics = {
+							globals = { "vim" },
+						},
+					},
+				},
+			}
+
+			opts.servers = opts.servers or {}
+			opts.servers.lua_ls = lua_ls_opts
+
+			vim.lsp.config("lua_ls", lua_ls_opts)
+			vim.lsp.enable("lua_ls")
+		end,
 	},
 
+	-- Formatter
+	{
+		"stevearc/conform.nvim",
+		optional = true,
+		opts = {
+			formatters_by_ft = {
+				lua = { "stylua" },
+			},
+		},
+	},
+
+	-- LazyDev Integration (Neovim Lua API)
 	{
 		"folke/lazydev.nvim",
-		ft = "lua", -- only load on lua files
+		ft = "lua",
 		opts = {
 			library = {
-				-- See the configuration section for more details
-				-- Load luvit types when the `vim.uv` word is found
 				{ path = "${3rd}/luv/library", words = { "vim%.uv" } },
 			},
 		},
