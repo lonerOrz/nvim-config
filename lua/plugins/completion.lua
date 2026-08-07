@@ -6,7 +6,6 @@ return {
 		dependencies = {
 			"nvim-tree/nvim-web-devicons",
 			"onsails/lspkind.nvim",
-			"fang2hou/blink-copilot",
 			"folke/lazydev.nvim",
 		},
 		version = "1.*",
@@ -92,18 +91,7 @@ return {
 			},
 
 			sources = {
-				default = function()
-					local success, node = pcall(vim.treesitter.get_node)
-					if
-						success
-						and node
-						and vim.tbl_contains({ "comment", "line_comment", "block_comment" }, node:type())
-					then
-						return { "buffer" }
-					else
-						return { "lazydev", "copilot", "lsp", "path", "snippets", "buffer" }
-					end
-				end,
+				default = { "lazydev", "lsp", "path", "snippets", "buffer" },
 				per_filetype = {},
 
 				providers = {
@@ -111,16 +99,6 @@ return {
 						name = "LazyDev",
 						module = "lazydev.integrations.blink",
 						score_offset = 95,
-					},
-					copilot = {
-						name = "copilot",
-						module = "blink-copilot",
-						score_offset = 100,
-						async = true,
-						opts = {
-							kind_icon = "",
-							kind_hl = "DevIconCopilot",
-						},
 					},
 					path = {
 						score_offset = 95,
@@ -187,7 +165,7 @@ return {
 											icon = dev_icon
 										end
 									else
-										icon = require("lspkind").symbolic(ctx.kind, { mode = "symbol" })
+										icon = require("lspkind").symbolic(ctx.kind)
 									end
 									return icon .. ctx.icon_gap
 								end,

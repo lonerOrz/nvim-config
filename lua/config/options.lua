@@ -68,70 +68,20 @@ vim.o.foldenable = true
 vim.o.foldcolumn = "1"
 vim.o.foldlevel = 99
 vim.o.foldlevelstart = 99
+vim.o.foldmethod = "expr"
+vim.o.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+vim.o.foldtext = ""
 
-local function get_node_text_safe(node, bufnr)
-	local start_row, start_col, end_row, end_col = node:range()
-	local lines = vim.api.nvim_buf_get_lines(bufnr, start_row, end_row + 1, false)
-	if #lines == 0 then
-		return ""
-	end
-	lines[1] = string.sub(lines[1], start_col + 1)
-	lines[#lines] = string.sub(lines[#lines], 1, end_col)
-	return table.concat(lines, " "):gsub("%s+", " "):gsub("^%s+", "")
-end
-
-function _G.CustomFoldText()
-	local ts = vim.treesitter
-	local start_line = vim.v.foldstart
-	local end_line = vim.v.foldend
-	local folded_lines = end_line - start_line + 1
-	local bufnr = 0
-
-	local ok, parser = pcall(ts.get_parser, bufnr)
-	if not ok or not parser then
-		local fallback = vim.fn.getline(start_line):gsub("^%s+", "")
-		return string.format(" %s (%d lines)", fallback, folded_lines)
-	end
-
-	local tree = parser:parse()[1]
-	local root = tree:root()
-	local node = root:named_descendant_for_range(start_line - 1, 0, start_line - 1, 0)
-
-	local target_node_types = {
-		"function_definition",
-		"function_declaration",
-		"method_definition",
-		"method_declaration",
-		"function_item",
-		"class_definition",
-		"struct_definition",
-		"interface_declaration",
-		"impl_item",
-		"constructor_declaration",
-		"let_binding",
-	}
-
-	while node do
-		local type = node:type()
-		if vim.tbl_contains(target_node_types, type) then
-			for child in node:iter_children() do
-				if child:named() then
-					local child_type = child:type()
-					if child_type == "identifier" or child_type == "name" then
-						local name = get_node_text_safe(child, bufnr)
-						return string.format(" %s (%d lines)", name, folded_lines)
-					end
-				end
-			end
-		end
-		node = node:parent()
-	end
-
-	local fallback = vim.fn.getline(start_line):gsub("^%s+", "")
-	return string.format(" %s (%d lines)", fallback, folded_lines)
-end
-
-vim.opt.foldtext = "v:lua.CustomFoldText()"
+-- Native Trim Trailing Whitespace
+vim.api.nvim_create_autocmd("BufWritePre", {
+	group = vim.api.nvim_create_augroup("NativeTrimWhitespace", { clear = true }),
+	pattern = "*",
+	callback = function()
+		local save_cursor = vim.fn.getpos(".")
+		vim.cmd([[%s/\s\+$//e]])
+		vim.fn.setpos(".", save_cursor)
+	end,
+})
 
 -- Clipboard Integration (WSL & SSH)
 local is_wsl = vim.fn.has("wsl") == 1

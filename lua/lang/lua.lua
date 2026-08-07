@@ -1,5 +1,5 @@
 return {
-	-- Treesitter Support
+	-- Treesitter Parser
 	{
 		"nvim-treesitter/nvim-treesitter",
 		optional = true,
@@ -9,7 +9,20 @@ return {
 		opts_extend = { "ensure_installed" },
 	},
 
-	-- LSP Setup
+	-- Mason Packages (LSP & Formatter binaries)
+	{
+		"mason-org/mason.nvim",
+		optional = true,
+		opts = {
+			ensure_installed = {
+				"lua-language-server",
+				"stylua",
+			},
+		},
+		opts_extend = { "ensure_installed" },
+	},
+
+	-- LSP Server Configuration
 	{
 		"neovim/nvim-lspconfig",
 		ft = "lua",
@@ -30,31 +43,18 @@ return {
 		end,
 	},
 
-	-- Mason Packages
-	{
-		"mason-org/mason.nvim",
-		optional = true,
-		opts = {
-			ensure_installed = {
-				"lua-language-server",
-				"stylua",
-			},
-		},
-		opts_extend = { "ensure_installed" },
-	},
-
 	-- Formatter
 	{
-		"nvimtools/none-ls.nvim",
+		"stevearc/conform.nvim",
+		optional = true,
 		opts = {
-			sources = {
-				require("null-ls").builtins.formatting.stylua,
+			formatters_by_ft = {
+				lua = { "stylua" },
 			},
 		},
-		opts_extend = { "sources" },
 	},
 
-	-- LazyDev API Completion
+	-- LazyDev Integration (Neovim Lua API)
 	{
 		"folke/lazydev.nvim",
 		ft = "lua",
