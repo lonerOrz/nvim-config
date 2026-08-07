@@ -1,4 +1,5 @@
 return {
+	-- Catppuccin Theme
 	{
 		"catppuccin/nvim",
 		name = "catppuccin",
@@ -19,7 +20,6 @@ return {
 					CursorLine = { bg = "NONE" },
 					CursorLineNr = { bg = "NONE" },
 
-					-- 一些常见插件浮动窗口透明
 					TelescopeNormal = { bg = "NONE" },
 					TelescopeBorder = { bg = "NONE" },
 					NoicePopup = { bg = "NONE" },

@@ -1,5 +1,5 @@
--- ~/.config/nvim/lua/plugins/lang/nix.lua
 return {
+	-- Treesitter Support
 	{
 		"nvim-treesitter/nvim-treesitter",
 		ft = "nix",
@@ -9,6 +9,7 @@ return {
 		opts_extend = { "ensure_installed" },
 	},
 
+	-- Formatter Setup
 	{
 		"nvimtools/none-ls.nvim",
 		ft = "nix",
@@ -29,16 +30,16 @@ return {
 		},
 		opts_extend = { "sources" },
 	},
+
+	-- LSP Setup
 	{
 		"neovim/nvim-lspconfig",
 		ft = "nix",
-
 		opts = function(_, opts)
 			opts.servers.nixd = {
 				cmd = { "nixd", "--inlay-hints", "--semantic-tokens" },
 				root_markers = { "flake.nix", ".git" },
 				on_attach = function()
-					-- Automatically enable inlay hints for the current buffer
 					vim.lsp.inlay_hint.enable(true)
 				end,
 				settings = {

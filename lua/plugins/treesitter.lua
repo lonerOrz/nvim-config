@@ -1,4 +1,5 @@
 return {
+	-- Treesitter Parser Setup
 	{
 		"nvim-treesitter/nvim-treesitter",
 		branch = "main",
@@ -44,23 +45,14 @@ return {
 		config = function(_, opts)
 			local ts = require("nvim-treesitter")
 
-			-- =========================
-			-- Basic setup using the new API
-			-- =========================
 			ts.setup({
 				install_dir = vim.fn.stdpath("data") .. "/site",
 			})
 
-			-- =========================
-			-- Install parsers asynchronously to avoid UI blocking
-			-- =========================
 			vim.schedule(function()
 				ts.install(opts.ensure_installed)
 			end)
 
-			-- =========================
-			-- Enable Treesitter and configure folding
-			-- =========================
 			local group = vim.api.nvim_create_augroup("UserTreesitter", { clear = true })
 
 			vim.api.nvim_create_autocmd("FileType", {
@@ -69,15 +61,12 @@ return {
 					local bufnr = args.buf
 					local ft = vim.bo[bufnr].filetype
 
-					-- Skip special buffers
 					if ft == "" or ft == "help" or vim.bo[bufnr].buftype ~= "" then
 						return
 					end
 
-					-- Start Treesitter for this buffer
 					pcall(vim.treesitter.start, bufnr)
 
-					-- Delay execution and safely bind window to avoid "Invalid window id"
 					vim.schedule(function()
 						if not vim.api.nvim_buf_is_valid(bufnr) then
 							return

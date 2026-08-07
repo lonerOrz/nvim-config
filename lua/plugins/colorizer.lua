@@ -1,4 +1,5 @@
 return {
+	-- Color Highlighter
 	"catgoose/nvim-colorizer.lua",
 	event = "BufReadPost",
 	config = function()
