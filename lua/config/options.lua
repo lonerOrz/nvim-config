@@ -133,9 +133,6 @@ end
 
 vim.opt.foldtext = "v:lua.CustomFoldText()"
 
--- System Environment PATH
-vim.env.PATH = vim.env.PATH .. ":/bin"
-
 -- Clipboard Integration (WSL & SSH)
 local is_wsl = vim.fn.has("wsl") == 1
 	or vim.env.WSL_DISTRO_NAME ~= nil

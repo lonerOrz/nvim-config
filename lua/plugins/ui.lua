@@ -109,8 +109,29 @@ return {
 			{ "<A-9>", "<CMD>BufferGoto 9<CR>", mode = { "n" }, desc = "Go to buffer 9" },
 		},
 		opts = {
-			animation = true,
+			animation = false,
 			auto_hide = 1,
+			clickable = true,
+			icons = {
+				buffer_index = false,
+				filetype = { enabled = true },
+				button = "󰅖",
+				modified = { button = "●" },
+				pinned = { filename = true, icon = "󰐃", devicon = true },
+				separator = { left = "▎", right = "" },
+				separator_at_end = false,
+				diagnostics = {
+					[vim.diagnostic.severity.ERROR] = { enabled = true, icon = "󰅚 " },
+					[vim.diagnostic.severity.WARN] = { enabled = true, icon = "󰀦 " },
+					[vim.diagnostic.severity.INFO] = { enabled = true, icon = "󰋼 " },
+					[vim.diagnostic.severity.HINT] = { enabled = true, icon = "󰌵 " },
+				},
+				gitsigns = {
+					added = { enabled = true, icon = "+" },
+					changed = { enabled = true, icon = "~" },
+					deleted = { enabled = true, icon = "-" },
+				},
+			},
 		},
 	},
 
@@ -166,16 +187,20 @@ return {
 			preset = "helix",
 			win = { width = 0.5 },
 			spec = {
-				{ "<leader>s", group = "Search & Snacks", icon = "󰍉" },
-				{ "<leader>c", group = "Code & Format", icon = "󰅩" },
-				{ "<leader>t", group = "Toggle Options", icon = "" },
+				{ "<leader>s", group = "Search & Pickers", icon = "󰍉" },
+				{ "<leader>c", group = "Code & Refactor", icon = "󰅩" },
+				{ "<leader>t", group = "Toggles & UI", icon = "" },
 				{ "<leader>p", group = "Sessions", icon = "󰆍" },
 				{ "<leader>y", group = "Yazi Manager", icon = "󰇥" },
-				{ "<leader>l", group = "Lazygit", icon = "󰊢" },
+				{ "<leader>l", group = "Git & Lazygit", icon = "󰊢" },
 				{ "<leader>n", group = "Notifications", icon = "󰵅" },
 				{ "<leader>w", group = "Workspace", icon = "󰁨" },
-				{ "<leader>cc", group = "CodeCompanion", icon = "" },
+				{ "<leader>f", group = "Flash Motion", icon = "" },
+				{ "<leader>b", group = "Buffer Tools", icon = "󰓩" },
+
 				{ "g", group = "LSP Navigation", icon = "󰏿" },
+				{ "]", group = "Next Item", icon = "󰒮" },
+				{ "[", group = "Prev Item", icon = "󰒭" },
 			},
 			expand = function(node)
 				return not node.desc
@@ -224,13 +249,17 @@ return {
 			terminal = { enabled = true },
 			words = { enabled = true },
 			styles = {
+				lazygit = {
+					width = 0.9,
+					height = 0.9,
+				},
 				terminal = {
 					relative = "editor",
 					border = "rounded",
 					position = "float",
 					backdrop = 60,
-					height = 0.6,
-					width = 0.6,
+					height = 0.8,
+					width = 0.8,
 					zindex = 50,
 				},
 			},
@@ -265,6 +294,13 @@ return {
 				end,
 				desc = "Toggle floating terminal",
 				mode = { "n", "t" },
+			},
+			{
+				"<leader>bs",
+				function()
+					require("snacks").scratch()
+				end,
+				desc = "Toggle Scratchpad",
 			},
 
 			-- Notifications (<leader>n)
@@ -477,11 +513,27 @@ return {
 
 			-- Git Integration (<leader>l)
 			{
+				"<leader>lg",
+				function()
+					require("snacks").lazygit()
+				end,
+				desc = "Open Lazygit",
+			},
+			{
 				"<leader>lb",
 				function()
 					require("snacks").git.blame_line()
 				end,
 				desc = "Git blame line",
+			},
+
+			-- Code & Refactor Tools (<leader>c)
+			{
+				"<leader>cR",
+				function()
+					require("snacks").rename.rename_file()
+				end,
+				desc = "Rename current file",
 			},
 
 			-- LSP Symbols (g)
