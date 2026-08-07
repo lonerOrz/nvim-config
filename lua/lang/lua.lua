@@ -1,4 +1,5 @@
 return {
+	-- Treesitter Support
 	{
 		"nvim-treesitter/nvim-treesitter",
 		optional = true,
@@ -8,6 +9,7 @@ return {
 		opts_extend = { "ensure_installed" },
 	},
 
+	-- LSP Setup
 	{
 		"neovim/nvim-lspconfig",
 		ft = "lua",
@@ -28,6 +30,7 @@ return {
 		end,
 	},
 
+	-- Mason Packages
 	{
 		"williamboman/mason.nvim",
 		optional = true,
@@ -40,6 +43,7 @@ return {
 		opts_extend = { "ensure_installed" },
 	},
 
+	-- Formatter
 	{
 		"nvimtools/none-ls.nvim",
 		opts = {
@@ -50,13 +54,12 @@ return {
 		opts_extend = { "sources" },
 	},
 
+	-- LazyDev API Completion
 	{
 		"folke/lazydev.nvim",
-		ft = "lua", -- only load on lua files
+		ft = "lua",
 		opts = {
 			library = {
-				-- See the configuration section for more details
-				-- Load luvit types when the `vim.uv` word is found
 				{ path = "${3rd}/luv/library", words = { "vim%.uv" } },
 			},
 		},

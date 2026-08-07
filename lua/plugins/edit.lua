@@ -1,19 +1,21 @@
 return {
-	-- 自动补全括号
+	-- Auto Pairs
 	{
 		"windwp/nvim-autopairs",
 		event = "InsertEnter",
 		opts = {
-			ignored_next_char = "[%w%.]", -- will ignore alphanumeric and `.` symbol
+			ignored_next_char = "[%w%.]",
 		},
 	},
-	-- 删除多余空格
+
+	-- Trim Trailing Whitespace
 	{
 		"cappyzawa/trim.nvim",
 		event = "BufWritePre",
 		opts = {},
 	},
-	-- 快速跳转
+
+	-- Motion Navigation (Flash)
 	{
 		"folke/flash.nvim",
 		event = "BufReadPost",
@@ -37,7 +39,7 @@ return {
 				function()
 					require("flash").jump()
 				end,
-				desc = "[Flash] Jump",
+				desc = "Flash jump",
 			},
 			{
 				"<leader>F",
@@ -45,7 +47,7 @@ return {
 				function()
 					require("flash").treesitter()
 				end,
-				desc = "[Flash] Treesitter",
+				desc = "Flash treesitter",
 			},
 			{
 				"<leader>F",
@@ -53,7 +55,7 @@ return {
 				function()
 					require("flash").treesitter_search()
 				end,
-				desc = "[Flash] Treesitter Search",
+				desc = "Flash treesitter search",
 			},
 			{
 				"<c-f>",
@@ -61,7 +63,7 @@ return {
 				function()
 					require("flash").toggle()
 				end,
-				desc = "[Flash] Toggle Search",
+				desc = "Toggle flash search",
 			},
 			{
 				"<leader>j",
@@ -71,15 +73,15 @@ return {
 						search = { mode = "search", max_length = 0 },
 						label = { after = { 0, 0 }, matches = false },
 						jump = { pos = "end" },
-						pattern = "^\\s*\\S\\?", -- match non-whitespace at start plus any character (ignores empty lines)
+						pattern = "^\\s*\\S\\?",
 					})
 				end,
-				desc = "[Flash] Line jump",
+				desc = "Flash line jump",
 			},
 		},
 	},
-	-- 高亮 TODO FIX NOTE 等
-	-- TODO: xxxx
+
+	-- TODO Comments Highlight
 	{
 		"folke/todo-comments.nvim",
 		dependencies = {
@@ -88,7 +90,6 @@ return {
 		},
 		event = "VeryLazy",
 		keys = {
-			---@diagnostic disable-next-line: undefined-field
 			{
 				"<leader>st",
 				function()
@@ -96,35 +97,23 @@ return {
 						keywords = { "TODO", "FIX", "FIXME", "BUG", "FIXIT", "HACK", "WARN", "ISSUE" },
 					})
 				end,
-				desc = "[TODO] Pick todos (without NOTE)",
+				desc = "Pick todos (exclude NOTE)",
 			},
-			---@diagnostic disable-next-line: undefined-field
 			{
 				"<leader>sT",
 				function()
 					require("snacks").picker.todo_comments()
 				end,
-				desc = "[TODO] Pick todos (with NOTE)",
+				desc = "Pick todos (include NOTE)",
 			},
 		},
 		config = true,
 	},
-	-- unix shell 命令
+
+	-- UNIX Shell Commands Helper
 	{
 		"tpope/vim-eunuch",
 		event = "VeryLazy",
-		-- :Remove: Delete a file on disk without E211: File no longer available.
-		-- :Delete: Delete a file on disk and the buffer too.
-		-- :Move: Rename a buffer and the file on disk simultaneously. See also :Rename, :Copy, and :Duplicate.
-		-- :Chmod: Change the permissions of the current file.
-		-- :Mkdir: Create a directory, defaulting to the parent of the current file.
-		-- :Cfind: Run find and load the results into the quickfix list.
-		-- :Clocate: Run locate and load the results into the quickfix list.
-		-- :Lfind/:Llocate: Like above, but use the location list.
-		-- :Wall: Write every open window. Handy for kicking off tools like guard.
-		-- :SudoWrite: Write a privileged file with sudo.
-		-- :SudoEdit: Edit a privileged file with sudo.
-		-- Typing a shebang line causes the file type to be re-detected. Additionally the file will be automatically made executable (chmod +x) after the next write.
 		keys = {},
 	},
 }

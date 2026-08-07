@@ -1,4 +1,5 @@
 return {
+	-- None-ls (Formatter Bridge)
 	"nvimtools/none-ls.nvim",
 	event = { "BufReadPre", "BufNewFile" },
 	dependencies = { "nvim-lua/plenary.nvim" },
@@ -36,7 +37,7 @@ return {
 			})
 		end
 
-		-- 自动格式化 toggle 文件
+		-- Autoformat State Persistence
 		local toggle_state_file = vim.fn.stdpath("state") .. "/autoformat.toggle"
 
 		local function load_toggle_state()
@@ -50,6 +51,7 @@ return {
 
 		vim.g.enable_autoformat = load_toggle_state()
 
+		-- Setup Formatting Keymap (<leader>cf)
 		if not vim.g.format_lsp_attach_initialized then
 			local lsp_attach_group = vim.api.nvim_create_augroup("FormatKeymaps", { clear = true })
 			vim.api.nvim_create_autocmd("LspAttach", {
@@ -59,7 +61,7 @@ return {
 					if client and client:supports_method("textDocument/formatting") then
 						vim.keymap.set("n", "<leader>cf", function()
 							format_buffer(args.buf)
-						end, { buffer = args.buf, desc = "Format buffer with LSP" })
+						end, { buffer = args.buf, desc = "Format buffer" })
 
 						vim.api.nvim_clear_autocmds({ group = lsp_format_group, buffer = args.buf })
 						vim.api.nvim_create_autocmd("BufWritePre", {
@@ -77,7 +79,7 @@ return {
 			vim.g.format_lsp_attach_initialized = true
 		end
 
-		-- snacks toggle 控制
+		-- Snacks Autoformat Toggle (<leader>tf)
 		require("snacks").toggle
 			.new({
 				id = "auto_format",
@@ -92,7 +94,7 @@ return {
 			})
 			:map("<leader>tf")
 
-		-- 默认 sources
+		-- Formatter Sources
 		local default_sources = {
 			null_ls.builtins.formatting.black,
 			null_ls.builtins.formatting.prettier,
@@ -101,7 +103,6 @@ return {
 			null_ls.builtins.diagnostics.markdownlint,
 		}
 
-		-- lazy 会自动合并多个 opts.sources，这里我们显式处理合并
 		local merged_sources = vim.list_extend(default_sources, opts.sources or {})
 
 		return {
