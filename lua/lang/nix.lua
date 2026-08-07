@@ -1,44 +1,28 @@
--- ~/.config/nvim/lua/plugins/lang/nix.lua
 return {
+	-- Treesitter Parser
 	{
 		"nvim-treesitter/nvim-treesitter",
-		ft = "nix",
+		optional = true,
 		opts = {
 			ensure_installed = { "nix" },
 		},
 		opts_extend = { "ensure_installed" },
 	},
 
-	{
-		"nvimtools/none-ls.nvim",
-		ft = "nix",
-		opts = {
-			sources = {
-				{
-					name = "nixfmt_rfc",
-					method = require("null-ls").methods.FORMATTING,
-					filetypes = { "nix" },
-					generator = require("null-ls.helpers").formatter_factory({
-						command = "nixfmt",
-						args = {},
-						to_stdin = true,
-						ignore_stderr = true,
-					}),
-				},
-			},
-		},
-		opts_extend = { "sources" },
-	},
+	-- LSP Server Configuration
 	{
 		"neovim/nvim-lspconfig",
 		ft = "nix",
-
 		opts = function(_, opts)
-			opts.servers.nixd = {
+			local blink_cmp = require("blink.cmp")
+			local capabilities = blink_cmp.get_lsp_capabilities()
+
+			local nixd_opts = {
 				cmd = { "nixd", "--inlay-hints", "--semantic-tokens" },
 				root_markers = { "flake.nix", ".git" },
+				filetypes = { "nix" },
+				capabilities = capabilities,
 				on_attach = function()
-					-- Automatically enable inlay hints for the current buffer
 					vim.lsp.inlay_hint.enable(true)
 				end,
 				settings = {
@@ -55,6 +39,23 @@ return {
 					},
 				},
 			}
+
+			opts.servers = opts.servers or {}
+			opts.servers.nixd = nixd_opts
+
+			vim.lsp.config("nixd", nixd_opts)
+			vim.lsp.enable("nixd")
 		end,
+	},
+
+	-- Formatter
+	{
+		"stevearc/conform.nvim",
+		optional = true,
+		opts = {
+			formatters_by_ft = {
+				nix = { "nixfmt" },
+			},
+		},
 	},
 }

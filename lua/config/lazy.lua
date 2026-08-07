@@ -18,19 +18,14 @@ vim.opt.rtp:prepend(lazypath)
 -- Setup lazy.nvim
 require("lazy").setup({
 	spec = {
-		-- import your plugins
-		{ import = "plugins" }, -- 导入`./lua/plugins/`目录下的所有lua文件
+		{ import = "plugins" },
 		{ import = "lang" },
 	},
-	-- Configure any other settings here. See the documentation for more details.
-	-- colorscheme that will be used when installing plugins.
 	install = { colorscheme = { "habamax" } },
-	-- automatically check for plugin updates
 	checker = { enabled = false },
 	ui = {
-		-- The border to use for the UI window. Accepts same border values as |nvim_open_win()|.
 		border = "rounded",
 	},
 })
 
-vim.keymap.set("n", "<leader>L", "<CMD>Lazy<CR>", { desc = "[Lazy] Open Lazy.nvim" })
+vim.keymap.set("n", "<leader>L", "<CMD>Lazy<CR>", { desc = "Open Lazy UI" })

@@ -1,55 +1,45 @@
 return {
-	-- Treesitter Parser
+	-- Treesitter
 	{
 		"nvim-treesitter/nvim-treesitter",
 		optional = true,
-		opts = {
-			ensure_installed = { "rust" },
-		},
+		opts = { ensure_installed = { "python" } },
 		opts_extend = { "ensure_installed" },
 	},
-
-	-- Mason Packages
+	-- Mason
 	{
 		"mason-org/mason.nvim",
 		optional = true,
-		opts = {
-			ensure_installed = { "rust-analyzer" },
-		},
+		opts = { ensure_installed = { "pyright", "black" } },
 		opts_extend = { "ensure_installed" },
 	},
-
-	-- LSP Server Configuration
+	-- LSP
 	{
 		"neovim/nvim-lspconfig",
-		ft = "rust",
+		ft = "python",
 		opts = function(_, opts)
 			local blink_cmp = require("blink.cmp")
 			local capabilities = blink_cmp.get_lsp_capabilities()
 
-			local ra_opts = {
-				filetypes = { "rust" },
+			local pyright_opts = {
+				filetypes = { "python" },
 				capabilities = capabilities,
-				settings = {
-					["rust-analyzer"] = {},
-				},
 			}
 
 			opts.servers = opts.servers or {}
-			opts.servers.rust_analyzer = ra_opts
+			opts.servers.pyright = pyright_opts
 
-			vim.lsp.config("rust_analyzer", ra_opts)
-			vim.lsp.enable("rust_analyzer")
+			vim.lsp.config("pyright", pyright_opts)
+			vim.lsp.enable("pyright")
 		end,
 	},
-
-	-- Formatter (Rust uses LSP native formatting via rustfmt)
+	-- Formatter
 	{
 		"stevearc/conform.nvim",
 		optional = true,
 		opts = {
 			formatters_by_ft = {
-				rust = { "rustfmt" },
+				python = { "black" },
 			},
 		},
 	},

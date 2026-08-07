@@ -1,55 +1,47 @@
 return {
-	-- Treesitter Parser
+	-- Treesitter
 	{
 		"nvim-treesitter/nvim-treesitter",
 		optional = true,
-		opts = {
-			ensure_installed = { "rust" },
-		},
+		opts = { ensure_installed = { "bash" } },
 		opts_extend = { "ensure_installed" },
 	},
-
-	-- Mason Packages
+	-- Mason
 	{
 		"mason-org/mason.nvim",
 		optional = true,
-		opts = {
-			ensure_installed = { "rust-analyzer" },
-		},
+		opts = { ensure_installed = { "bash-language-server", "shfmt" } },
 		opts_extend = { "ensure_installed" },
 	},
-
-	-- LSP Server Configuration
+	-- LSP
 	{
 		"neovim/nvim-lspconfig",
-		ft = "rust",
+		ft = { "sh", "bash" },
 		opts = function(_, opts)
 			local blink_cmp = require("blink.cmp")
 			local capabilities = blink_cmp.get_lsp_capabilities()
 
-			local ra_opts = {
-				filetypes = { "rust" },
+			local bashls_opts = {
+				filetypes = { "sh", "bash" },
 				capabilities = capabilities,
-				settings = {
-					["rust-analyzer"] = {},
-				},
 			}
 
 			opts.servers = opts.servers or {}
-			opts.servers.rust_analyzer = ra_opts
+			opts.servers.bashls = bashls_opts
 
-			vim.lsp.config("rust_analyzer", ra_opts)
-			vim.lsp.enable("rust_analyzer")
+			vim.lsp.config("bashls", bashls_opts)
+			vim.lsp.enable("bashls")
 		end,
 	},
-
-	-- Formatter (Rust uses LSP native formatting via rustfmt)
+	-- Formatter
 	{
 		"stevearc/conform.nvim",
 		optional = true,
 		opts = {
 			formatters_by_ft = {
-				rust = { "rustfmt" },
+				sh = { "shfmt" },
+				bash = { "shfmt" },
+				zsh = { "shfmt" },
 			},
 		},
 	},

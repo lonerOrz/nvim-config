@@ -1,22 +1,56 @@
 return {
 	"ibhagwan/fzf-lua",
 	event = "VeryLazy",
-	-- optional for icon support
 	dependencies = { "nvim-tree/nvim-web-devicons" },
-	config = function()
-		require("fzf-lua").setup({
-			winopts = {
-				height = 0.7, -- 窗口高度
-				width = 0.7, -- 窗口宽度
-				row = 0.5, -- 窗口位置
-				col = 0.5, -- 窗口位置
-				border = "rounded", -- 窗口边框样式
-			},
-		})
+	keys = {
+		-- Refactoring & Code Editing Helpers (<leader>c)
+		{
+			"<leader>cA",
+			function()
+				require("fzf-lua").lsp_code_actions()
+			end,
+			desc = "Code actions (with live diff preview)",
+		},
+		{
+			"<leader>cT",
+			function()
+				require("fzf-lua").treesitter()
+			end,
+			desc = "Treesitter AST symbol outline",
+		},
+		{
+			"<leader>cF",
+			function()
+				require("fzf-lua").lsp_finder()
+			end,
+			desc = "LSP finder (defs, refs, impls with preview)",
+		},
 
-		-- 设置 FZF 查找文件的快捷键
-		vim.keymap.set("n", "<leader><space>", function()
-			require("fzf-lua").files({ cwd = vim.fn.getcwd() })
-		end, { desc = "[FZF] Find files (pwd)" })
+		-- Search Resume (<leader>s)
+		{
+			"<leader>sR",
+			function()
+				require("fzf-lua").resume()
+			end,
+			desc = "Resume last search",
+		},
+	},
+	config = function(_, opts)
+		local fzf = require("fzf-lua")
+		fzf.setup(opts)
+		fzf.register_ui_select()
 	end,
+	opts = {
+		winopts = {
+			height = 0.85,
+			width = 0.80,
+			row = 0.5,
+			col = 0.5,
+			border = "rounded",
+			preview = {
+				layout = "flex",
+				horizontal = "right:50%",
+			},
+		},
+	},
 }

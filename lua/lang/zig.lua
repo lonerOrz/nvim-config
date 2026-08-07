@@ -1,55 +1,45 @@
 return {
-	-- Treesitter Parser
+	-- Treesitter
 	{
 		"nvim-treesitter/nvim-treesitter",
 		optional = true,
-		opts = {
-			ensure_installed = { "rust" },
-		},
+		opts = { ensure_installed = { "zig" } },
 		opts_extend = { "ensure_installed" },
 	},
-
-	-- Mason Packages
+	-- Mason
 	{
 		"mason-org/mason.nvim",
 		optional = true,
-		opts = {
-			ensure_installed = { "rust-analyzer" },
-		},
+		opts = { ensure_installed = { "zls" } },
 		opts_extend = { "ensure_installed" },
 	},
-
-	-- LSP Server Configuration
+	-- LSP
 	{
 		"neovim/nvim-lspconfig",
-		ft = "rust",
+		ft = "zig",
 		opts = function(_, opts)
 			local blink_cmp = require("blink.cmp")
 			local capabilities = blink_cmp.get_lsp_capabilities()
 
-			local ra_opts = {
-				filetypes = { "rust" },
+			local zls_opts = {
+				filetypes = { "zig" },
 				capabilities = capabilities,
-				settings = {
-					["rust-analyzer"] = {},
-				},
 			}
 
 			opts.servers = opts.servers or {}
-			opts.servers.rust_analyzer = ra_opts
+			opts.servers.zls = zls_opts
 
-			vim.lsp.config("rust_analyzer", ra_opts)
-			vim.lsp.enable("rust_analyzer")
+			vim.lsp.config("zls", zls_opts)
+			vim.lsp.enable("zls")
 		end,
 	},
-
-	-- Formatter (Rust uses LSP native formatting via rustfmt)
+	-- Formatter (Zig uses built-in zigfmt via ZLS or CLI)
 	{
 		"stevearc/conform.nvim",
 		optional = true,
 		opts = {
 			formatters_by_ft = {
-				rust = { "rustfmt" },
+				zig = { "zigfmt" },
 			},
 		},
 	},
