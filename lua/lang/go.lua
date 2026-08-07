@@ -18,9 +18,19 @@ return {
 		"neovim/nvim-lspconfig",
 		ft = { "go", "gomod" },
 		opts = function(_, opts)
-			opts.servers.gopls = vim.tbl_deep_extend("force", opts.servers.gopls or {}, {
+			local blink_cmp = require("blink.cmp")
+			local capabilities = blink_cmp.get_lsp_capabilities()
+
+			local gopls_opts = {
 				filetypes = { "go", "gomod" },
-			})
+				capabilities = capabilities,
+			}
+
+			opts.servers = opts.servers or {}
+			opts.servers.gopls = gopls_opts
+
+			vim.lsp.config("gopls", gopls_opts)
+			vim.lsp.enable("gopls")
 		end,
 	},
 	-- Formatter

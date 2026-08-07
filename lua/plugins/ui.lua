@@ -146,6 +146,7 @@ return {
 	-- Rainbow Delimiters
 	{
 		"HiPhish/rainbow-delimiters.nvim",
+		event = { "BufReadPre", "BufNewFile" },
 		main = "rainbow-delimiters.setup",
 		submodules = false,
 		opts = {},

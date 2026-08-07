@@ -27,8 +27,12 @@ return {
 		"neovim/nvim-lspconfig",
 		ft = "lua",
 		opts = function(_, opts)
-			opts.servers.lua_ls = vim.tbl_deep_extend("force", opts.servers.lua_ls or {}, {
+			local blink_cmp = require("blink.cmp")
+			local capabilities = blink_cmp.get_lsp_capabilities()
+
+			local lua_ls_opts = {
 				filetypes = { "lua" },
+				capabilities = capabilities,
 				settings = {
 					Lua = {
 						completion = {
@@ -39,7 +43,13 @@ return {
 						},
 					},
 				},
-			})
+			}
+
+			opts.servers = opts.servers or {}
+			opts.servers.lua_ls = lua_ls_opts
+
+			vim.lsp.config("lua_ls", lua_ls_opts)
+			vim.lsp.enable("lua_ls")
 		end,
 	},
 

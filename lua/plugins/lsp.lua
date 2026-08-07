@@ -3,6 +3,7 @@ return {
 	{
 		"mason-org/mason.nvim",
 		cmd = { "Mason", "MasonInstall", "MasonUpdate" },
+		opts_extend = { "ensure_installed" },
 		opts = {
 			ensure_installed = {},
 		},
@@ -10,7 +11,7 @@ return {
 			require("mason").setup(opts)
 			local mr = require("mason-registry")
 			local function ensure_installed()
-				for _, tool in ipairs(opts.ensure_installed) do
+				for _, tool in ipairs(opts.ensure_installed or {}) do
 					local p = mr.get_package(tool)
 					if not p:is_installed() then
 						p:install()
@@ -30,17 +31,17 @@ return {
 		"mason-org/mason-lspconfig.nvim",
 		event = { "BufReadPre", "BufNewFile" },
 		dependencies = {
-			{ "mason-org/mason.nvim", opts = {} },
+			"mason-org/mason.nvim",
 			"neovim/nvim-lspconfig",
 		},
 		opts = {
-			automatic_enable = { exclude = { "nil_ls" } },
+			automatic_enable = false,
 		},
 	},
 
-	-- Lspsaga (Hover & Code Actions)
+	-- Lspsaga
 	{
-		"glepnir/lspsaga.nvim",
+		"nvimdev/lspsaga.nvim",
 		event = { "BufReadPre", "BufNewFile" },
 		dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" },
 		config = function()
@@ -64,12 +65,12 @@ return {
 				severity_sort = true,
 				float = { border = "rounded" },
 			},
-			mason_handlers = {},
 			servers = {},
 		},
 		config = function(_, opts)
 			vim.diagnostic.config(opts.diagnostic)
 
+			-- Unbind Neovim default lsp keymaps
 			pcall(vim.keymap.del, "n", "grn")
 			pcall(vim.keymap.del, "n", "gra")
 			pcall(vim.keymap.del, "n", "grr")
@@ -84,25 +85,10 @@ return {
 			local blink_cmp = require("blink.cmp")
 			local capabilities = blink_cmp.get_lsp_capabilities()
 
-			local mason_lspconfig = require("mason-lspconfig")
-			local mason_mappings = mason_lspconfig.get_mappings()
-			mason_lspconfig.setup({
-				handlers = {
-					function(server_name)
-						local server_opts = vim.tbl_deep_extend(
-							"force",
-							{ capabilities = capabilities },
-							opts.servers[server_name] or {}
-						)
-						vim.lsp.config(server_name, server_opts)
-						vim.lsp.enable(server_name)
-					end,
-				},
-			})
-
+			-- Register and enable each configured server once
 			for server_name, server_opts in pairs(opts.servers) do
-				if server_opts and not mason_mappings.lspconfig_to_package[server_name] then
-					local final_opts = vim.tbl_deep_extend("force", { capabilities = capabilities }, server_opts or {})
+				if server_opts then
+					local final_opts = vim.tbl_deep_extend("force", { capabilities = capabilities }, server_opts)
 					vim.lsp.config(server_name, final_opts)
 					vim.lsp.enable(server_name)
 				end
@@ -112,7 +98,7 @@ return {
 			vim.api.nvim_create_autocmd("LspAttach", {
 				group = vim.api.nvim_create_augroup("UserLspConfig", {}),
 				callback = function(ev)
-					-- Hover & Help (g)
+					-- Hover and Help
 					vim.keymap.set(
 						"n",
 						"K",
@@ -121,11 +107,11 @@ return {
 					)
 					vim.keymap.set("n", "gk", vim.lsp.buf.signature_help, { buffer = ev.buf, desc = "Signature help" })
 
-					-- Go-to Navigation (g)
+					-- Go to Navigation
 					vim.keymap.set("n", "gd", vim.lsp.buf.definition, { buffer = ev.buf, desc = "Go to definition" })
 					vim.keymap.set("n", "gr", vim.lsp.buf.references, { buffer = ev.buf, desc = "Find references" })
 
-					-- Code Actions & Refactoring (<leader>c)
+					-- Code Actions and Refactoring
 					vim.keymap.set("n", "<leader>cr", vim.lsp.buf.rename, { buffer = ev.buf, desc = "Rename symbol" })
 					vim.keymap.set(
 						"n",
@@ -134,7 +120,7 @@ return {
 						{ buffer = ev.buf, desc = "Code action" }
 					)
 
-					-- Workspace Management (<leader>w)
+					-- Workspace Management
 					vim.keymap.set(
 						"n",
 						"<leader>wa",
@@ -155,7 +141,7 @@ return {
 		end,
 	},
 
-	-- LazyDev (Lua API Support)
+	-- LazyDev
 	{
 		"folke/lazydev.nvim",
 		ft = "lua",
@@ -169,7 +155,6 @@ return {
 		"folke/trouble.nvim",
 		cmd = "Trouble",
 		keys = {
-			-- Diagnostic Jumping
 			{
 				"]d",
 				function()
@@ -187,7 +172,6 @@ return {
 				desc = "Prev diagnostic",
 			},
 
-			-- Trouble Toggles (<leader>c)
 			{ "<leader>cd", "<CMD>Trouble diagnostics toggle<CR>", desc = "Buffer diagnostics" },
 			{ "<leader>cs", "<CMD>Trouble symbols toggle focus=false<CR>", desc = "Document symbols" },
 		},
