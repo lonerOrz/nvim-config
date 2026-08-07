@@ -9,14 +9,19 @@ return {
 		opts_extend = { "ensure_installed" },
 	},
 
-	-- LSP Server Configuration ( need nixd)
+	-- LSP Server Configuration
 	{
 		"neovim/nvim-lspconfig",
 		ft = "nix",
 		opts = function(_, opts)
-			opts.servers.nixd = {
+			local blink_cmp = require("blink.cmp")
+			local capabilities = blink_cmp.get_lsp_capabilities()
+
+			local nixd_opts = {
 				cmd = { "nixd", "--inlay-hints", "--semantic-tokens" },
 				root_markers = { "flake.nix", ".git" },
+				filetypes = { "nix" },
+				capabilities = capabilities,
 				on_attach = function()
 					vim.lsp.inlay_hint.enable(true)
 				end,
@@ -34,6 +39,12 @@ return {
 					},
 				},
 			}
+
+			opts.servers = opts.servers or {}
+			opts.servers.nixd = nixd_opts
+
+			vim.lsp.config("nixd", nixd_opts)
+			vim.lsp.enable("nixd")
 		end,
 	},
 

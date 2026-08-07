@@ -2,7 +2,7 @@ return {
 	-- AI Completion Engine
 	{
 		"Exafunction/windsurf.nvim",
-		lazy = false,
+		event = "VeryLazy",
 		dependencies = {
 			"nvim-lua/plenary.nvim",
 		},

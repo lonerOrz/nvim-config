@@ -1,7 +1,6 @@
 return {
 	-- Markdown Previewer
 	"OXY2DEV/markview.nvim",
-	lazy = false,
 	ft = "markdown",
 	dependencies = {
 		"nvim-treesitter/nvim-treesitter",

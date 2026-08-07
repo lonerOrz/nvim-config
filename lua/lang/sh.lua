@@ -18,9 +18,19 @@ return {
 		"neovim/nvim-lspconfig",
 		ft = { "sh", "bash" },
 		opts = function(_, opts)
-			opts.servers.bashls = vim.tbl_deep_extend("force", opts.servers.bashls or {}, {
+			local blink_cmp = require("blink.cmp")
+			local capabilities = blink_cmp.get_lsp_capabilities()
+
+			local bashls_opts = {
 				filetypes = { "sh", "bash" },
-			})
+				capabilities = capabilities,
+			}
+
+			opts.servers = opts.servers or {}
+			opts.servers.bashls = bashls_opts
+
+			vim.lsp.config("bashls", bashls_opts)
+			vim.lsp.enable("bashls")
 		end,
 	},
 	-- Formatter

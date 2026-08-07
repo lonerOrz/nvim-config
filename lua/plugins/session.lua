@@ -2,7 +2,6 @@ return {
 	-- Auto Session Manager
 	{
 		"rmagatti/auto-session",
-		lazy = false,
 		keys = {
 			{ "<leader>ps", "<CMD>Autosession search<CR>", desc = "Search session" },
 			{ "<leader>pr", "<CMD>SessionRestore<CR>", desc = "Restore session" },

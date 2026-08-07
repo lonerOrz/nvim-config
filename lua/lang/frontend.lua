@@ -18,9 +18,19 @@ return {
 		"neovim/nvim-lspconfig",
 		ft = { "javascript", "javascriptreact", "typescript", "typescriptreact" },
 		opts = function(_, opts)
-			opts.servers.ts_ls = vim.tbl_deep_extend("force", opts.servers.ts_ls or {}, {
+			local blink_cmp = require("blink.cmp")
+			local capabilities = blink_cmp.get_lsp_capabilities()
+
+			local ts_ls_opts = {
 				filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact" },
-			})
+				capabilities = capabilities,
+			}
+
+			opts.servers = opts.servers or {}
+			opts.servers.ts_ls = ts_ls_opts
+
+			vim.lsp.config("ts_ls", ts_ls_opts)
+			vim.lsp.enable("ts_ls")
 		end,
 	},
 	-- Formatter

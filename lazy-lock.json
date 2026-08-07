@@ -32,5 +32,5 @@
   "vim-eunuch": { "branch": "master", "commit": "e86bb794a1c10a2edac130feb0ea590a00d03f1e" },
   "which-key.nvim": { "branch": "main", "commit": "3aab2147e74890957785941f0c1ad87d0a44c15a" },
   "windsurf.nvim": { "branch": "main", "commit": "821b570b526dbb05b57aa4ded578b709a704a38a" },
-  "yazi.nvim": { "branch": "main", "commit": "300f4db2f861dbad6152767be06e90e425beb539" }
+  "yazi.nvim": { "branch": "main", "commit": "7cc8fe84f48b636502f38df5410318b9a6642d0d" }
 }
