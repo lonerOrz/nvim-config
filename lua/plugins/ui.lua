@@ -1,26 +1,12 @@
 return {
-	-- Web Devicons
-	{
-		"nvim-tree/nvim-web-devicons",
-		opts = {
-			override = {
-				copilot = {
-					icon = "",
-					color = "#cba6f7",
-					name = "Copilot",
-				},
-			},
-		},
-	},
-
-	-- Statusline (Lualine)
+	-- Statusline Lualine
 	{
 		"nvim-lualine/lualine.nvim",
 		dependencies = {
 			"nvim-tree/nvim-web-devicons",
-			"AndreM222/copilot-lualine",
 			"folke/trouble.nvim",
 		},
+		opts_extend = { "sections.lualine_c", "sections.lualine_x" },
 		opts = {
 			options = {
 				theme = "catppuccin-mocha",
@@ -54,25 +40,7 @@ return {
 				padding = 0,
 			}
 
-			local copilot = {
-				"copilot",
-				show_colors = true,
-				symbols = {
-					status = {
-						hl = {
-							enabled = theme.green,
-							sleep = theme.overlay0,
-							disabled = theme.surface0,
-							warning = theme.peach,
-							unknown = theme.red,
-						},
-					},
-					spinner_color = theme.mauve,
-				},
-			}
-
 			table.insert(opts.sections.lualine_x, 1, macro_recording)
-			table.insert(opts.sections.lualine_c, copilot)
 			require("lualine").setup(opts)
 		end,
 	},

@@ -1,27 +1,15 @@
 return {
-	-- Treesitter Support
+	-- Treesitter Parser
 	{
 		"nvim-treesitter/nvim-treesitter",
-		ft = "nix",
+		optional = true,
 		opts = {
 			ensure_installed = { "nix" },
 		},
 		opts_extend = { "ensure_installed" },
 	},
 
-	-- Formatter Setup
-	{
-		"nvimtools/none-ls.nvim",
-		ft = "nix",
-		opts = function(_, opts)
-			local null_ls = require("null-ls")
-			opts.sources = opts.sources or {}
-			table.insert(opts.sources, null_ls.builtins.formatting.nixfmt)
-		end,
-		opts_extend = { "sources" },
-	},
-
-	-- LSP Setup
+	-- LSP Server Configuration ( need nixd)
 	{
 		"neovim/nvim-lspconfig",
 		ft = "nix",
@@ -47,5 +35,16 @@ return {
 				},
 			}
 		end,
+	},
+
+	-- Formatter
+	{
+		"stevearc/conform.nvim",
+		optional = true,
+		opts = {
+			formatters_by_ft = {
+				nix = { "nixfmt" },
+			},
+		},
 	},
 }

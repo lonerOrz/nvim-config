@@ -8,13 +8,6 @@ return {
 		},
 	},
 
-	-- Trim Trailing Whitespace
-	{
-		"cappyzawa/trim.nvim",
-		event = "BufWritePre",
-		opts = {},
-	},
-
 	-- Motion Navigation (Flash)
 	{
 		"folke/flash.nvim",

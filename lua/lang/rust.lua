@@ -1,15 +1,25 @@
 return {
-	-- Treesitter Support
+	-- Treesitter Parser
 	{
 		"nvim-treesitter/nvim-treesitter",
-		ft = "rust",
+		optional = true,
 		opts = {
 			ensure_installed = { "rust" },
 		},
 		opts_extend = { "ensure_installed" },
 	},
 
-	-- LSP Setup
+	-- Mason Packages
+	{
+		"mason-org/mason.nvim",
+		optional = true,
+		opts = {
+			ensure_installed = { "rust-analyzer" },
+		},
+		opts_extend = { "ensure_installed" },
+	},
+
+	-- LSP Server Configuration
 	{
 		"neovim/nvim-lspconfig",
 		ft = "rust",
@@ -21,5 +31,16 @@ return {
 				},
 			})
 		end,
+	},
+
+	-- Formatter (Rust uses LSP native formatting via rustfmt)
+	{
+		"stevearc/conform.nvim",
+		optional = true,
+		opts = {
+			formatters_by_ft = {
+				rust = { "rustfmt" },
+			},
+		},
 	},
 }
