@@ -45,7 +45,7 @@ return {
 		end,
 	},
 
-	-- Git Signs & Inline Diff Integration (Gitsigns)
+	-- Git Signs & Inline Diff Integration
 	{
 		"lewis6991/gitsigns.nvim",
 		event = { "BufReadPre", "BufNewFile" },
@@ -152,7 +152,7 @@ return {
 		opts = {},
 	},
 
-	-- Command Line UI (Noice)
+	-- Command Line UI
 	{
 		"folke/noice.nvim",
 		event = "VeryLazy",
@@ -179,12 +179,13 @@ return {
 		},
 	},
 
-	-- Keymap Popup Hints (Which-Key)
+	-- Keymap Popup Hints
 	{
 		"folke/which-key.nvim",
 		event = "VeryLazy",
 		opts = {
 			preset = "helix",
+			delay = 0,
 			win = { width = 0.5 },
 			spec = {
 				{ "<leader>s", group = "Search & Pickers", icon = "󰍉" },
@@ -217,7 +218,7 @@ return {
 		},
 	},
 
-	-- Multifunctional Suite (Snacks)
+	-- Multifunctional Suite
 	{
 		"folke/snacks.nvim",
 		priority = 1000,

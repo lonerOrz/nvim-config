@@ -11,9 +11,9 @@ vim.keymap.set("n", "y<S-H>", "y^", { desc = "Yank from start of line" })
 vim.keymap.set("n", "y<S-L>", "y$", { desc = "Yank to end of line" })
 
 -- Quick Save & Quit
-vim.keymap.set({ "n", "x" }, "Q", "<CMD>:qa<CR>", { desc = "Quit all" })
-vim.keymap.set({ "n", "x" }, "qq", "<CMD>:q<CR>", { desc = "Quit current window" })
 vim.keymap.set("n", "<C-s>", "<CMD>w<CR>", { desc = "Save file" })
+vim.keymap.set("n", "Q", "<CMD>confirm q<CR>", { desc = "Quit current window" })
+vim.keymap.set("n", "<leader>q", "<CMD>confirm qa<CR>", { desc = "Quit all" })
 
 -- Line Wrap Toggle
 vim.keymap.set("n", "<A-z>", "<CMD>set wrap!<CR>", { desc = "Toggle line wrap" })
@@ -25,13 +25,15 @@ vim.keymap.set("x", "<", "<gv", { noremap = true, silent = true })
 -- Utilities
 vim.keymap.set("v", "<leader>tt", [[: !xargs -I {} ts "{}"<CR>]], { desc = "Translate selection" })
 
--- Neovim 0.12 Native Undotree
+-- Neovim Native Undotree
 vim.keymap.set("n", "<leader>u", function()
-	pcall(vim.cmd, "packadd nvim.undotree")
+	pcall(function()
+		vim.cmd("packadd nvim.undotree")
+	end)
 	require("undotree").open()
 end, { desc = "Open native undotree" })
 
--- Universal Floating Preview Window Scroller
+-- Floating Preview Scroller
 local function scroll_floating_preview(lines)
 	local current_win = vim.api.nvim_get_current_win()
 	for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
@@ -47,16 +49,33 @@ local function scroll_floating_preview(lines)
 	return false
 end
 
--- Global Preview Scrolling Keys (Alt + Up/Down for ALL plugins)
-vim.keymap.set({ "n", "i", "t" }, "<A-Down>", function()
-	scroll_floating_preview(5)
+-- Scroll Floating Preview (<A-j> / <A-k>)
+vim.keymap.set({ "n", "i", "t" }, "<A-j>", function()
+	if not scroll_floating_preview(5) then
+		vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<A-j>", true, false, true), "n", false)
+	end
 end, { desc = "Scroll floating preview down" })
 
-vim.keymap.set({ "n", "i", "t" }, "<A-Up>", function()
-	scroll_floating_preview(-5)
+vim.keymap.set({ "n", "i", "t" }, "<A-k>", function()
+	if not scroll_floating_preview(-5) then
+		vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<A-k>", true, false, true), "n", false)
+	end
 end, { desc = "Scroll floating preview up" })
 
--- Duplicate line and keep column position
+-- Close Floating Windows
+vim.keymap.set("n", "<Esc>", function()
+	local current_win = vim.api.nvim_get_current_win()
+	for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+		local config = vim.api.nvim_win_get_config(win)
+		if win ~= current_win and config.relative ~= "" then
+			pcall(function()
+				vim.api.nvim_win_close(win, true)
+			end)
+		end
+	end
+end, { desc = "Close floating window" })
+
+-- Duplicate Line Preserving Cursor
 vim.keymap.set({ "n", "i" }, "<A-d>", function()
 	local is_insert = (vim.api.nvim_get_mode().mode == "i")
 	local col = vim.fn.col(".")

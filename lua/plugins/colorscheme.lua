@@ -29,6 +29,8 @@ return {
 			},
 			custom_highlights = function(colors)
 				return {
+					NormalNC = { bg = "NONE" },
+
 					-- UI & Line Numbers
 					LineNr = { fg = colors.surface2 },
 					CursorLine = { bg = colors.mantle },
