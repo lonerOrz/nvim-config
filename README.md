@@ -48,17 +48,17 @@ Upon initial launch, `lazy.nvim` will automatically download and install all con
 
 ## 🎹 Key Bindings Summary
 
-| Shortcut | Description |
-| ------------ | ---------------- |
-| `<leader>sf` or `<leader><space>` | Find project files |
-| `<leader>sg` | Live grep project |
-| `<leader>sb` or `<leader>,` | List open buffers |
-| `<leader>ya` | Open Yazi file manager |
-| `<leader>lg` | Launch Lazygit |
-| `<leader>ps` | Search sessions |
-| `<leader>pr` | Restore session |
-| `<leader>bs` | Open Scratchpad |
-| `<leader>cf` | Format current buffer |
+| Shortcut                          | Description            |
+| --------------------------------- | ---------------------- |
+| `<leader>sf` or `<leader><space>` | Find project files     |
+| `<leader>sg`                      | Live grep project      |
+| `<leader>sb` or `<leader>,`       | List open buffers      |
+| `<leader>ya`                      | Open Yazi file manager |
+| `<leader>lg`                      | Launch Lazygit         |
+| `<leader>ps`                      | Search sessions        |
+| `<leader>pr`                      | Restore session        |
+| `<leader>bs`                      | Open Scratchpad        |
+| `<leader>cf`                      | Format current buffer  |
 
 Full keymaps are interactively available via `which-key` (press `<leader>` and wait briefly).
 
