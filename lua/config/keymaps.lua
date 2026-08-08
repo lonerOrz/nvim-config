@@ -55,3 +55,16 @@ end, { desc = "Scroll floating preview down" })
 vim.keymap.set({ "n", "i", "t" }, "<A-Up>", function()
 	scroll_floating_preview(-5)
 end, { desc = "Scroll floating preview up" })
+
+-- Duplicate line and keep column position
+vim.keymap.set({ "n", "i" }, "<A-d>", function()
+	local is_insert = (vim.api.nvim_get_mode().mode == "i")
+	local col = vim.fn.col(".")
+
+	vim.cmd("copy .")
+	vim.fn.cursor(vim.fn.line("."), col)
+
+	if is_insert then
+		vim.cmd("startinsert" .. (col >= vim.fn.col("$") and "!" or ""))
+	end
+end, { desc = "Duplicate line preserving cursor" })

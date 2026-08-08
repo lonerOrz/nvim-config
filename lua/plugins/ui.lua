@@ -50,6 +50,7 @@ return {
 		"lewis6991/gitsigns.nvim",
 		event = { "BufReadPre", "BufNewFile" },
 		opts = {
+			current_line_blame = true,
 			signs = {
 				add = { text = "▎" },
 				change = { text = "▎" },
@@ -615,6 +616,18 @@ return {
 						.option("conceallevel", { off = 0, on = vim.o.conceallevel > 0 and vim.o.conceallevel or 2 })
 						:map("<leader>tc")
 					Snacks.toggle.treesitter():map("<leader>tT")
+					Snacks.toggle
+						.new({
+							id = "git_blame",
+							name = "Git Line Blame",
+							get = function()
+								return require("gitsigns.config").config.current_line_blame
+							end,
+							set = function(state)
+								require("gitsigns").toggle_current_line_blame(state)
+							end,
+						})
+						:map("<leader>tB")
 					Snacks.toggle
 						.option("background", { off = "light", on = "dark", name = "Dark Background" })
 						:map("<leader>tb")
