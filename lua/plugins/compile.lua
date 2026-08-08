@@ -26,13 +26,13 @@ return {
 				local cmds = {
 					c = "gcc % -o %:r && ./%:r",
 					cpp = "g++ % -o %:r && ./%:r",
-					rust = "cargo check",
+					rust = "cargo run",
 					nix = "nix build",
 					lua = "lua %",
 					python = "python3 %",
 					sh = "bash %",
 				}
-				return cmds[vim.bo.filetype] or "make -k"
+				return cmds[vim.bo.filetype] or ""
 			end
 
 			---@type CompileModeOpts
