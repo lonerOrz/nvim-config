@@ -24,8 +24,8 @@ return {
 				end
 
 				local cmds = {
-					c = "gcc % -o %:r && ./%:r",
-					cpp = "g++ % -o %:r && ./%:r",
+					c = "gcc % -o %:p:r && %:p:r",
+					cpp = "g++ % -o %:p:r && %:p:r",
 					rust = "cargo run",
 					nix = "nix build",
 					lua = "lua %",
@@ -35,7 +35,6 @@ return {
 				return cmds[vim.bo.filetype] or ""
 			end
 
-			---@type CompileModeOpts
 			vim.g.compile_mode = {
 				bang_expansion = true,
 				baleia_setup = true,
