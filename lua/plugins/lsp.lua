@@ -46,8 +46,18 @@ return {
 		dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" },
 		config = function()
 			require("lspsaga").setup({
-				lightbulb = { enable = true, sign = false },
+				ui = {
+					-- Nerd Font code action icon (1 icon + 1 space)
+					code_action = " 󰌵", -- change " 󰅩" or " 󰛩" or " 󰌵"
+				},
+				lightbulb = {
+					enable = true,
+					sign = false, -- Disable show icon in sign column
+					enable_in_insert = false, -- Disable in insert mode
+				},
 			})
+			-- Custom icon highlight color
+			vim.api.nvim_set_hl(0, "SagaLightBulb", { fg = "#F9E2AF", bold = true })
 		end,
 	},
 
@@ -61,7 +71,18 @@ return {
 				underline = true,
 				signs = false,
 				update_in_insert = false,
-				virtual_text = { spacing = 2, prefix = "●" },
+				virtual_text = {
+					spacing = 2,
+					prefix = function(diagnostic)
+						local icons = {
+							[vim.diagnostic.severity.ERROR] = "󰅚 ",
+							[vim.diagnostic.severity.WARN] = "󰀦 ",
+							[vim.diagnostic.severity.INFO] = "󰋼 ",
+							[vim.diagnostic.severity.HINT] = "󰌵 ",
+						}
+						return icons[diagnostic.severity] or "● "
+					end,
+				},
 				severity_sort = true,
 				float = { border = "rounded" },
 			},

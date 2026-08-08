@@ -91,7 +91,7 @@ return {
 		},
 	},
 
-	-- Buffer Tabline (Barbar - Clean and Independent)
+	-- Buffer Tabline
 	{
 		"romgrk/barbar.nvim",
 		version = "^1.0.0",
@@ -106,7 +106,6 @@ return {
 			-- Buffer Navigation (Alt + Arrow Keys)
 			{ "<A-Left>", "<CMD>BufferPrevious<CR>", mode = { "n" }, desc = "Previous buffer" },
 			{ "<A-Right>", "<CMD>BufferNext<CR>", mode = { "n" }, desc = "Next buffer" },
-			{ "<A-w>", "<CMD>BufferClose<CR>", mode = { "n" }, desc = "Close buffer" },
 			{ "<A-<>", "<CMD>BufferMovePrevious<CR>", mode = { "n" }, desc = "Move buffer left" },
 			{ "<A->>", "<CMD>BufferMoveNext<CR>", mode = { "n" }, desc = "Move buffer right" },
 
@@ -133,7 +132,12 @@ return {
 				pinned = { filename = true, icon = "󰐃", devicon = true },
 				separator = { left = "▎", right = "" },
 				separator_at_end = false,
-				diagnostics = false,
+				diagnostics = {
+					[vim.diagnostic.severity.ERROR] = { enabled = false },
+					[vim.diagnostic.severity.WARN] = { enabled = false },
+					[vim.diagnostic.severity.INFO] = { enabled = false },
+					[vim.diagnostic.severity.HINT] = { enabled = false },
+				},
 			},
 		},
 	},
@@ -170,7 +174,6 @@ return {
 			},
 			routes = {
 				{ filter = { event = "msg_show", kind = "search_count" }, opts = { skip = true } },
-				{ filter = { event = "msg_show", kind = "" }, opts = { skip = true } },
 			},
 		},
 	},
