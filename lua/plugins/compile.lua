@@ -40,6 +40,9 @@ return {
 				baleia_setup = true,
 				auto_scroll = true,
 				ask_about_save = true,
+				focus_compilation_buffer = true,
+				auto_jump_to_first_error = true,
+				error_threshold = require("compile-mode").level.WARNING,
 				default_command = get_default_command,
 			}
 		end,

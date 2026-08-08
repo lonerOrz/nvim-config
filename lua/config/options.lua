@@ -1,3 +1,6 @@
+-- Key combination timeout (default 1000ms)
+vim.opt.timeoutlen = 300
+
 -- Leader Keys
 vim.g.mapleader = " "
 vim.g.maplocalleader = "\\"
