@@ -33,7 +33,7 @@ return {
 
 					-- UI & Line Numbers
 					LineNr = { fg = colors.surface2 },
-					CursorLine = { bg = colors.mantle },
+					CursorLine = { bg = colors.surface0 },
 					CursorLineNr = { fg = colors.mauve, bold = true },
 					Visual = { bg = colors.surface1, style = { "bold" } },
 					Search = { bg = colors.surface2, fg = colors.text },
