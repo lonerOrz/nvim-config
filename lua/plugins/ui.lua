@@ -183,11 +183,38 @@ return {
 	{
 		"folke/which-key.nvim",
 		event = "VeryLazy",
+
 		opts = {
+			-- modern / classic / helix
 			preset = "helix",
+
+			-- Show immediately
 			delay = 0,
-			win = { width = 0.5 },
+
+			-- Vim builtin / operator / text-object help
+			plugins = {
+				presets = {
+					operators = true,
+					motions = true,
+					text_objects = true,
+					windows = true,
+					nav = true,
+					z = true,
+					g = true,
+				},
+
+				marks = true,
+				registers = true,
+
+				spelling = {
+					enabled = true,
+					suggestions = 20,
+				},
+			},
+
+			-- Your own keymap groups
 			spec = {
+				-- Leader
 				{ "<leader>s", group = "Search & Pickers", icon = "󰍉" },
 				{ "<leader>c", group = "Code & Refactor", icon = "󰅩" },
 				{ "<leader>t", group = "Toggles & UI", icon = "" },
@@ -199,21 +226,50 @@ return {
 				{ "<leader>f", group = "Flash Motion", icon = "" },
 				{ "<leader>b", group = "Buffer Tools", icon = "󰓩" },
 
-				{ "g", group = "LSP Navigation", icon = "󰏿" },
-				{ "]", group = "Next Item", icon = "󰒮" },
-				{ "[", group = "Prev Item", icon = "󰒭" },
+				-- Builtin namespaces
+				{ "g", group = "Goto / Actions", icon = "󰏿" },
+				{ "z", group = "Fold / View", icon = "󰁮" },
+				{ "]", group = "Next", icon = "󰒮" },
+				{ "[", group = "Previous", icon = "󰒭" },
 			},
+
+			-- Popup scrolling
+			keys = {
+				scroll_down = "<C-j>",
+				scroll_up = "<C-k>",
+			},
+
+			-- Window appearance
+			win = {
+				width = 0.5,
+				padding = { 1, 2 },
+				title = true,
+				title_pos = "center",
+				border = "rounded",
+			},
+
+			-- Column layout
+			layout = {
+				width = {
+					min = 20,
+				},
+				spacing = 3,
+			},
+
+			-- Keep your current behavior:
+			-- expand groups that don't have their own description
 			expand = function(node)
 				return not node.desc
 			end,
 		},
+
 		keys = {
 			{
 				"<leader>?",
 				function()
-					require("which-key").show({ global = false })
+					require("which-key").show()
 				end,
-				desc = "Buffer local keymaps",
+				desc = "Show keymaps",
 			},
 		},
 	},
