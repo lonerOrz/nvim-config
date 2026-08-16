@@ -16,7 +16,13 @@ return {
 				lualine_a = { "mode" },
 				lualine_b = { "branch", "diff", "diagnostics" },
 				lualine_c = { "lsp_status" },
-				lualine_x = {},
+				lualine_x = {
+					{
+						"%S",
+						color = "Statement",
+						padding = { left = 1, right = 1 },
+					},
+				},
 				lualine_y = { "encoding", "fileformat", "filetype", "progress" },
 				lualine_z = { "location" },
 			},
