@@ -49,6 +49,10 @@ vim.wo.wrap = false
 -- True Colors
 vim.opt.termguicolors = true
 
+-- Show cmd
+vim.opt.showcmd = true
+vim.opt.showcmdloc = "statusline"
+
 -- Persistent Undo
 vim.opt.undofile = true
 vim.opt.undodir = vim.fn.stdpath("state") .. "/undo"
