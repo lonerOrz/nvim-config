@@ -13,6 +13,15 @@ return {
 			{ "<leader>cq", "<CMD>silent! bdelete! *compilation*<CR>", desc = "Delete compilation buffer" },
 		},
 		init = function()
+			vim.api.nvim_create_autocmd("FileType", {
+				pattern = "compilation",
+				callback = function(ev)
+					vim.bo[ev.buf].buflisted = false
+
+					vim.keymap.set("n", "q", "<CMD>bdelete!<CR>", { buffer = ev.buf, silent = true })
+				end,
+			})
+
 			-- Smart default command getter
 			local function get_default_command()
 				local has_just = #vim.fs.find(
