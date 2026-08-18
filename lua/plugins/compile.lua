@@ -12,36 +12,95 @@ return {
 			{ "<leader>cR", "<CMD>Recompile<CR>", desc = "Recompile last command" },
 			{ "<leader>cq", "<CMD>silent! bdelete! *compilation*<CR>", desc = "Delete compilation buffer" },
 		},
+
 		init = function()
 			vim.api.nvim_create_autocmd("FileType", {
 				pattern = "compilation",
 				callback = function(ev)
 					vim.bo[ev.buf].buflisted = false
 
-					vim.keymap.set("n", "q", "<CMD>bdelete!<CR>", { buffer = ev.buf, silent = true })
+					vim.keymap.set("n", "q", "<CMD>bdelete!<CR>", {
+						buffer = ev.buf,
+						silent = true,
+					})
 				end,
 			})
 
-			-- Smart default command getter
+			-- Find a file by walking upward from the current file.
+			local function find_upward(name)
+				local result = vim.fs.find(name, {
+					upward = true,
+					path = vim.fn.expand("%:p:h"),
+				})
+
+				return result[1]
+			end
+
+			-- Get the default compilation command.
 			local function get_default_command()
-				local has_just = #vim.fs.find(
-					{ "justfile", "Justfile" },
-					{ upward = true, path = vim.fn.expand("%:p:h") }
-				) > 0
-				if has_just then
+				local filetype = vim.bo.filetype
+
+				if find_upward({ "justfile", "Justfile" }) then
 					return "just build"
 				end
 
-				local cmds = {
-					c = "gcc % -o %:p:r && %:p:r",
-					cpp = "g++ % -o %:p:r && %:p:r",
-					rust = "cargo run",
-					nix = "nix build",
-					lua = "lua %",
-					python = "python3 %",
-					sh = "bash %",
-				}
-				return cmds[vim.bo.filetype] or ""
+				if filetype == "c" then
+					return "gcc % -Wall -Wextra -std=c17 -o %:p:r && ./%:t:r"
+				end
+
+				if filetype == "cpp" then
+					return "g++ % -Wall -Wextra -std=c++20 -o %:p:r && ./%:t:r"
+				end
+
+				if filetype == "rust" then
+					if find_upward("Cargo.toml") then
+						return "cargo run"
+					end
+
+					return "rustc % -o %:p:r && ./%:t:r"
+				end
+
+				if filetype == "go" then
+					if find_upward("go.mod") then
+						return "go run ."
+					end
+
+					return "go run %"
+				end
+
+				if filetype == "zig" then
+					if find_upward("build.zig") then
+						return "zig build run"
+					end
+
+					return "zig run %"
+				end
+
+				if filetype == "java" then
+					return "javac % && java %:t:r"
+				end
+
+				if filetype == "python" then
+					return "python3 %"
+				end
+
+				if filetype == "lua" then
+					return "lua %"
+				end
+
+				if filetype == "sh" then
+					return "bash %"
+				end
+
+				if filetype == "nix" then
+					if find_upward("flake.nix") then
+						return "nix run"
+					end
+
+					return "nix build"
+				end
+
+				return ""
 			end
 
 			vim.g.compile_mode = {
