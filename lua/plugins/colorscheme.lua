@@ -84,8 +84,8 @@ return {
 			},
 		},
 		config = function(_, opts)
-			require("catppuccin").setup(opts)
-			vim.cmd.colorscheme("catppuccin")
+			-- Hand the full UI spec to the local theme system for rendering
+			require("theme.theme").init(opts)
 		end,
 	},
 }
