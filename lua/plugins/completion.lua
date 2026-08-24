@@ -216,7 +216,7 @@ return {
 					min_width = 1,
 					max_width = 100,
 					max_height = 10,
-					border = "single",
+					border = "rounded",
 					winblend = 0,
 					winhighlight = "Normal:BlinkCmpSignatureHelp,FloatBorder:BlinkCmpSignatureHelpBorder",
 					scrollbar = false,
