@@ -67,7 +67,7 @@ return {
 					return " Codeium"
 				end,
 				color = function()
-					local theme = require("catppuccin.palettes").get_palette("mocha")
+					local theme = require("theme.theme").palette()
 					local state = get_codeium_state()
 
 					if state == "waiting" then

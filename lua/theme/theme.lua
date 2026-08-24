@@ -53,11 +53,12 @@ end
 local Engine = {
 	current_id = nil,
 	base_opts = {},
+	theme = nil,
 }
 
-function Engine.render(theme)
+function Engine.preview(theme)
 	Engine.current_id = theme.id
-	Storage.save_id(theme.id)
+	Engine.theme = theme
 
 	local final_opts = vim.tbl_deep_extend("force", Engine.base_opts, {
 		color_overrides = { all = theme.colors },
@@ -65,6 +66,11 @@ function Engine.render(theme)
 
 	require("catppuccin").setup(final_opts)
 	vim.cmd.colorscheme("catppuccin")
+end
+
+function Engine.render(theme)
+	Storage.save_id(theme.id)
+	Engine.preview(theme)
 end
 
 --------------------------------------------------------------------------------
@@ -102,9 +108,11 @@ function UI.register_autocmd()
 	})
 end
 
-function UI.register_keymaps()
-	vim.keymap.set("n", "<leader>tm", function()
-		vim.ui.select(Loader.scan_all(), {
+function UI.open_picker()
+	local themes = Loader.scan_all()
+	local ok, fzf = pcall(require, "fzf-lua")
+	if not ok then
+		return vim.ui.select(themes, {
 			prompt = "Select Colorscheme:",
 			format_item = function(d)
 				return ("%-20s (%s)"):format(d.name, d.id)
@@ -114,7 +122,46 @@ function UI.register_keymaps()
 				M.apply(selected.id)
 			end
 		end)
-	end, { desc = "Pick theme palette" })
+	end
+
+	local orig_id = Engine.current_id or Storage.get_saved_id()
+	local by_name = function(n)
+		return vim.tbl_filter(function(d)
+			return d.name == n
+		end, themes)[1]
+	end
+	fzf.fzf_exec(
+		vim.tbl_map(function(d)
+			return d.name
+		end, themes),
+		{
+			prompt = "Themes ❯ ",
+			winopts = {
+				height = 0.45,
+				width = 0.55,
+				row = 0.40,
+				border = "rounded",
+				preview = { layout = "horizontal", horizontal = "right:45%" },
+			},
+			preview = function(item)
+				local t = by_name(item[1])
+				if t then
+					Engine.preview(t)
+				end
+				return ("%s\nid: %s\nmauve: %s\nbase: %s"):format(t.name, t.id, t.colors.mauve, t.colors.base)
+			end,
+			fn_selected = function(_, selected)
+				if selected[1] and by_name(selected[1]) then
+					return M.apply(by_name(selected[1]).id)
+				end
+				M.apply(orig_id) -- aborted: rollback to original theme
+			end,
+		}
+	)
+end
+
+function UI.register_keymaps()
+	vim.keymap.set("n", "<leader>tm", UI.open_picker, { desc = "Pick theme palette" })
 end
 
 --------------------------------------------------------------------------------
@@ -143,6 +190,12 @@ function M.init(plugin_opts)
 	UI.register_command()
 	UI.register_autocmd()
 	UI.register_keymaps()
+end
+
+---Palette of the active theme, {} before first render.
+---@return table
+function M.palette()
+	return Engine.theme and Engine.theme.colors or {}
 end
 
 return M

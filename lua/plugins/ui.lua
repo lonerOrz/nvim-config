@@ -28,8 +28,6 @@ return {
 			},
 		},
 		config = function(_, opts)
-			local theme = require("catppuccin.palettes").get_palette("mocha")
-
 			local function show_macro_recording()
 				local recording_register = vim.fn.reg_recording()
 				if recording_register == "" then
@@ -41,7 +39,10 @@ return {
 
 			local macro_recording = {
 				show_macro_recording,
-				color = { fg = "#333333", bg = theme.red },
+				color = function()
+					local c = require("theme.theme").palette()
+					return { fg = c.base, bg = c.red }
+				end,
 				separator = { left = "", right = "" },
 				padding = 0,
 			}
@@ -166,6 +167,8 @@ return {
 		opts = {
 			popupmenu = { enabled = false },
 			lsp = {
+				-- K is handled by lspsaga; keep noice out of hover
+				hover = { enabled = false },
 				override = {
 					["vim.lsp.util.convert_input_to_markdown_lines"] = true,
 					["vim.lsp.util.stylize_markdown"] = true,
@@ -698,8 +701,6 @@ return {
 					Snacks.toggle.indent():map("<leader>tg")
 					Snacks.toggle.profiler():map("<leader>tpp")
 					Snacks.toggle.profiler_highlights():map("<leader>tph")
-
-					vim.api.nvim_set_hl(0, "SnacksPickerListCursorLine", { bg = "#313244" })
 				end,
 			})
 		end,

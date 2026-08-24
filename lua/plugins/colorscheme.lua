@@ -43,10 +43,36 @@ return {
 
 					-- Floating Windows & Noice UI
 					NormalFloat = { bg = colors.mantle },
-					FloatBorder = { bg = colors.mantle, fg = colors.mauve },
+					FloatBorder = { bg = "NONE", fg = colors.mauve },
 					FloatTitle = { bg = colors.mauve, fg = colors.base, bold = true },
 					NoicePopup = { bg = colors.mantle },
 					NoiceCmdlinePopupBorder = { fg = colors.mauve },
+
+					-- Lspsaga hover (winhl targets these; not covered by integrations)
+					HoverNormal = { bg = colors.mantle },
+					HoverBorder = { bg = "NONE", fg = colors.mauve },
+					SagaLightBulb = { fg = colors.yellow, bold = true },
+					SagaNormal = { bg = colors.mantle },
+					SagaDoc = { bg = colors.mantle },
+					SagaWinbar = { fg = colors.mauve },
+					SagaTitle = { bg = colors.mauve, fg = colors.base, bold = true },
+
+					-- Float bodies/borders/titles not covered by integrations
+					FloatFooter = { fg = colors.overlay0 },
+					NoiceCmdlinePopup = { bg = colors.mantle },
+					NoiceCmdlinePopupTitle = { bg = colors.mauve, fg = colors.base, bold = true },
+					WhichKeyNormal = { bg = colors.mantle },
+					WhichKeyBorder = { bg = "NONE", fg = colors.mauve },
+					WhichKeyTitle = { bg = colors.mauve, fg = colors.base, bold = true },
+					BlinkCmpMenu = { bg = colors.mantle },
+					BlinkCmpMenuBorder = { bg = "NONE", fg = colors.mauve },
+					BlinkCmpDoc = { bg = colors.mantle },
+					BlinkCmpDocBorder = { bg = "NONE", fg = colors.mauve },
+					BlinkCmpDocSeparator = { fg = colors.overlay0 },
+					BlinkCmpSignatureHelp = { bg = colors.mantle },
+					BlinkCmpSignatureHelpBorder = { bg = "NONE", fg = colors.mauve },
+					SnacksPicker = { bg = colors.mantle },
+					SnacksPickerBorder = { bg = "NONE", fg = colors.mauve },
 
 					-- Snacks Pickers
 					SnacksPickerListCursorLine = { bg = colors.surface0 },
