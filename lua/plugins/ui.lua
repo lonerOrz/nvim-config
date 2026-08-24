@@ -329,20 +329,31 @@ return {
 					zindex = 50,
 				},
 			},
-			dashboard = {
-				formats = {
-					key = function(item)
-						return { { "[", hl = "special" }, { item.key, hl = "key" }, { "]", hl = "special" } }
-					end,
-				},
-				sections = {
-					{ section = "header" },
-					{ icon = "󰌌 ", title = "Keymaps", section = "keys", indent = 2, padding = 1 },
-					{ icon = "󰈔 ", title = "Recent Files", section = "recent_files", indent = 2, padding = 1 },
-					{ icon = "󰉋 ", title = "Projects", section = "projects", indent = 2, padding = 1 },
-					{ section = "startup" },
-				},
+				dashboard = {
+					width = 50,
+					pane_gap = 6,
+					preset = {
+						header = [[
+   ⣴⣶⣤⡤⠦⣤⣀⣤⠆     ⣈⣭⣿⣶⣿⣦⣼⣆          
+    ⠉⠻⢿⣿⠿⣿⣿⣶⣦⠤⠄⡠⢾⣿⣿⡿⠋⠉⠉⠻⣿⣿⡛⣦       
+          ⠈⢿⣿⣟⠦ ⣾⣿⣿⣷    ⠻⠿⢿⣿⣧⣄     
+           ⣸⣿⣿⢧ ⢻⠻⣿⣿⣷⣄⣀⠄⠢⣀⡀⠈⠙⠿⠄    
+          ⢠⣿⣿⣿⠈    ⣻⣿⣿⣿⣿⣿⣿⣿⣛⣳⣤⣀⣀   
+   ⢠⣧⣶⣥⡤⢄ ⣸⣿⣿⠘  ⢀⣴⣿⣿⡿⠛⣿⣿⣧⠈⢿⠿⠟⠛⠻⠿⠄  
+  ⣰⣿⣿⠛⠻⣿⣿⡦⢹⣿⣷   ⢊⣿⣿⡏  ⢸⣿⣿⡇ ⢀⣠⣄⣾⠄   
+ ⣠⣿⠿⠛ ⢀⣿⣿⣷⠘⢿⣿⣦⡀ ⢸⢿⣿⣿⣄ ⣸⣿⣿⡇⣪⣿⡿⠿⣿⣷⡄  
+ ⠙⠃   ⣼⣿⡟  ⠈⠻⣿⣿⣦⣌⡇⠻⣿⣿⣷⣿⣿⣿ ⣿⣿⡇ ⠛⠻⢷⣄ 
+      ⢻⣿⣿⣄   ⠈⠻⣿⣿⣿⣷⣿⣿⣿⣿⣿⡟ ⠫⢿⣿⡆     
+       ⠻⣿⣿⣿⣿⣶⣶⣾⣿⣿⣿⣿⣿⣿⣿⣿⡟⢀⣀⣤⣾⡿⠃     
+						]],
+					},
+					sections = {
+						{ section = "header", pane = 1 },
+						{ section = "keys", gap = 1, padding = 1, pane = 2 },
+						{ section = "startup", pane = 2 },
+					},
 			},
+
 		},
 		keys = {
 			-- Terminal & Buffer Tools
