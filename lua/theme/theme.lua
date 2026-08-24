@@ -152,18 +152,21 @@ function UI.open_picker()
 				border = "rounded",
 				preview = { layout = "horizontal", horizontal = "right:45%" },
 			},
-			preview = function(item)
-				local t = by_name(item[1])
-				if t then
-					Engine.preview(t)
+			preview = function(items)
+				local t = items and by_name(items[1])
+				if not t then
+					return ""
 				end
+				Engine.preview(t)
 				return ("%s\nid: %s\nmauve: %s\nbase: %s"):format(t.name, t.id, t.colors.mauve, t.colors.base)
 			end,
-			fn_selected = function(_, selected)
-				if selected[1] and by_name(selected[1]) then
-					return M.apply(by_name(selected[1]).id)
+			fn_selected = function(selected)
+				for _, n in ipairs(selected or {}) do
+					local t = by_name(n)
+					if t then
+						return M.apply(t.id)
+					end
 				end
-				M.apply(orig_id) -- aborted: rollback to original theme
 			end,
 		}
 	)
