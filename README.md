@@ -10,11 +10,11 @@
 
 - ⚙️ Modular plugin loading with `lazy.nvim`
 - 🧠 LSP support (`nixd`, `lua_ls`, `rust-analyzer`)
-- 🧹 Formatting via `stylua`, `black`, `prettier`, and `none-ls`
+- 🧹 Formatting via `conform.nvim` (`prettier`, `taplo`, `sql-formatter`, LSP fallback)
 - 🔍 Fast picker & file management (`snacks.picker`, `fzf-lua`, `yazi.nvim`)
 - 🎨 Beautiful UI with Nerd Font, `noice.nvim`, and `catppuccin` colorscheme
-- 📝 Modern completion powered by `blink.cmp` & GitHub Copilot
-- 📋 Session management (`auto-session`) and smart Keybinding hints (`which-key`)
+- 📝 Modern completion powered by `blink.cmp` & Windsurf AI (Codeium)
+- 📋 Smart Keybinding hints (`which-key`)
 
 ## 🧰 Requirements
 
@@ -40,25 +40,28 @@ Upon initial launch, `lazy.nvim` will automatically download and install all con
 
 - **Plugin management**: `lazy.nvim`
 - **UI & Dashboard**: `catppuccin`, `lualine`, `barbar.nvim`, `noice.nvim`, `snacks.nvim`, `which-key.nvim`
-- **LSP & Formatting**: `nvim-lspconfig`, `mason-org/mason.nvim`, `lspsaga.nvim`, `none-ls.nvim`, `lazydev.nvim`, `trouble.nvim`
-- **Completion & AI**: `blink.cmp`, `copilot.lua`, `blink-copilot`
+- **LSP & Formatting**: `nvim-lspconfig`, `mason-org/mason.nvim`, `lspsaga.nvim`, `conform.nvim`, `lazydev.nvim`, `trouble.nvim`
+- **Completion & AI**: `blink.cmp`, `windsurf.nvim`
 - **Fuzzy Finding & Tools**: `snacks.picker`, `fzf-lua`, `yazi.nvim`
-- **Git & Diff**: `mini.diff`, `gitsigns.nvim`, `snacks.lazygit`
-- **Productivity**: `auto-session`, `markview.nvim`, `flash.nvim`, `compile-mode.nvim`
+- **Git & Diff**: `gitsigns.nvim`, `snacks.lazygit`
+- **Productivity**: `markview.nvim`, `flash.nvim`, `compile-mode.nvim`
 
 ## 🎹 Key Bindings Summary
 
-| Shortcut                          | Description            |
-| --------------------------------- | ---------------------- |
-| `<leader>sf` or `<leader><space>` | Find project files     |
-| `<leader>sg`                      | Live grep project      |
-| `<leader>sb` or `<leader>,`       | List open buffers      |
-| `<leader>ya`                      | Open Yazi file manager |
-| `<leader>lg`                      | Launch Lazygit         |
-| `<leader>ps`                      | Search sessions        |
-| `<leader>pr`                      | Restore session        |
-| `<leader>bs`                      | Open Scratchpad        |
-| `<leader>cf`                      | Format current buffer  |
+Keymaps follow a **prefix semantics + mnemonic suffix** convention:
+
+| Prefix      | Scope                   |
+| ----------- | ----------------------- |
+| `<leader>s` | Search & Find           |
+| `<leader>c` | Code (LSP actions)      |
+| `<leader>j` | Jump & Motion (`flash`) |
+| `<leader>b` | Buffers                 |
+| `<leader>t` | Toggles                 |
+| `<leader>l` | Git / Lazygit           |
+| `<leader>y` | Yazi file manager       |
+| `<leader>n` | Notifications           |
+| `<leader>m` | Markdown preview        |
+| `<leader>u` | Utilities               |
 
 Full keymaps are interactively available via `which-key` (press `<leader>` and wait briefly).
 
@@ -69,7 +72,7 @@ Full keymaps are interactively available via `which-key` (press `<leader>` and w
 ├── init.lua               # Entry point & environment setup
 ├── lazy-lock.json         # Plugin lockfile
 ├── lua/
-│   ├── colors/            # Theme & highlight config
+│   ├── theme/               # Theme & highlight config
 │   ├── config/            # Core settings, keymaps, lazy setup
 │   ├── lang/              # LSP & language-specific configurations
 │   └── plugins/           # Plugin modules

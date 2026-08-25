@@ -3,42 +3,29 @@ return {
 	{
 		"nvim-treesitter/nvim-treesitter",
 		branch = "main",
-		lazy = false,
+		event = { "BufReadPre", "BufNewFile" },
 		build = ":TSUpdate",
 
 		opts = {
+			-- Generic/misc parsers only; language-specific ones live in lang/*.lua
 			ensure_installed = {
-				"bash",
-				"c",
-				"cmake",
-				"css",
 				"dockerfile",
 				"elixir",
-				"go",
 				"heex",
-				"html",
 				"ini",
-				"javascript",
-				"json",
 				"just",
 				"latex",
-				"make",
 				"markdown",
-				"nix",
-				"python",
+				"markdown_inline",
 				"query",
 				"regex",
 				"scss",
 				"sql",
-				"svelte",
 				"toml",
-				"tsx",
-				"typescript",
 				"typst",
 				"vim",
 				"vimdoc",
 				"yaml",
-				"rust",
 			},
 		},
 
@@ -65,7 +52,10 @@ return {
 						return
 					end
 
-					pcall(vim.treesitter.start, bufnr)
+					local ok = pcall(vim.treesitter.start, bufnr)
+					if not ok then
+						return
+					end
 
 					vim.wo[0][0].foldmethod = "expr"
 					vim.wo[0][0].foldexpr = "v:lua.vim.treesitter.foldexpr()"

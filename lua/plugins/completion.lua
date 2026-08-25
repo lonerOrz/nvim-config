@@ -2,10 +2,9 @@ return {
 	-- Blink Completion Engine
 	{
 		"saghen/blink.cmp",
-		event = "InsertEnter",
+		event = { "InsertEnter", "CmdlineEnter" },
 		dependencies = {
 			"nvim-tree/nvim-web-devicons",
-			"onsails/lspkind.nvim",
 			"folke/lazydev.nvim",
 		},
 		version = "1.*",
@@ -158,25 +157,15 @@ return {
 								ellipsis = false,
 								text = function(ctx)
 									local icon = ctx.kind_icon
-									if icon then
-									elseif vim.tbl_contains({ "Path" }, ctx.source_name) then
-										local dev_icon, _ = require("nvim-web-devicons").get_icon(ctx.label)
-										if dev_icon then
-											icon = dev_icon
-										end
-									else
-										icon = require("lspkind").symbolic(ctx.kind)
+									if not icon and vim.tbl_contains({ "Path" }, ctx.source_name) then
+										icon = require("nvim-web-devicons").get_icon(ctx.label)
 									end
-									return icon .. ctx.icon_gap
+									return (icon or "") .. ctx.icon_gap
 								end,
 								highlight = function(ctx)
 									local hl = ctx.kind_hl
-									if hl then
-									elseif vim.tbl_contains({ "Path" }, ctx.source_name) then
-										local dev_icon, dev_hl = require("nvim-web-devicons").get_icon(ctx.label)
-										if dev_icon then
-											hl = dev_hl
-										end
+									if not hl and vim.tbl_contains({ "Path" }, ctx.source_name) then
+										_, hl = require("nvim-web-devicons").get_icon(ctx.label)
 									end
 									return hl
 								end,
@@ -216,7 +205,7 @@ return {
 					min_width = 1,
 					max_width = 100,
 					max_height = 10,
-					border = "single",
+					border = "rounded",
 					winblend = 0,
 					winhighlight = "Normal:BlinkCmpSignatureHelp,FloatBorder:BlinkCmpSignatureHelpBorder",
 					scrollbar = false,

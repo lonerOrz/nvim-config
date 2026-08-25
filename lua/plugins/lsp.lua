@@ -18,25 +18,15 @@ return {
 					end
 				end
 			end
-			if mr.refresh then
-				mr.refresh(ensure_installed)
-			else
-				ensure_installed()
-			end
+			-- Defer past the first file open burst
+			vim.defer_fn(function()
+				if mr.refresh then
+					mr.refresh(ensure_installed)
+				else
+					ensure_installed()
+				end
+			end, 150)
 		end,
-	},
-
-	-- Mason LSPConfig Integration
-	{
-		"mason-org/mason-lspconfig.nvim",
-		event = { "BufReadPre", "BufNewFile" },
-		dependencies = {
-			"mason-org/mason.nvim",
-			"neovim/nvim-lspconfig",
-		},
-		opts = {
-			automatic_enable = false,
-		},
 	},
 
 	-- Lspsaga
@@ -47,8 +37,12 @@ return {
 		config = function()
 			require("lspsaga").setup({
 				ui = {
+					border = "rounded",
 					-- Nerd Font code action icon (1 icon + 1 space)
 					code_action = " 󰌵", -- change " 󰅩" or " 󰛩" or " 󰌵"
+				},
+				hover = {
+					open_link = "gx",
 				},
 				lightbulb = {
 					enable = true,
@@ -56,8 +50,6 @@ return {
 					enable_in_insert = false, -- Disable in insert mode
 				},
 			})
-			-- Custom icon highlight color
-			vim.api.nvim_set_hl(0, "SagaLightBulb", { fg = "#F9E2AF", bold = true })
 		end,
 	},
 
@@ -97,14 +89,13 @@ return {
 			pcall(vim.keymap.del, "n", "grr")
 			pcall(vim.keymap.del, "n", "gri")
 
-			vim.cmd([[
-      highlight! DiagnosticUnderlineError guisp=#FF0000 gui=undercurl
-      highlight! DiagnosticVirtualTextError guifg=#FF4C4C
-      highlight! link DiagnosticHint DiagnosticWarn
-    ]])
+			vim.cmd([[highlight! link DiagnosticHint DiagnosticWarn]])
 
-			local blink_cmp = require("blink.cmp")
-			local capabilities = blink_cmp.get_lsp_capabilities()
+			local capabilities = vim.lsp.protocol.make_client_capabilities()
+			local ok, blink_cmp = pcall(require, "blink.cmp")
+			if ok then
+				capabilities = blink_cmp.get_lsp_capabilities(capabilities)
+			end
 
 			-- Register and enable each configured server once
 			for server_name, server_opts in pairs(opts.servers) do
@@ -120,11 +111,11 @@ return {
 				group = vim.api.nvim_create_augroup("UserLspConfig", {}),
 				callback = function(ev)
 					local client = vim.lsp.get_client_by_id(ev.data.client_id)
-					if client and client.supports_method("textDocument/inlayHint") then
+					if client and client:supports_method("textDocument/inlayHint") then
 						vim.lsp.inlay_hint.enable(true, { bufnr = ev.buf })
 					end
 
-					-- Hover and Help
+					-- Hover and Help (double-K enters float, gx opens links)
 					vim.keymap.set(
 						"n",
 						"K",
@@ -145,23 +136,6 @@ return {
 						"<cmd>Lspsaga code_action<CR>",
 						{ buffer = ev.buf, desc = "Code action" }
 					)
-
-					-- Workspace Management
-					vim.keymap.set(
-						"n",
-						"<leader>wa",
-						vim.lsp.buf.add_workspace_folder,
-						{ buffer = ev.buf, desc = "Add workspace folder" }
-					)
-					vim.keymap.set(
-						"n",
-						"<leader>wr",
-						vim.lsp.buf.remove_workspace_folder,
-						{ buffer = ev.buf, desc = "Remove workspace folder" }
-					)
-					vim.keymap.set("n", "<leader>wl", function()
-						vim.notify(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-					end, { buffer = ev.buf, desc = "List workspace folders" })
 				end,
 			})
 		end,
