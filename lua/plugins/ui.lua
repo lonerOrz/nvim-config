@@ -329,11 +329,11 @@ return {
 					zindex = 50,
 				},
 			},
-				dashboard = {
-					width = 50,
-					pane_gap = 6,
-					preset = {
-						header = [[
+			dashboard = {
+				width = 50,
+				pane_gap = 6,
+				preset = {
+					header = [[
    ⣴⣶⣤⡤⠦⣤⣀⣤⠆     ⣈⣭⣿⣶⣿⣦⣼⣆          
     ⠉⠻⢿⣿⠿⣿⣿⣶⣦⠤⠄⡠⢾⣿⣿⡿⠋⠉⠉⠻⣿⣿⡛⣦       
           ⠈⢿⣿⣟⠦ ⣾⣿⣿⣷    ⠻⠿⢿⣿⣧⣄     
@@ -346,14 +346,13 @@ return {
       ⢻⣿⣿⣄   ⠈⠻⣿⣿⣿⣷⣿⣿⣿⣿⣿⡟ ⠫⢿⣿⡆     
        ⠻⣿⣿⣿⣿⣶⣶⣾⣿⣿⣿⣿⣿⣿⣿⣿⡟⢀⣀⣤⣾⡿⠃     
 						]],
-					},
-					sections = {
-						{ section = "header", pane = 1 },
-						{ section = "keys", gap = 1, padding = 1, pane = 2 },
-						{ section = "startup", pane = 2 },
-					},
+				},
+				sections = {
+					{ section = "header", pane = 1 },
+					{ section = "keys", gap = 1, padding = 1, pane = 2 },
+					{ section = "startup", pane = 2 },
+				},
 			},
-
 		},
 		keys = {
 			-- Terminal & Buffer Tools
@@ -720,15 +719,5 @@ return {
 				end,
 			})
 		end,
-	},
-
-	-- Diagnostics & Symbols Panels (<leader>c)
-	{
-		"folke/trouble.nvim",
-		keys = {
-			{ "<leader>cd", "<CMD>Trouble diagnostics toggle<CR>", desc = "Toggle diagnostics panel" },
-			{ "<leader>cs", "<CMD>Trouble symbols toggle<CR>", desc = "Toggle symbols panel" },
-		},
-		opts = {},
 	},
 }

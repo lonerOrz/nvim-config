@@ -110,7 +110,7 @@ return {
 				focus_compilation_buffer = true,
 				auto_jump_to_first_error = false,
 				-- Literal 1 equals WARNING; a require here would force-load plugins at startup
-			error_threshold = 1,
+				error_threshold = 1,
 				default_command = get_default_command,
 			}
 		end,
