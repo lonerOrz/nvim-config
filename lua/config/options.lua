@@ -104,6 +104,10 @@ local is_ssh = vim.env.SSH_TTY ~= nil
 
 if is_ssh then
 	local osc52 = require("vim.ui.clipboard.osc52")
+	-- paste() queries the terminal and blocks for seconds when it never
+	-- answers (most terminals deny clipboard reads); fall back to the
+	-- internal register — local->remote pasting uses the terminal's own
+	-- Ctrl+Shift+V / Cmd+V anyway.
 	vim.g.clipboard = {
 		name = "OSC52",
 		copy = {
@@ -111,8 +115,12 @@ if is_ssh then
 			["*"] = osc52.copy("*"),
 		},
 		paste = {
-			["+"] = osc52.paste("+"),
-			["*"] = osc52.paste("*"),
+			["+"] = function()
+				return vim.fn.split(vim.fn.getreg(""), "\n"), vim.fn.getregtype("")
+			end,
+			["*"] = function()
+				return vim.fn.split(vim.fn.getreg(""), "\n"), vim.fn.getregtype("")
+			end,
 		},
 	}
 elseif is_wsl and vim.fn.executable("wl-copy") == 1 then

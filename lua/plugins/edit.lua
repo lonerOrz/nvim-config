@@ -13,10 +13,9 @@ return {
 		event = "VeryLazy",
 		opts = {
 			mappings = {
-				add = "sa", -- Add surrounding
-				delete = "sd", -- Delete surrounding
-				replace = "sr", -- Replace surrounding
-				-- Note: 'ci"' is a native Vim operation (Change Inside Quote)
+				add = "gza", -- Add surrounding
+				delete = "gzd", -- Delete surrounding
+				replace = "gzr", -- Replace surrounding
 			},
 		},
 	},
