@@ -4,7 +4,6 @@ local M = {}
 -- Storage Layer
 --------------------------------------------------------------------------------
 local Storage = {}
-Storage.DIR = vim.fn.stdpath("config") .. "/lua/theme/themes"
 Storage.FILE = vim.fn.stdpath("state") .. "/theme.state"
 
 function Storage.get_saved_id()
@@ -32,7 +31,8 @@ end
 
 function Loader.scan_all()
 	local themes = {}
-	for _, file in ipairs(vim.fn.glob(Storage.DIR .. "/*.lua", false, true)) do
+	local files = vim.api.nvim_get_runtime_file("lua/theme/themes/*.lua", true)
+	for _, file in ipairs(files) do
 		local id = vim.fs.basename(file):gsub("%.lua$", "")
 		local theme = Loader.load(id)
 		if theme then
@@ -98,7 +98,7 @@ end
 
 function UI.register_autocmd()
 	vim.api.nvim_create_autocmd("BufWritePost", {
-		pattern = Storage.DIR .. "/*.lua",
+		pattern = "*/lua/theme/themes/*.lua",
 		callback = function(args)
 			local id = vim.fs.basename(args.file):gsub("%.lua$", "")
 			if (Engine.current_id or Storage.get_saved_id()) == id then
@@ -110,10 +110,9 @@ end
 
 function UI.open_picker()
 	local themes = Loader.scan_all()
-	-- fzf cursor starts at row 1, so put current theme first
-	local cur = Engine.current_id or Storage.get_saved_id()
+	local orig_id = Engine.current_id or Storage.get_saved_id()
 	for i, d in ipairs(themes) do
-		if d.id == cur then
+		if d.id == orig_id then
 			table.remove(themes, i)
 			table.insert(themes, 1, d)
 			break
@@ -129,11 +128,15 @@ function UI.open_picker()
 		}, function(selected)
 			if selected then
 				M.apply(selected.id)
+			else
+				local orig = Loader.load(orig_id)
+				if orig then
+					Engine.preview(orig)
+				end
 			end
 		end)
 	end
 
-	local orig_id = Engine.current_id or Storage.get_saved_id()
 	local by_name = function(n)
 		return vim.tbl_filter(function(d)
 			return d.name == n
@@ -166,6 +169,10 @@ function UI.open_picker()
 					if t then
 						return M.apply(t.id)
 					end
+				end
+				local orig = Loader.load(orig_id)
+				if orig then
+					Engine.preview(orig)
 				end
 			end,
 		}

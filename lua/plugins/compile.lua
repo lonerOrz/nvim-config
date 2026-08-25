@@ -9,7 +9,7 @@ return {
 		cmd = { "Compile", "Recompile" },
 		keys = {
 			{ "<leader>cm", "<CMD>Compile<CR>", desc = "Start compile" },
-			{ "<leader>cR", "<CMD>Recompile<CR>", desc = "Recompile last command" },
+			{ "<leader>cc", "<CMD>Recompile<CR>", desc = "Recompile last command" },
 			{ "<leader>cq", "<CMD>silent! bdelete! *compilation*<CR>", desc = "Delete compilation buffer" },
 		},
 

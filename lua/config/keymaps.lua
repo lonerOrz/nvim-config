@@ -62,8 +62,9 @@ vim.keymap.set({ "n", "i", "t" }, "<A-k>", function()
 	end
 end, { desc = "Scroll floating preview up" })
 
--- Close Floating Windows
+-- Close Floating Windows & Clear Search Highlight
 vim.keymap.set("n", "<Esc>", function()
+	vim.cmd("nohlsearch")
 	local current_win = vim.api.nvim_get_current_win()
 	for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
 		local config = vim.api.nvim_win_get_config(win)
@@ -73,7 +74,7 @@ vim.keymap.set("n", "<Esc>", function()
 			end)
 		end
 	end
-end, { desc = "Close floating window" })
+end, { desc = "Close floating window and clear hl" })
 
 -- Duplicate Line Preserving Cursor
 vim.keymap.set({ "n", "i" }, "<A-d>", function()
