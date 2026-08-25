@@ -27,9 +27,10 @@ return {
 
 			-- Find a file by walking upward from the current file.
 			local function find_upward(name)
+				local path = vim.fn.expand("%:p:h")
 				local result = vim.fs.find(name, {
 					upward = true,
-					path = vim.fn.expand("%:p:h"),
+					path = path ~= "" and path or vim.uv.cwd(),
 				})
 
 				return result[1]

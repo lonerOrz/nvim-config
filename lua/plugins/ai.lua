@@ -8,9 +8,9 @@ return {
 		},
 		opts = {
 			enable_cmp_source = false,
+			-- Codeium suggestions come via the blink.cmp source below only
 			virtual_text = {
-				enabled = true,
-				manual = true,
+				enabled = false,
 			},
 		},
 		config = function(_, opts)
@@ -31,6 +31,7 @@ return {
 				name = "Codeium",
 				module = "codeium.blink",
 				async = true,
+				score_offset = 80, -- outrank lsp(60)/snippets(70), below lazydev/path(95)
 			}
 
 			opts.sources.default = opts.sources.default or {}
