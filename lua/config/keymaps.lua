@@ -31,17 +31,21 @@ vim.keymap.set("x", "<leader>cw", [["hy:%s/<C-r>h/<C-r>h/gI<Left><Left><Left>]],
 -- Utilities: Translate selection (<leader>ut)
 vim.keymap.set("v", "<leader>ut", [[: !xargs -I {} ts "{}"<CR>]], { desc = "Translate selection" })
 
--- Utilities: Neovim Native Undotree (<leader>uu, alias <leader>u)
+-- Utilities: Neovim Native Undotree (<leader>uu)
 vim.keymap.set("n", "<leader>uu", function()
 	pcall(function()
 		vim.cmd("packadd nvim.undotree")
 	end)
 	require("undotree").open()
 end, { desc = "Open native undotree" })
-vim.keymap.set("n", "<leader>u", "<leader>uu", { remap = true, desc = "Open native undotree" })
 
 -- Floating Preview Scroller
 local function scroll_floating_preview(lines)
+	local blink_ok, blink = pcall(require, "blink.cmp")
+	if blink_ok and blink.is_menu_visible and blink.is_menu_visible() then
+		return false
+	end
+
 	local current_win = vim.api.nvim_get_current_win()
 	for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
 		local config = vim.api.nvim_win_get_config(win)
