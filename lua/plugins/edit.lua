@@ -38,8 +38,18 @@ return {
 			},
 		},
 		keys = {
+			-- Bare key passthrough for speed
 			{
-				"<leader>f",
+				"s",
+				mode = { "n", "x", "o" },
+				function()
+					require("flash").jump()
+				end,
+				desc = "Flash jump",
+			},
+			-- Standard entries (<leader>j Jump group)
+			{
+				"<leader>jj",
 				mode = { "n", "x", "o" },
 				function()
 					require("flash").jump()
@@ -47,7 +57,7 @@ return {
 				desc = "Flash jump",
 			},
 			{
-				"<leader>F",
+				"<leader>jt",
 				mode = { "n", "x", "o" },
 				function()
 					require("flash").treesitter()
@@ -55,7 +65,7 @@ return {
 				desc = "Flash treesitter",
 			},
 			{
-				"<leader>F",
+				"<leader>jT",
 				mode = { "o", "x" },
 				function()
 					require("flash").treesitter_search()
@@ -63,15 +73,7 @@ return {
 				desc = "Flash treesitter search",
 			},
 			{
-				"<c-f>",
-				mode = { "c" },
-				function()
-					require("flash").toggle()
-				end,
-				desc = "Toggle flash search",
-			},
-			{
-				"<leader>j",
+				"<leader>jl",
 				mode = { "n", "x", "o" },
 				function()
 					require("flash").jump({
@@ -82,6 +84,14 @@ return {
 					})
 				end,
 				desc = "Flash line jump",
+			},
+			{
+				"<c-f>",
+				mode = { "c" },
+				function()
+					require("flash").toggle()
+				end,
+				desc = "Toggle flash search",
 			},
 		},
 	},
@@ -96,20 +106,11 @@ return {
 		event = "VeryLazy",
 		keys = {
 			{
-				"<leader>st",
-				function()
-					require("snacks").picker.todo_comments({
-						keywords = { "TODO", "FIX", "FIXME", "BUG", "FIXIT", "HACK", "WARN", "ISSUE" },
-					})
-				end,
-				desc = "Pick todos (exclude NOTE)",
-			},
-			{
 				"<leader>sT",
 				function()
 					require("snacks").picker.todo_comments()
 				end,
-				desc = "Pick todos (include NOTE)",
+				desc = "Pick todos (All, incl. NOTE)",
 			},
 		},
 		config = true,
