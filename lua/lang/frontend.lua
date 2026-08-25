@@ -3,7 +3,7 @@ return {
 	{
 		"nvim-treesitter/nvim-treesitter",
 		optional = true,
-		opts = { ensure_installed = { "javascript", "typescript", "tsx", "html", "css", "svelte", "json", "jsonc" } },
+		opts = { ensure_installed = { "javascript", "typescript", "tsx", "html", "css", "svelte", "json" } },
 		opts_extend = { "ensure_installed" },
 	},
 	-- Mason
