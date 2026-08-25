@@ -40,6 +40,8 @@ return {
 					IncSearch = { bg = colors.pink, fg = colors.base },
 					CurSearch = { bg = colors.mauve, fg = colors.base },
 					MatchParen = { bg = colors.mauve, fg = colors.base, bold = true },
+					WinSeparator = { fg = colors.surface0, bg = "NONE" },
+					VertSplit = { fg = colors.surface0, bg = "NONE" },
 
 					-- Floating Windows & Noice UI
 					NormalFloat = { bg = colors.mantle },
