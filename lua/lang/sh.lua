@@ -10,7 +10,7 @@ return {
 	{
 		"mason-org/mason.nvim",
 		optional = true,
-		opts = { ensure_installed = { "bash-language-server", "shfmt" } },
+		opts = { ensure_installed = { "bash-language-server", "shfmt", "shellcheck" } },
 		opts_extend = { "ensure_installed" },
 	},
 	-- LSP

@@ -17,9 +17,6 @@ return {
 				nixd = {
 					cmd = { "nixd", "--inlay-hints", "--semantic-tokens" },
 					root_markers = { "flake.nix", ".git" },
-					on_attach = function()
-						vim.lsp.inlay_hint.enable(true)
-					end,
 					settings = {
 						nixd = {
 							nixpkgs = {

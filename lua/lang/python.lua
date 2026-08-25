@@ -10,7 +10,7 @@ return {
 	{
 		"mason-org/mason.nvim",
 		optional = true,
-		opts = { ensure_installed = { "pyright", "black" } },
+		opts = { ensure_installed = { "pyright", "ruff" } },
 		opts_extend = { "ensure_installed" },
 	},
 	-- LSP
@@ -18,7 +18,19 @@ return {
 		"neovim/nvim-lspconfig",
 		opts = {
 			servers = {
-				pyright = {},
+				pyright = {
+					settings = {
+						python = {
+							analysis = {
+								autoSearchPaths = true,
+								useLibraryCodeForTypes = true,
+								diagnosticMode = "openFilesOnly",
+								typeCheckingMode = "basic",
+							},
+						},
+					},
+				},
+				ruff = {},
 			},
 		},
 	},
@@ -28,7 +40,7 @@ return {
 		optional = true,
 		opts = {
 			formatters_by_ft = {
-				python = { "black" },
+				python = { "ruff_organize_imports", "ruff_format" },
 			},
 		},
 	},
