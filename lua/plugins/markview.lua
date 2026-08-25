@@ -12,9 +12,7 @@ return {
 				check_rtp_message = false,
 			},
 			preview = {
-				-- ponytail: lspsaga sets filetype BEFORE buftype=nofile, so the
-				-- default ignore_buftypes check races and loses. Float-window
-				-- existence is decided before either opt, so test that instead.
+				-- Skip special buffers and float windows (lspsaga races on filetype)
 				condition = function(buf)
 					if vim.bo[buf].buftype ~= "" then
 						return false

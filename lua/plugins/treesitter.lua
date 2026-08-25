@@ -3,7 +3,7 @@ return {
 	{
 		"nvim-treesitter/nvim-treesitter",
 		branch = "main",
-		lazy = false,
+		event = { "BufReadPre", "BufNewFile" },
 		build = ":TSUpdate",
 
 		opts = {
@@ -65,10 +65,13 @@ return {
 						return
 					end
 
-					pcall(vim.treesitter.start, bufnr)
+				local ok = pcall(vim.treesitter.start, bufnr)
+				if not ok then
+					return
+				end
 
-					vim.wo[0][0].foldmethod = "expr"
-					vim.wo[0][0].foldexpr = "v:lua.vim.treesitter.foldexpr()"
+				vim.wo[0][0].foldmethod = "expr"
+				vim.wo[0][0].foldexpr = "v:lua.vim.treesitter.foldexpr()"
 				end,
 			})
 		end,

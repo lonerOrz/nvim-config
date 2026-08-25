@@ -2,7 +2,7 @@ return {
 	-- Blink Completion Engine
 	{
 		"saghen/blink.cmp",
-		event = "InsertEnter",
+		event = { "InsertEnter", "CmdlineEnter" },
 		dependencies = {
 			"nvim-tree/nvim-web-devicons",
 			"onsails/lspkind.nvim",

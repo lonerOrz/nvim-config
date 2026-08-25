@@ -265,8 +265,7 @@ return {
 				spacing = 3,
 			},
 
-			-- Keep your current behavior:
-			-- expand groups that don't have their own description
+			-- Expand groups that have no description
 			expand = function(node)
 				return not node.desc
 			end,

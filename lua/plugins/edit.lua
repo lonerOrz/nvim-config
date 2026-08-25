@@ -24,7 +24,6 @@ return {
 	-- Motion Navigation (Flash)
 	{
 		"folke/flash.nvim",
-		event = "BufReadPost",
 		opts = {
 			label = {
 				rainbow = {
@@ -119,7 +118,16 @@ return {
 	-- UNIX Shell Commands Helper
 	{
 		"tpope/vim-eunuch",
-		event = "VeryLazy",
-		keys = {},
+		cmd = {
+			"Delete",
+			"Unlink",
+			"Remove",
+			"Move",
+			"Rename",
+			"Chmod",
+			"Mkdir",
+			"SudoEdit",
+			"SudoWrite",
+		},
 	},
 }

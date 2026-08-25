@@ -110,7 +110,7 @@ end
 
 function UI.open_picker()
 	local themes = Loader.scan_all()
-	-- ponytail: fzf cursor always starts at row 1, so put current theme first
+	-- fzf cursor starts at row 1, so put current theme first
 	local cur = Engine.current_id or Storage.get_saved_id()
 	for i, d in ipairs(themes) do
 		if d.id == cur then

@@ -110,7 +110,8 @@ return {
 				ask_about_save = true,
 				focus_compilation_buffer = true,
 				auto_jump_to_first_error = false,
-				error_threshold = require("compile-mode").level.WARNING,
+				-- Literal 1 equals WARNING; a require here would force-load plugins at startup
+			error_threshold = 1,
 				default_command = get_default_command,
 			}
 		end,

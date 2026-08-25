@@ -18,11 +18,14 @@ return {
 					end
 				end
 			end
-			if mr.refresh then
-				mr.refresh(ensure_installed)
-			else
-				ensure_installed()
-			end
+			-- Defer past the first file open burst
+			vim.defer_fn(function()
+				if mr.refresh then
+					mr.refresh(ensure_installed)
+				else
+					ensure_installed()
+				end
+			end, 150)
 		end,
 	},
 
@@ -101,8 +104,11 @@ return {
 
 			vim.cmd([[highlight! link DiagnosticHint DiagnosticWarn]])
 
-			local blink_cmp = require("blink.cmp")
-			local capabilities = blink_cmp.get_lsp_capabilities()
+			local capabilities = vim.lsp.protocol.make_client_capabilities()
+			local ok, blink_cmp = pcall(require, "blink.cmp")
+			if ok then
+				capabilities = blink_cmp.get_lsp_capabilities(capabilities)
+			end
 
 			-- Register and enable each configured server once
 			for server_name, server_opts in pairs(opts.servers) do

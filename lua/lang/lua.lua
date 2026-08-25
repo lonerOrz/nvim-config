@@ -25,32 +25,22 @@ return {
 	-- LSP Server Configuration
 	{
 		"neovim/nvim-lspconfig",
-		ft = "lua",
-		opts = function(_, opts)
-			local blink_cmp = require("blink.cmp")
-			local capabilities = blink_cmp.get_lsp_capabilities()
-
-			local lua_ls_opts = {
-				filetypes = { "lua" },
-				capabilities = capabilities,
-				settings = {
-					Lua = {
-						completion = {
-							callSnippet = "Replace",
-						},
-						diagnostics = {
-							globals = { "vim" },
+		opts = {
+			servers = {
+				lua_ls = {
+					settings = {
+						Lua = {
+							completion = {
+								callSnippet = "Replace",
+							},
+							diagnostics = {
+								globals = { "vim" },
+							},
 						},
 					},
 				},
-			}
-
-			opts.servers = opts.servers or {}
-			opts.servers.lua_ls = lua_ls_opts
-
-			vim.lsp.config("lua_ls", lua_ls_opts)
-			vim.lsp.enable("lua_ls")
-		end,
+			},
+		},
 	},
 
 	-- Formatter
