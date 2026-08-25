@@ -14,7 +14,7 @@
 - 🔍 Fast picker & file management (`snacks.picker`, `fzf-lua`, `yazi.nvim`)
 - 🎨 Beautiful UI with Nerd Font, `noice.nvim`, and `catppuccin` colorscheme
 - 📝 Modern completion powered by `blink.cmp` & Windsurf AI (Codeium)
-- 📋 Session management (`auto-session`) and smart Keybinding hints (`which-key`)
+- 📋 Smart Keybinding hints (`which-key`)
 
 ## 🧰 Requirements
 
@@ -44,7 +44,7 @@ Upon initial launch, `lazy.nvim` will automatically download and install all con
 - **Completion & AI**: `blink.cmp`, `windsurf.nvim`
 - **Fuzzy Finding & Tools**: `snacks.picker`, `fzf-lua`, `yazi.nvim`
 - **Git & Diff**: `gitsigns.nvim`, `snacks.lazygit`
-- **Productivity**: `auto-session`, `markview.nvim`, `flash.nvim`, `compile-mode.nvim`
+- **Productivity**: `markview.nvim`, `flash.nvim`, `compile-mode.nvim`
 
 ## 🎹 Key Bindings Summary
 
@@ -58,9 +58,7 @@ Keymaps follow a **prefix semantics + mnemonic suffix** convention:
 | `<leader>b` | Buffers                 |
 | `<leader>t` | Toggles                 |
 | `<leader>l` | Git / Lazygit           |
-| `<leader>p` | Sessions                |
 | `<leader>y` | Yazi file manager       |
-| `<leader>w` | LSP workspace folders   |
 | `<leader>n` | Notifications           |
 | `<leader>u` | Utilities               |
 

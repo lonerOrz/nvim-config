@@ -136,23 +136,6 @@ return {
 						"<cmd>Lspsaga code_action<CR>",
 						{ buffer = ev.buf, desc = "Code action" }
 					)
-
-					-- Workspace Management
-					vim.keymap.set(
-						"n",
-						"<leader>wa",
-						vim.lsp.buf.add_workspace_folder,
-						{ buffer = ev.buf, desc = "Add workspace folder" }
-					)
-					vim.keymap.set(
-						"n",
-						"<leader>wr",
-						vim.lsp.buf.remove_workspace_folder,
-						{ buffer = ev.buf, desc = "Remove workspace folder" }
-					)
-					vim.keymap.set("n", "<leader>wl", function()
-						vim.notify(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-					end, { buffer = ev.buf, desc = "List workspace folders" })
 				end,
 			})
 		end,
