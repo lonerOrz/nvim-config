@@ -230,9 +230,7 @@ return {
 				{ "<leader>b", group = "Buffer Tools", icon = "󰓩" },
 				{ "<leader>t", group = "Toggles & UI", icon = "" },
 				{ "<leader>l", group = "Git & Lazygit", icon = "󰊢" },
-				{ "<leader>p", group = "Sessions", icon = "󰆍" },
 				{ "<leader>y", group = "Yazi Manager", icon = "󰇥" },
-				{ "<leader>w", group = "Workspace", icon = "󰁨" },
 				{ "<leader>n", group = "Notifications", icon = "󰵅" },
 				{ "<leader>u", group = "Utilities", icon = "󰏿" },
 
