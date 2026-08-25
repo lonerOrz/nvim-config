@@ -8,9 +8,9 @@ return {
 		},
 		opts = {
 			enable_cmp_source = false,
+			-- Codeium suggestions come via the blink.cmp source below only
 			virtual_text = {
-				enabled = true,
-				manual = true,
+				enabled = false,
 			},
 		},
 		config = function(_, opts)
@@ -31,6 +31,7 @@ return {
 				name = "Codeium",
 				module = "codeium.blink",
 				async = true,
+				score_offset = 80, -- outrank lsp(60)/snippets(70), below lazydev/path(95)
 			}
 
 			opts.sources.default = opts.sources.default or {}
@@ -51,11 +52,12 @@ return {
 			opts.sections.lualine_c = opts.sections.lualine_c or {}
 
 			local function get_codeium_state()
-				local state = "idle"
-				pcall(function()
-					state = require("codeium.virtual_text").status().state
-				end)
-				return state
+				-- package.loaded lookup: no pcall/closure alloc per redraw
+				local vt = package.loaded["codeium.virtual_text"]
+				if not vt then
+					return "idle"
+				end
+				return vt.status().state
 			end
 
 			table.insert(opts.sections.lualine_c, {
@@ -67,7 +69,7 @@ return {
 					return " Codeium"
 				end,
 				color = function()
-					local theme = require("catppuccin.palettes").get_palette("mocha")
+					local theme = require("theme.theme").palette()
 					local state = get_codeium_state()
 
 					if state == "waiting" then

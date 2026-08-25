@@ -9,8 +9,7 @@ return {
 		cmd = { "Compile", "Recompile" },
 		keys = {
 			{ "<leader>cm", "<CMD>Compile<CR>", desc = "Start compile" },
-			{ "<leader>cR", "<CMD>Recompile<CR>", desc = "Recompile last command" },
-			{ "<leader>cq", "<CMD>silent! bdelete! *compilation*<CR>", desc = "Delete compilation buffer" },
+			{ "<leader>cc", "<CMD>Recompile<CR>", desc = "Recompile last command" },
 		},
 
 		init = function()
@@ -28,9 +27,10 @@ return {
 
 			-- Find a file by walking upward from the current file.
 			local function find_upward(name)
+				local path = vim.fn.expand("%:p:h")
 				local result = vim.fs.find(name, {
 					upward = true,
-					path = vim.fn.expand("%:p:h"),
+					path = path ~= "" and path or vim.uv.cwd(),
 				})
 
 				return result[1]
@@ -109,8 +109,9 @@ return {
 				auto_scroll = true,
 				ask_about_save = true,
 				focus_compilation_buffer = true,
-				auto_jump_to_first_error = true,
-				error_threshold = require("compile-mode").level.WARNING,
+				auto_jump_to_first_error = false,
+				-- Literal 1 equals WARNING; a require here would force-load plugins at startup
+				error_threshold = 1,
 				default_command = get_default_command,
 			}
 		end,

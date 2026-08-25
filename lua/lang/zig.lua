@@ -16,22 +16,11 @@ return {
 	-- LSP
 	{
 		"neovim/nvim-lspconfig",
-		ft = "zig",
-		opts = function(_, opts)
-			local blink_cmp = require("blink.cmp")
-			local capabilities = blink_cmp.get_lsp_capabilities()
-
-			local zls_opts = {
-				filetypes = { "zig" },
-				capabilities = capabilities,
-			}
-
-			opts.servers = opts.servers or {}
-			opts.servers.zls = zls_opts
-
-			vim.lsp.config("zls", zls_opts)
-			vim.lsp.enable("zls")
-		end,
+		opts = {
+			servers = {
+				zls = {},
+			},
+		},
 	},
 	-- Formatter (Zig uses built-in zigfmt via ZLS or CLI)
 	{

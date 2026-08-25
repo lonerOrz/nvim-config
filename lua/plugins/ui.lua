@@ -28,8 +28,6 @@ return {
 			},
 		},
 		config = function(_, opts)
-			local theme = require("catppuccin.palettes").get_palette("mocha")
-
 			local function show_macro_recording()
 				local recording_register = vim.fn.reg_recording()
 				if recording_register == "" then
@@ -41,7 +39,10 @@ return {
 
 			local macro_recording = {
 				show_macro_recording,
-				color = { fg = "#333333", bg = theme.red },
+				color = function()
+					local c = require("theme.theme").palette()
+					return { fg = c.base, bg = c.red }
+				end,
 				separator = { left = "", right = "" },
 				padding = 0,
 			}
@@ -166,6 +167,8 @@ return {
 		opts = {
 			popupmenu = { enabled = false },
 			lsp = {
+				-- K is handled by lspsaga; keep noice out of hover
+				hover = { enabled = false },
 				override = {
 					["vim.lsp.util.convert_input_to_markdown_lines"] = true,
 					["vim.lsp.util.stylize_markdown"] = true,
@@ -221,16 +224,16 @@ return {
 			-- Your own keymap groups
 			spec = {
 				-- Leader
-				{ "<leader>s", group = "Search & Pickers", icon = "󰍉" },
+				{ "<leader>s", group = "Search & Find", icon = "󰍉" },
 				{ "<leader>c", group = "Code & Refactor", icon = "󰅩" },
-				{ "<leader>t", group = "Toggles & UI", icon = "" },
-				{ "<leader>p", group = "Sessions", icon = "󰆍" },
-				{ "<leader>y", group = "Yazi Manager", icon = "󰇥" },
-				{ "<leader>l", group = "Git & Lazygit", icon = "󰊢" },
-				{ "<leader>n", group = "Notifications", icon = "󰵅" },
-				{ "<leader>w", group = "Workspace", icon = "󰁨" },
-				{ "<leader>f", group = "Flash Motion", icon = "" },
+				{ "<leader>j", group = "Jump & Motion", icon = "" },
 				{ "<leader>b", group = "Buffer Tools", icon = "󰓩" },
+				{ "<leader>t", group = "Toggles & UI", icon = "" },
+				{ "<leader>l", group = "Git & Lazygit", icon = "󰊢" },
+				{ "<leader>y", group = "Yazi Manager", icon = "󰇥" },
+				{ "<leader>n", group = "Notifications", icon = "󰵅" },
+				{ "<leader>u", group = "Utilities", icon = "󰏿" },
+				{ "<leader>m", group = "Markdown", icon = "󰍔" },
 
 				-- Builtin namespaces
 				{ "g", group = "Goto / Actions", icon = "󰏿" },
@@ -262,8 +265,7 @@ return {
 				spacing = 3,
 			},
 
-			-- Keep your current behavior:
-			-- expand groups that don't have their own description
+			-- Expand groups that have no description
 			expand = function(node)
 				return not node.desc
 			end,
@@ -327,17 +329,27 @@ return {
 				},
 			},
 			dashboard = {
-				formats = {
-					key = function(item)
-						return { { "[", hl = "special" }, { item.key, hl = "key" }, { "]", hl = "special" } }
-					end,
+				width = 50,
+				pane_gap = 6,
+				preset = {
+					header = [[
+   ⣴⣶⣤⡤⠦⣤⣀⣤⠆     ⣈⣭⣿⣶⣿⣦⣼⣆          
+    ⠉⠻⢿⣿⠿⣿⣿⣶⣦⠤⠄⡠⢾⣿⣿⡿⠋⠉⠉⠻⣿⣿⡛⣦       
+          ⠈⢿⣿⣟⠦ ⣾⣿⣿⣷    ⠻⠿⢿⣿⣧⣄     
+           ⣸⣿⣿⢧ ⢻⠻⣿⣿⣷⣄⣀⠄⠢⣀⡀⠈⠙⠿⠄    
+          ⢠⣿⣿⣿⠈    ⣻⣿⣿⣿⣿⣿⣿⣿⣛⣳⣤⣀⣀   
+   ⢠⣧⣶⣥⡤⢄ ⣸⣿⣿⠘  ⢀⣴⣿⣿⡿⠛⣿⣿⣧⠈⢿⠿⠟⠛⠻⠿⠄  
+  ⣰⣿⣿⠛⠻⣿⣿⡦⢹⣿⣷   ⢊⣿⣿⡏  ⢸⣿⣿⡇ ⢀⣠⣄⣾⠄   
+ ⣠⣿⠿⠛ ⢀⣿⣿⣷⠘⢿⣿⣦⡀ ⢸⢿⣿⣿⣄ ⣸⣿⣿⡇⣪⣿⡿⠿⣿⣷⡄  
+ ⠙⠃   ⣼⣿⡟  ⠈⠻⣿⣿⣦⣌⡇⠻⣿⣿⣷⣿⣿⣿ ⣿⣿⡇ ⠛⠻⢷⣄ 
+      ⢻⣿⣿⣄   ⠈⠻⣿⣿⣿⣷⣿⣿⣿⣿⣿⡟ ⠫⢿⣿⡆     
+       ⠻⣿⣿⣿⣿⣶⣶⣾⣿⣿⣿⣿⣿⣿⣿⣿⡟⢀⣀⣤⣾⡿⠃     
+						]],
 				},
 				sections = {
-					{ section = "header" },
-					{ icon = "󰌌 ", title = "Keymaps", section = "keys", indent = 2, padding = 1 },
-					{ icon = "󰈔 ", title = "Recent Files", section = "recent_files", indent = 2, padding = 1 },
-					{ icon = "󰉋 ", title = "Projects", section = "projects", indent = 2, padding = 1 },
-					{ section = "startup" },
+					{ section = "header", pane = 1 },
+					{ section = "keys", gap = 1, padding = 1, pane = 2 },
+					{ section = "startup", pane = 2 },
 				},
 			},
 		},
@@ -364,6 +376,18 @@ return {
 					require("snacks").scratch()
 				end,
 				desc = "Toggle Scratchpad",
+			},
+			{
+				"<leader>bd",
+				function()
+					require("snacks").bufdelete()
+				end,
+				desc = "Delete buffer",
+			},
+			{
+				"<leader>bD",
+				"<CMD>BufferCloseAllButCurrent<CR>",
+				desc = "Delete other buffers",
 			},
 
 			-- Notifications (<leader>n)
@@ -448,13 +472,6 @@ return {
 			},
 			{
 				"<leader>sl",
-				function()
-					require("snacks").picker.lines()
-				end,
-				desc = "Search lines in buffer",
-			},
-			{
-				"<leader>s/",
 				function()
 					require("snacks").picker.lines()
 				end,
@@ -567,7 +584,7 @@ return {
 				desc = "Undo history",
 			},
 			{
-				"<leader>sz",
+				"<leader>tz",
 				function()
 					require("snacks").zen()
 				end,
@@ -698,8 +715,6 @@ return {
 					Snacks.toggle.indent():map("<leader>tg")
 					Snacks.toggle.profiler():map("<leader>tpp")
 					Snacks.toggle.profiler_highlights():map("<leader>tph")
-
-					vim.api.nvim_set_hl(0, "SnacksPickerListCursorLine", { bg = "#313244" })
 				end,
 			})
 		end,

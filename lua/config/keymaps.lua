@@ -15,18 +15,24 @@ vim.keymap.set("n", "<C-s>", "<CMD>w<CR>", { desc = "Save file" })
 vim.keymap.set("n", "Q", "<CMD>confirm q<CR>", { desc = "Quit current window" })
 vim.keymap.set("n", "<leader>q", "<CMD>confirm qa<CR>", { desc = "Quit all" })
 
--- Line Wrap Toggle
-vim.keymap.set("n", "<A-z>", "<CMD>set wrap!<CR>", { desc = "Toggle line wrap" })
-
 -- Visual Indentation
 vim.keymap.set("x", ">", ">gv", { noremap = true, silent = true })
 vim.keymap.set("x", "<", "<gv", { noremap = true, silent = true })
 
--- Utilities
-vim.keymap.set("v", "<leader>tt", [[: !xargs -I {} ts "{}"<CR>]], { desc = "Translate selection" })
+-- Code: Change word in current file (native :%s template)
+vim.keymap.set(
+	"n",
+	"<leader>cw",
+	[[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]],
+	{ desc = "Change word in file" }
+)
+vim.keymap.set("x", "<leader>cw", [["hy:%s/<C-r>h/<C-r>h/gI<Left><Left><Left>]], { desc = "Change selection in file" })
 
--- Neovim Native Undotree
-vim.keymap.set("n", "<leader>u", function()
+-- Utilities: Translate selection (<leader>ut)
+vim.keymap.set("v", "<leader>ut", [[: !xargs -I {} ts "{}"<CR>]], { desc = "Translate selection" })
+
+-- Utilities: Neovim Native Undotree (<leader>uu)
+vim.keymap.set("n", "<leader>uu", function()
 	pcall(function()
 		vim.cmd("packadd nvim.undotree")
 	end)
@@ -35,6 +41,11 @@ end, { desc = "Open native undotree" })
 
 -- Floating Preview Scroller
 local function scroll_floating_preview(lines)
+	local blink_ok, blink = pcall(require, "blink.cmp")
+	if blink_ok and blink.is_menu_visible and blink.is_menu_visible() then
+		return false
+	end
+
 	local current_win = vim.api.nvim_get_current_win()
 	for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
 		local config = vim.api.nvim_win_get_config(win)
@@ -62,8 +73,9 @@ vim.keymap.set({ "n", "i", "t" }, "<A-k>", function()
 	end
 end, { desc = "Scroll floating preview up" })
 
--- Close Floating Windows
+-- Close Floating Windows & Clear Search Highlight
 vim.keymap.set("n", "<Esc>", function()
+	vim.cmd("nohlsearch")
 	local current_win = vim.api.nvim_get_current_win()
 	for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
 		local config = vim.api.nvim_win_get_config(win)
@@ -73,7 +85,7 @@ vim.keymap.set("n", "<Esc>", function()
 			end)
 		end
 	end
-end, { desc = "Close floating window" })
+end, { desc = "Close floating window and clear hl" })
 
 -- Duplicate Line Preserving Cursor
 vim.keymap.set({ "n", "i" }, "<A-d>", function()

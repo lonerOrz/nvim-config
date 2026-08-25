@@ -71,19 +71,24 @@ vim.opt.guicursor = {
 }
 
 -- Folding Configuration
+-- Folding is set per window in plugins/treesitter.lua
 vim.o.foldenable = true
 vim.o.foldcolumn = "1"
 vim.o.foldlevel = 99
 vim.o.foldlevelstart = 99
-vim.o.foldmethod = "expr"
-vim.o.foldexpr = "v:lua.vim.treesitter.foldexpr()"
 vim.o.foldtext = ""
 
 -- Native Trim Trailing Whitespace
 vim.api.nvim_create_autocmd("BufWritePre", {
 	group = vim.api.nvim_create_augroup("NativeTrimWhitespace", { clear = true }),
 	pattern = "*",
-	callback = function()
+	callback = function(args)
+		local bufnr = args.buf
+		-- Only skip special buffers (terminal, help, floats) and binary files
+		if vim.bo[bufnr].buftype ~= "" or vim.bo[bufnr].binary then
+			return
+		end
+
 		local save_cursor = vim.fn.getpos(".")
 		vim.cmd([[%s/\s\+$//e]])
 		vim.fn.setpos(".", save_cursor)
@@ -99,6 +104,10 @@ local is_ssh = vim.env.SSH_TTY ~= nil
 
 if is_ssh then
 	local osc52 = require("vim.ui.clipboard.osc52")
+	-- paste() queries the terminal and blocks for seconds when it never
+	-- answers (most terminals deny clipboard reads); fall back to the
+	-- internal register — local->remote pasting uses the terminal's own
+	-- Ctrl+Shift+V / Cmd+V anyway.
 	vim.g.clipboard = {
 		name = "OSC52",
 		copy = {
@@ -106,8 +115,12 @@ if is_ssh then
 			["*"] = osc52.copy("*"),
 		},
 		paste = {
-			["+"] = osc52.paste("+"),
-			["*"] = osc52.paste("*"),
+			["+"] = function()
+				return vim.fn.split(vim.fn.getreg(""), "\n"), vim.fn.getregtype("")
+			end,
+			["*"] = function()
+				return vim.fn.split(vim.fn.getreg(""), "\n"), vim.fn.getregtype("")
+			end,
 		},
 	}
 elseif is_wsl and vim.fn.executable("wl-copy") == 1 then
