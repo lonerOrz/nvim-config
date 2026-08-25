@@ -16,22 +16,11 @@ return {
 	-- LSP
 	{
 		"neovim/nvim-lspconfig",
-		ft = "python",
-		opts = function(_, opts)
-			local blink_cmp = require("blink.cmp")
-			local capabilities = blink_cmp.get_lsp_capabilities()
-
-			local pyright_opts = {
-				filetypes = { "python" },
-				capabilities = capabilities,
-			}
-
-			opts.servers = opts.servers or {}
-			opts.servers.pyright = pyright_opts
-
-			vim.lsp.config("pyright", pyright_opts)
-			vim.lsp.enable("pyright")
-		end,
+		opts = {
+			servers = {
+				pyright = {},
+			},
+		},
 	},
 	-- Formatter
 	{

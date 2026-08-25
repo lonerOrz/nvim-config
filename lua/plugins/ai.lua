@@ -51,11 +51,12 @@ return {
 			opts.sections.lualine_c = opts.sections.lualine_c or {}
 
 			local function get_codeium_state()
-				local state = "idle"
-				pcall(function()
-					state = require("codeium.virtual_text").status().state
-				end)
-				return state
+				-- package.loaded lookup: no pcall/closure alloc per redraw
+				local vt = package.loaded["codeium.virtual_text"]
+				if not vt then
+					return "idle"
+				end
+				return vt.status().state
 			end
 
 			table.insert(opts.sections.lualine_c, {

@@ -71,19 +71,24 @@ vim.opt.guicursor = {
 }
 
 -- Folding Configuration
+-- Folding is set per window in plugins/treesitter.lua
 vim.o.foldenable = true
 vim.o.foldcolumn = "1"
 vim.o.foldlevel = 99
 vim.o.foldlevelstart = 99
-vim.o.foldmethod = "expr"
-vim.o.foldexpr = "v:lua.vim.treesitter.foldexpr()"
 vim.o.foldtext = ""
 
 -- Native Trim Trailing Whitespace
 vim.api.nvim_create_autocmd("BufWritePre", {
 	group = vim.api.nvim_create_augroup("NativeTrimWhitespace", { clear = true }),
 	pattern = "*",
-	callback = function()
+	callback = function(args)
+		local bufnr = args.buf
+		-- Only skip special buffers (terminal, help, floats) and binary files
+		if vim.bo[bufnr].buftype ~= "" or vim.bo[bufnr].binary then
+			return
+		end
+
 		local save_cursor = vim.fn.getpos(".")
 		vim.cmd([[%s/\s\+$//e]])
 		vim.fn.setpos(".", save_cursor)

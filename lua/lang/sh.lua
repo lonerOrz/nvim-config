@@ -16,22 +16,11 @@ return {
 	-- LSP
 	{
 		"neovim/nvim-lspconfig",
-		ft = { "sh", "bash" },
-		opts = function(_, opts)
-			local blink_cmp = require("blink.cmp")
-			local capabilities = blink_cmp.get_lsp_capabilities()
-
-			local bashls_opts = {
-				filetypes = { "sh", "bash" },
-				capabilities = capabilities,
-			}
-
-			opts.servers = opts.servers or {}
-			opts.servers.bashls = bashls_opts
-
-			vim.lsp.config("bashls", bashls_opts)
-			vim.lsp.enable("bashls")
-		end,
+		opts = {
+			servers = {
+				bashls = {},
+			},
+		},
 	},
 	-- Formatter
 	{
