@@ -37,6 +37,7 @@ return {
 						"--completion-style=detailed",
 						"--function-arg-placeholders",
 						"--fallback-style=llvm",
+						"--offset-encoding=utf-16",
 					},
 					root_markers = { "compile_commands.json", "compile_flags.txt", ".git" },
 				},

@@ -18,7 +18,27 @@ return {
 		"neovim/nvim-lspconfig",
 		opts = {
 			servers = {
-				gopls = {},
+				gopls = {
+					settings = {
+						gopls = {
+							gofumpt = true,
+							analyses = {
+								unusedparams = true,
+								nilness = true,
+								unusedwrite = true,
+							},
+							staticcheck = true,
+							usePlaceholders = true,
+							hints = {
+								assignVariableTypes = true,
+								compositeLiteralFields = true,
+								constantValues = true,
+								parameterNames = true,
+								rangeVariableTypes = true,
+							},
+						},
+					},
+				},
 			},
 		},
 	},
