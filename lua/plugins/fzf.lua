@@ -3,7 +3,7 @@ return {
 	event = "VeryLazy",
 	dependencies = { "nvim-tree/nvim-web-devicons" },
 	keys = {
-		-- Refactoring & Code Editing Helpers (<leader>c)
+		-- Code actions (with live diff preview) (<leader>c)
 		{
 			"<leader>cA",
 			function()
@@ -11,22 +11,22 @@ return {
 			end,
 			desc = "Code actions (with live diff preview)",
 		},
+
+		-- Outline & finder, standardized under <leader>s (Search group)
 		{
-			"<leader>cT",
+			"<leader>st",
 			function()
 				require("fzf-lua").treesitter()
 			end,
-			desc = "Treesitter AST symbol outline",
+			desc = "Search treesitter AST symbols",
 		},
 		{
-			"<leader>cF",
+			"<leader>sF",
 			function()
 				require("fzf-lua").lsp_finder()
 			end,
-			desc = "LSP finder (defs, refs, impls with preview)",
+			desc = "Search LSP finder (defs/refs/impls)",
 		},
-
-		-- Search Resume (<leader>s)
 		{
 			"<leader>sR",
 			function()

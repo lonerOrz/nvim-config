@@ -224,16 +224,17 @@ return {
 			-- Your own keymap groups
 			spec = {
 				-- Leader
-				{ "<leader>s", group = "Search & Pickers", icon = "󰍉" },
+				{ "<leader>s", group = "Search & Find", icon = "󰍉" },
 				{ "<leader>c", group = "Code & Refactor", icon = "󰅩" },
-				{ "<leader>t", group = "Toggles & UI", icon = "" },
+				{ "<leader>j", group = "Jump & Motion", icon = "" },
+				{ "<leader>b", group = "Buffer Tools", icon = "󰓩" },
+				{ "<leader>t", group = "Toggles & UI", icon = "" },
+				{ "<leader>l", group = "Git & Lazygit", icon = "󰊢" },
 				{ "<leader>p", group = "Sessions", icon = "󰆍" },
 				{ "<leader>y", group = "Yazi Manager", icon = "󰇥" },
-				{ "<leader>l", group = "Git & Lazygit", icon = "󰊢" },
-				{ "<leader>n", group = "Notifications", icon = "󰵅" },
 				{ "<leader>w", group = "Workspace", icon = "󰁨" },
-				{ "<leader>f", group = "Flash Motion", icon = "" },
-				{ "<leader>b", group = "Buffer Tools", icon = "󰓩" },
+				{ "<leader>n", group = "Notifications", icon = "󰵅" },
+				{ "<leader>u", group = "Utilities", icon = "󰏿" },
 
 				-- Builtin namespaces
 				{ "g", group = "Goto / Actions", icon = "󰏿" },
@@ -378,6 +379,18 @@ return {
 				end,
 				desc = "Toggle Scratchpad",
 			},
+			{
+				"<leader>bd",
+				function()
+					require("snacks").bufdelete()
+				end,
+				desc = "Delete buffer",
+			},
+			{
+				"<leader>bD",
+				"<CMD>BufferCloseAllButCurrent<CR>",
+				desc = "Delete other buffers",
+			},
 
 			-- Notifications (<leader>n)
 			{
@@ -461,13 +474,6 @@ return {
 			},
 			{
 				"<leader>sl",
-				function()
-					require("snacks").picker.lines()
-				end,
-				desc = "Search lines in buffer",
-			},
-			{
-				"<leader>s/",
 				function()
 					require("snacks").picker.lines()
 				end,
@@ -580,7 +586,7 @@ return {
 				desc = "Undo history",
 			},
 			{
-				"<leader>sz",
+				"<leader>tz",
 				function()
 					require("snacks").zen()
 				end,
@@ -714,5 +720,15 @@ return {
 				end,
 			})
 		end,
+	},
+
+	-- Diagnostics & Symbols Panels (<leader>c)
+	{
+		"folke/trouble.nvim",
+		keys = {
+			{ "<leader>cd", "<CMD>Trouble diagnostics toggle<CR>", desc = "Toggle diagnostics panel" },
+			{ "<leader>cs", "<CMD>Trouble symbols toggle<CR>", desc = "Toggle symbols panel" },
+		},
+		opts = {},
 	},
 }

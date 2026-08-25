@@ -10,7 +10,6 @@ return {
 		keys = {
 			{ "<leader>cm", "<CMD>Compile<CR>", desc = "Start compile" },
 			{ "<leader>cc", "<CMD>Recompile<CR>", desc = "Recompile last command" },
-			{ "<leader>cq", "<CMD>silent! bdelete! *compilation*<CR>", desc = "Delete compilation buffer" },
 		},
 
 		init = function()

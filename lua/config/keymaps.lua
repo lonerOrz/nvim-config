@@ -15,23 +15,30 @@ vim.keymap.set("n", "<C-s>", "<CMD>w<CR>", { desc = "Save file" })
 vim.keymap.set("n", "Q", "<CMD>confirm q<CR>", { desc = "Quit current window" })
 vim.keymap.set("n", "<leader>q", "<CMD>confirm qa<CR>", { desc = "Quit all" })
 
--- Line Wrap Toggle
-vim.keymap.set("n", "<A-z>", "<CMD>set wrap!<CR>", { desc = "Toggle line wrap" })
-
 -- Visual Indentation
 vim.keymap.set("x", ">", ">gv", { noremap = true, silent = true })
 vim.keymap.set("x", "<", "<gv", { noremap = true, silent = true })
 
--- Utilities
-vim.keymap.set("v", "<leader>tt", [[: !xargs -I {} ts "{}"<CR>]], { desc = "Translate selection" })
+-- Code: Change word in current file (native :%s template)
+vim.keymap.set(
+	"n",
+	"<leader>cw",
+	[[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]],
+	{ desc = "Change word in file" }
+)
+vim.keymap.set("x", "<leader>cw", [["hy:%s/<C-r>h/<C-r>h/gI<Left><Left><Left>]], { desc = "Change selection in file" })
 
--- Neovim Native Undotree
-vim.keymap.set("n", "<leader>u", function()
+-- Utilities: Translate selection (<leader>ut)
+vim.keymap.set("v", "<leader>ut", [[: !xargs -I {} ts "{}"<CR>]], { desc = "Translate selection" })
+
+-- Utilities: Neovim Native Undotree (<leader>uu, alias <leader>u)
+vim.keymap.set("n", "<leader>uu", function()
 	pcall(function()
 		vim.cmd("packadd nvim.undotree")
 	end)
 	require("undotree").open()
 end, { desc = "Open native undotree" })
+vim.keymap.set("n", "<leader>u", "<leader>uu", { remap = true, desc = "Open native undotree" })
 
 -- Floating Preview Scroller
 local function scroll_floating_preview(lines)
