@@ -13,6 +13,22 @@ return {
 			keymaps = {
 				show_help = "<f1>",
 			},
+			hooks = {
+				before_opening_window = function(opts)
+					local has_statusline = vim.o.laststatus > 0 and 1 or 0
+					local bottom = vim.o.lines - vim.o.cmdheight - has_statusline
+
+					opts.relative = "editor"
+					opts.col = 0
+					opts.width = vim.o.columns
+					opts.height = math.floor(bottom * 0.42)
+					opts.row = bottom - opts.height
+					opts.border = { "", "─", "", "", "", "", "", "" }
+
+					opts.title = " 󰇥 Yazi "
+					opts.title_pos = "left"
+				end,
+			},
 		},
 		init = function()
 			vim.g.loaded_netrwPlugin = 1
