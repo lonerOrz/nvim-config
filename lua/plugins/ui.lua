@@ -233,6 +233,7 @@ return {
 				{ "<leader>y", group = "Yazi Manager", icon = "󰇥" },
 				{ "<leader>n", group = "Notifications", icon = "󰵅" },
 				{ "<leader>u", group = "Utilities", icon = "󰏿" },
+				{ "<leader>m", group = "Markdown", icon = "󰍔" },
 
 				-- Builtin namespaces
 				{ "g", group = "Goto / Actions", icon = "󰏿" },

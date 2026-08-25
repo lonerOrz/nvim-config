@@ -60,6 +60,7 @@ Keymaps follow a **prefix semantics + mnemonic suffix** convention:
 | `<leader>l` | Git / Lazygit           |
 | `<leader>y` | Yazi file manager       |
 | `<leader>n` | Notifications           |
+| `<leader>m` | Markdown preview        |
 | `<leader>u` | Utilities               |
 
 Full keymaps are interactively available via `which-key` (press `<leader>` and wait briefly).

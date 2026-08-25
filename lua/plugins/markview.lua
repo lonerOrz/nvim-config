@@ -6,6 +6,26 @@ return {
 		"nvim-treesitter/nvim-treesitter",
 		"nvim-tree/nvim-web-devicons",
 	},
+	keys = {
+		{
+			"<leader>ms",
+			"<CMD>Markview splitToggle<CR>",
+			ft = "markdown",
+			desc = "Toggle Markdown split preview",
+		},
+		{
+			"<leader>mm",
+			"<CMD>Markview toggle<CR>",
+			ft = "markdown",
+			desc = "Toggle inline Markdown render",
+		},
+		{
+			"<leader>mh",
+			"<CMD>Markview hybridToggle<CR>",
+			ft = "markdown",
+			desc = "Toggle hybrid mode (raw cursor line)",
+		},
+	},
 	config = function()
 		require("markview").setup({
 			experimental = {
