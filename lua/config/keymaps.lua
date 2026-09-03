@@ -1,3 +1,7 @@
+-- custom keymap
+vim.keymap.set("i", "<C-Down>", "<C-o>o")
+vim.keymap.set("i", "<C-Up>", "<C-o>O")
+
 -- Window Navigation
 vim.keymap.set("n", "<C-Left>", "<C-w>h", { desc = "Go to left window" })
 vim.keymap.set("n", "<C-Right>", "<C-w>l", { desc = "Go to right window" })
@@ -12,7 +16,6 @@ vim.keymap.set("n", "y<S-L>", "y$", { desc = "Yank to end of line" })
 
 -- Quick Save & Quit
 vim.keymap.set("n", "<C-s>", "<CMD>w<CR>", { desc = "Save file" })
-vim.keymap.set("n", "Q", "<CMD>confirm q<CR>", { desc = "Quit current window" })
 vim.keymap.set("n", "<leader>q", "<CMD>confirm qa<CR>", { desc = "Quit all" })
 
 -- Visual Indentation
