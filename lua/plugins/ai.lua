@@ -1,14 +1,19 @@
 return {
-	-- AI Completion Engine
+	-- Codeium engine
 	{
 		"Exafunction/windsurf.nvim",
 		event = "VeryLazy",
+		cmd = { "Codeium", "CodeiumAuth", "CodeiumToggle", "CodeiumChat" },
+		keys = {
+			{ "<leader>ac", "<CMD>Codeium Toggle<CR>", mode = { "n" }, desc = "Toggle Codeium completion" },
+			{ "<leader>ab", "<CMD>Codeium Chat<CR>", mode = { "n" }, desc = "Open Codeium chat" },
+			{ "<leader>aA", "<CMD>Codeium Auth<CR>", mode = { "n" }, desc = "Authenticate Codeium" },
+		},
 		dependencies = {
 			"nvim-lua/plenary.nvim",
 		},
 		opts = {
 			enable_cmp_source = false,
-			-- Codeium suggestions come via the blink.cmp source below only
 			virtual_text = {
 				enabled = false,
 			},
@@ -18,12 +23,20 @@ return {
 		end,
 	},
 
-	-- Extend blink cmp with Codeium source
+	-- Blink cmp integration
 	{
 		"saghen/blink.cmp",
 		optional = true,
 		dependencies = { "Exafunction/windsurf.nvim" },
 		opts = function(_, opts)
+			opts.keymap = opts.keymap or {}
+			-- Trigger Codeium AI completions explicitly
+			opts.keymap["<A-y>"] = {
+				function(cmp)
+					cmp.show({ providers = { "codeium" } })
+				end,
+			}
+
 			opts.sources = opts.sources or {}
 			opts.sources.providers = opts.sources.providers or {}
 
@@ -31,7 +44,10 @@ return {
 				name = "Codeium",
 				module = "codeium.blink",
 				async = true,
-				score_offset = 80, -- outrank lsp(60)/snippets(70), below lazydev/path(95)
+				score_offset = 80,
+				enabled = function()
+					return vim.api.nvim_buf_get_name(0) ~= "" and vim.bo.buftype == ""
+				end,
 			}
 
 			opts.sources.default = opts.sources.default or {}
@@ -43,7 +59,7 @@ return {
 		end,
 	},
 
-	-- Extend Lualine statusbar with Codeium status
+	-- Lualine statusline component
 	{
 		"nvim-lualine/lualine.nvim",
 		optional = true,
@@ -52,7 +68,6 @@ return {
 			opts.sections.lualine_c = opts.sections.lualine_c or {}
 
 			local function get_codeium_state()
-				-- package.loaded lookup: no pcall/closure alloc per redraw
 				local vt = package.loaded["codeium.virtual_text"]
 				if not vt then
 					return "idle"
