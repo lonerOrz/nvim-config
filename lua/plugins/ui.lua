@@ -330,27 +330,132 @@ return {
 				},
 			},
 			dashboard = {
-				width = 50,
-				pane_gap = 6,
-				preset = {
-					header = [[
-   ⣴⣶⣤⡤⠦⣤⣀⣤⠆     ⣈⣭⣿⣶⣿⣦⣼⣆
-    ⠉⠻⢿⣿⠿⣿⣿⣶⣦⠤⠄⡠⢾⣿⣿⡿⠋⠉⠉⠻⣿⣿⡛⣦
-          ⠈⢿⣿⣟⠦ ⣾⣿⣿⣷    ⠻⠿⢿⣿⣧⣄
-           ⣸⣿⣿⢧ ⢻⠻⣿⣿⣷⣄⣀⠄⠢⣀⡀⠈⠙⠿⠄
-          ⢠⣿⣿⣿⠈    ⣻⣿⣿⣿⣿⣿⣿⣿⣛⣳⣤⣀⣀
-   ⢠⣧⣶⣥⡤⢄ ⣸⣿⣿⠘  ⢀⣴⣿⣿⡿⠛⣿⣿⣧⠈⢿⠿⠟⠛⠻⠿⠄
-  ⣰⣿⣿⠛⠻⣿⣿⡦⢹⣿⣷   ⢊⣿⣿⡏  ⢸⣿⣿⡇ ⢀⣠⣄⣾⠄
- ⣠⣿⠿⠛ ⢀⣿⣿⣷⠘⢿⣿⣦⡀ ⢸⢿⣿⣿⣄ ⣸⣿⣿⡇⣪⣿⡿⠿⣿⣷⡄
- ⠙⠃   ⣼⣿⡟  ⠈⠻⣿⣿⣦⣌⡇⠻⣿⣿⣷⣿⣿⣿ ⣿⣿⡇ ⠛⠻⢷⣄
-      ⢻⣿⣿⣄   ⠈⠻⣿⣿⣿⣷⣿⣿⣿⣿⣿⡟ ⠫⢿⣿⡆
-       ⠻⣿⣿⣿⣿⣶⣶⣾⣿⣿⣿⣿⣿⣿⣿⣿⡟⢀⣀⣤⣾⡿⠃
-						]],
-				},
+				enabled = true,
+
 				sections = {
-					{ section = "header", pane = 1 },
-					{ section = "keys", gap = 1, padding = 1, pane = 2 },
-					{ section = "startup", pane = 2 },
+					function()
+						return {
+							align = "center",
+							padding = 1,
+							text = {
+								{ "│ ", hl = "Special" },
+								{ "╲ ││\n", hl = "String" },
+								{ "││", hl = "Special" },
+								{ "╲╲││\n", hl = "String" },
+								{ "││ ", hl = "Special" },
+								{ "╲ │", hl = "String" },
+							},
+						}
+					end,
+
+					function()
+						local v = vim.version()
+
+						return {
+							align = "center",
+							text = {
+								{
+									string.format("NVIM v%d.%d.%d", v.major, v.minor, v.patch),
+									hl = "String",
+								},
+							},
+						}
+					end,
+
+					{
+						align = "center",
+						text = {
+							{
+								"──────────────────────────────────────────────",
+								hl = "NonText",
+							},
+						},
+					},
+
+					{
+						align = "center",
+						text = {
+							{ "Nvim is open source and freely distributable" },
+						},
+					},
+
+					{
+						align = "center",
+						text = {
+							{
+								"https://neovim.io/#chat",
+								hl = "SnacksDashboardDesc",
+							},
+						},
+					},
+
+					{
+						align = "center",
+						text = {
+							{
+								"──────────────────────────────────────────────",
+								hl = "NonText",
+							},
+						},
+					},
+
+					-- Lazy.nvim
+					{
+						align = "center",
+						action = ":Lazy",
+						key = "l",
+						text = {
+							{ "type  " },
+							{ "l", hl = "SnacksDashboardKey" },
+							{ string.format("  %-20s", "to open Lazy") },
+						},
+					},
+
+					-- New File
+					{
+						align = "center",
+						action = ":ene | startinsert",
+						key = "n",
+						text = {
+							{ "type  " },
+							{ "n", hl = "SnacksDashboardKey" },
+							{ string.format("  %-20s", "to create new file") },
+						},
+					},
+
+					-- Mason
+					{
+						align = "center",
+						action = ":Mason",
+						key = "m",
+						text = {
+							{ "type  " },
+							{ "m", hl = "SnacksDashboardKey" },
+							{ string.format("  %-20s", "to open Mason") },
+						},
+					},
+
+					-- Quit
+					{
+						align = "center",
+						action = ":qa",
+						key = "q",
+						text = {
+							{ "type  " },
+							{ "q", hl = "SnacksDashboardKey" },
+							{ string.format("  %-20s", "to exit") },
+						},
+					},
+
+					{
+						align = "center",
+						text = {
+							{
+								"──────────────────────────────────────────────",
+								hl = "NonText",
+							},
+						},
+					},
 				},
 			},
 		},
