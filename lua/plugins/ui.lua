@@ -435,6 +435,18 @@ return {
 						},
 					},
 
+					-- Config
+					{
+						align = "center",
+						action = ":lua Snacks.dashboard.pick('files', {cwd = vim.fn.stdpath('config')})",
+						key = "c",
+						text = {
+							{ "type  " },
+							{ "c", hl = "SnacksDashboardKey" },
+							{ string.format("  %-20s", "to browse config") },
+						},
+					},
+
 					-- Quit
 					{
 						align = "center",
