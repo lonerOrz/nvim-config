@@ -4,7 +4,7 @@ return {
 		"ej-shafran/compile-mode.nvim",
 		dependencies = {
 			"nvim-lua/plenary.nvim",
-			{ "m00qek/baleia.nvim", version = "*" },
+			{ "m00qek/baleia.nvim" },
 		},
 		cmd = { "Compile", "Recompile" },
 		keys = {
