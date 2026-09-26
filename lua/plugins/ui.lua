@@ -458,6 +458,7 @@ return {
 							{ string.format("  %-20s", "to exit") },
 						},
 					},
+					{ section = "startup" },
 
 					{
 						align = "center",
