@@ -68,11 +68,12 @@ return {
 			opts.sections.lualine_c = opts.sections.lualine_c or {}
 
 			local function get_codeium_state()
-				local vt = package.loaded["codeium.virtual_text"]
-				if not vt then
+				local ok, vt = pcall(require, "codeium.virtual_text")
+				if not ok or not vt or not vt.status then
 					return "idle"
 				end
-				return vt.status().state
+				local status = vt.status()
+				return status and status.state or "idle"
 			end
 
 			table.insert(opts.sections.lualine_c, {

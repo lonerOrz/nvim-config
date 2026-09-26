@@ -5,7 +5,14 @@ return {
 		event = "InsertEnter",
 		opts = {
 			ignored_next_char = "[%w%.]",
+			disable_filetype = { "TelescopePrompt", "spectre_panel", "racket", "scheme" },
 		},
+	},
+
+	-- Parinfer: pure Lua implementation
+	{
+		"gpanders/nvim-parinfer",
+		ft = { "racket", "scheme" },
 	},
 
 	{

@@ -70,6 +70,23 @@ vim.opt.guicursor = {
 	"a:blinkon500-blinkoff500-blinkwait500",
 }
 
+-- Filetype detection for Racket and Scheme variants
+vim.filetype.add({
+	extension = {
+		-- Racket
+		rkt = "racket",
+		rktd = "racket",
+		rktl = "racket",
+		scrbl = "racket",
+		-- Scheme (Guile / SICP / R5RS / R6RS / R7RS)
+		scm = "scheme",
+		ss = "scheme",
+		sld = "scheme",
+		sps = "scheme",
+		sls = "scheme",
+	},
+})
+
 -- Folding Configuration
 -- Folding is set per window in plugins/treesitter.lua
 vim.o.foldenable = true
@@ -83,9 +100,17 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 	group = vim.api.nvim_create_augroup("NativeTrimWhitespace", { clear = true }),
 	pattern = "*",
 	callback = function(args)
-		local bufnr = args.buf
-		-- Only skip special buffers (terminal, help, floats) and binary files
-		if vim.bo[bufnr].buftype ~= "" or vim.bo[bufnr].binary then
+		-- Skip special buffers and binary files.
+		if vim.bo[args.buf].buftype ~= "" or vim.bo[args.buf].binary then
+			return
+		end
+		-- Skip syntaxes where trailing whitespace is semantically meaningful.
+		local ft = vim.bo[args.buf].filetype
+		if ft == "markdown" or ft == "rst" or ft == "text" then
+			return
+		end
+		-- Skip when conform's auto-format is active (let conform handle it).
+		if vim.g.enable_autoformat then
 			return
 		end
 

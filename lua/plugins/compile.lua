@@ -100,6 +100,17 @@ return {
 					return "nix build"
 				end
 
+				if filetype == "racket" then
+					return "racket %"
+				end
+
+				if filetype == "scheme" then
+					if vim.fn.executable("guile") == 1 then
+						return "guile %"
+					end
+					return "racket %"
+				end
+
 				return ""
 			end
 
