@@ -43,8 +43,8 @@ vim.opt.listchars = { trail = "-", space = "·" }
 -- Line Numbers & Cursor Line
 vim.opt.number = true
 vim.opt.relativenumber = true
-vim.wo.cursorline = true
-vim.wo.wrap = false
+vim.opt.cursorline = true
+vim.opt.wrap = false
 
 -- True Colors
 vim.opt.termguicolors = true
