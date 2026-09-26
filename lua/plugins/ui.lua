@@ -364,12 +364,7 @@ return {
 
 					{
 						align = "center",
-						text = {
-							{
-								"──────────────────────────────────────────────",
-								hl = "NonText",
-							},
-						},
+						padding = 1,
 					},
 
 					{
@@ -391,12 +386,7 @@ return {
 
 					{
 						align = "center",
-						text = {
-							{
-								"──────────────────────────────────────────────",
-								hl = "NonText",
-							},
-						},
+						text = { "" },
 					},
 
 					-- Lazy.nvim
@@ -458,17 +448,28 @@ return {
 							{ string.format("  %-20s", "to exit") },
 						},
 					},
-					{ section = "startup" },
 
 					{
 						align = "center",
-						text = {
-							{
-								"──────────────────────────────────────────────",
-								hl = "NonText",
-							},
-						},
+						text = { "" },
 					},
+
+					-- startup
+					function()
+						local stats = require("lazy.stats").stats()
+						local ms = math.floor(stats.startuptime * 100 + 0.5) / 100
+
+						return {
+							align = "center",
+							padding = 1,
+							text = {
+								{ "󰔟  ", hl = "SnacksDashboardIcon" },
+								{ stats.loaded .. "/" .. stats.count, hl = "SnacksDashboardKey" },
+								{ " plugins · ", hl = "SnacksDashboardDesc" },
+								{ ms .. " ms", hl = "SnacksDashboardKey" },
+							},
+						}
+					end,
 				},
 			},
 		},
