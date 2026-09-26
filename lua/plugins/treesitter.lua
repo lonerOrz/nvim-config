@@ -3,8 +3,9 @@ return {
 	{
 		"nvim-treesitter/nvim-treesitter",
 		branch = "main",
-		event = { "BufReadPre", "BufNewFile" },
 		build = ":TSUpdate",
+		lazy = false,
+		opts_extend = { "ensure_installed" },
 
 		opts = {
 			-- Generic/misc parsers only; language-specific ones live in lang/*.lua
@@ -57,8 +58,8 @@ return {
 						return
 					end
 
-					vim.wo[0][0].foldmethod = "expr"
-					vim.wo[0][0].foldexpr = "v:lua.vim.treesitter.foldexpr()"
+					vim.opt_local.foldmethod = "expr"
+					vim.opt_local.foldexpr = "v:lua.vim.treesitter.foldexpr()"
 				end,
 			})
 		end,
