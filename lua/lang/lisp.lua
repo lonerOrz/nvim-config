@@ -62,6 +62,9 @@ return {
 			vim.g["conjure#log#botright"] = true
 			vim.g["conjure#log#split"] = "horizontal"
 			vim.g["conjure#log#wrap"] = true
+			-- Conjure 默认只认 racket=.rkt、scheme=.scm/.ss
+			vim.g["conjure#filetype_suffixes#racket"] = { "rkt", "rktd", "rktl", "scrbl" }
+			vim.g["conjure#filetype_suffixes#scheme"] = { "scm", "ss", "sld", "sps", "sls" }
 			-- 光标进入 REPL 日志窗口时，按 q 直接关闭分屏
 			vim.api.nvim_create_autocmd("BufWinEnter", {
 				pattern = "*conjure-log*",
@@ -72,6 +75,27 @@ return {
 						nowait = true,
 						desc = "Close REPL split",
 					})
+				end,
+			})
+			-- 保存后重新 ,enter 当前文件，把最新定义加载进常驻 REPL。
+			vim.api.nvim_create_autocmd("BufWritePost", {
+				pattern = {
+					"*.rkt",
+					"*.rktd",
+					"*.rktl",
+					"*.scrbl",
+					"*.scm",
+					"*.ss",
+					"*.sld",
+					"*.sps",
+					"*.sls",
+				},
+				callback = function(args)
+					vim.api.nvim_buf_call(args.buf, function()
+						pcall(function()
+							require("conjure.client").call("enter")
+						end)
+					end)
 				end,
 			})
 		end,

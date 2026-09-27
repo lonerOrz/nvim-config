@@ -40,6 +40,15 @@ vim.opt.completeopt = { "menu", "menuone", "noselect" }
 vim.opt.list = true
 vim.opt.listchars = { trail = "-", space = "·" }
 
+-- Auto-wrap markdown files
+vim.api.nvim_create_autocmd("FileType", {
+	pattern = { "markdown", "markdown_inline" },
+	callback = function()
+		vim.opt_local.wrap = true
+		vim.opt_local.spell = false
+	end,
+})
+
 -- Line Numbers & Cursor Line
 vim.opt.number = true
 vim.opt.relativenumber = true
