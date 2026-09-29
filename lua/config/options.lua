@@ -79,23 +79,6 @@ vim.opt.guicursor = {
 	"a:blinkon500-blinkoff500-blinkwait500",
 }
 
--- Filetype detection for Racket and Scheme variants
-vim.filetype.add({
-	extension = {
-		-- Racket
-		rkt = "racket",
-		rktd = "racket",
-		rktl = "racket",
-		scrbl = "racket",
-		-- Scheme (Guile / SICP / R5RS / R6RS / R7RS)
-		scm = "scheme",
-		ss = "scheme",
-		sld = "scheme",
-		sps = "scheme",
-		sls = "scheme",
-	},
-})
-
 -- Folding Configuration
 -- Folding is set per window in plugins/treesitter.lua
 vim.o.foldenable = true
