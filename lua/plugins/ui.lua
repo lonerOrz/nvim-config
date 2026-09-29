@@ -221,26 +221,36 @@ return {
 				},
 			},
 
-			-- Your own keymap groups
 			spec = {
-				-- Leader
+				-- Leader Root Groups
 				{ "<leader>a", group = "AI & Agent", icon = "󰚩" },
-				{ "<leader>s", group = "Search & Find", icon = "󰍉" },
-				{ "<leader>c", group = "Code & Refactor", icon = "󰅩" },
-				{ "<leader>j", group = "Jump & Motion", icon = "" },
 				{ "<leader>b", group = "Buffer Tools", icon = "󰓩" },
-				{ "<leader>t", group = "Toggles & UI", icon = "" },
+				{ "<leader>c", group = "Code & Refactor", icon = "󰅩" },
+				{ "<leader>j", group = "Jump & Motion", icon = "󰁁" },
 				{ "<leader>l", group = "Git & Lazygit", icon = "󰊢" },
-				{ "<leader>y", group = "Yazi Manager", icon = "󰇥" },
-				{ "<leader>n", group = "Notifications", icon = "󰵅" },
-				{ "<leader>u", group = "Utilities", icon = "󰏿" },
 				{ "<leader>m", group = "Markdown", icon = "󰍔" },
+				{ "<leader>n", group = "Notifications", icon = "󰵅" },
+				{ "<leader>r", group = "Scheme REPL", icon = "" },
+				{ "<leader>s", group = "Search & Find", icon = "󰍉" },
+				{ "<leader>t", group = "Toggles & UI", icon = "󰨚" },
+				{ "<leader>tp", group = "Profiler", icon = "󰧮" },
+				{ "<leader>u", group = "Utilities", icon = "󱁤" },
+				{ "<leader>y", group = "Yazi Manager", icon = "󰇥" },
 
-				-- Builtin namespaces
-				{ "g", group = "Goto / Actions", icon = "󰏿" },
+				-- Leader Top-level Direct Shortcuts
+				{ "<leader><space>", icon = "󰥩", desc = "Find files (Project)" },
+				{ "<leader>,", icon = "󰓩", desc = "List buffers" },
+				{ "<leader>q", icon = "󰗼", desc = "Quit all" },
+				{ "<leader>L", icon = "󰒲", desc = "Open Lazy UI" },
+				{ "<leader>?", icon = "󰋖", desc = "Show keymaps" },
+
+				-- Builtin Namespaces & Operators
+				{ "g", group = "Goto / LSP Actions", icon = "󱔗" },
+				{ "gz", group = "Surround", icon = "󰑤", mode = { "n", "x" } },
 				{ "z", group = "Fold / View", icon = "󰁮" },
-				{ "]", group = "Next", icon = "󰒮" },
-				{ "[", group = "Previous", icon = "󰒭" },
+				{ "]", group = "Next (Hunk / Diag / Ref)", icon = "󰒮" },
+				{ "[", group = "Prev (Hunk / Diag / Ref)", icon = "󰒭" },
+				{ "y", group = "Yank (Copy)", icon = "󰆏" },
 			},
 
 			-- Popup scrolling
