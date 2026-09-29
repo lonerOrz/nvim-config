@@ -10,20 +10,29 @@ return {
 		config = function(_, opts)
 			require("mason").setup(opts)
 			local mr = require("mason-registry")
-			local function ensure_installed()
+
+			vim.defer_fn(function()
+				local missing = {}
 				for _, tool in ipairs(opts.ensure_installed or {}) do
-					local p = mr.get_package(tool)
-					if not p:is_installed() then
-						p:install()
+					if not mr.get_package(tool):is_installed() then
+						missing[#missing + 1] = tool
 					end
 				end
-			end
-			-- Defer past the first file open burst
-			vim.defer_fn(function()
+
+				if #missing == 0 then
+					return
+				end
+
+				local function install()
+					for _, tool in ipairs(missing) do
+						mr.get_package(tool):install()
+					end
+				end
+
 				if mr.refresh then
-					mr.refresh(ensure_installed)
+					mr.refresh(install)
 				else
-					ensure_installed()
+					install()
 				end
 			end, 150)
 		end,
@@ -32,8 +41,9 @@ return {
 	-- Lspsaga
 	{
 		"nvimdev/lspsaga.nvim",
-		event = { "BufReadPre", "BufNewFile" },
-		dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" },
+		event = "LspAttach",
+		cmd = "Lspsaga",
+		dependencies = { "nvim-tree/nvim-web-devicons" },
 		config = function()
 			require("lspsaga").setup({
 				ui = {

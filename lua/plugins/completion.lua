@@ -112,8 +112,9 @@ return {
 					},
 					lsp = {
 						transform_items = function(_, items)
+							local TextKind = require("blink.cmp.types").CompletionItemKind.Text
 							return vim.tbl_filter(function(item)
-								return item.kind ~= require("blink.cmp.types").CompletionItemKind.Text
+								return item.kind ~= TextKind
 							end, items)
 						end,
 						score_offset = 60,

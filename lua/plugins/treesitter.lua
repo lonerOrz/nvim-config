@@ -4,7 +4,8 @@ return {
 		"nvim-treesitter/nvim-treesitter",
 		branch = "main",
 		build = ":TSUpdate",
-		lazy = false,
+		-- Register Tree-sitter autocmds in init; load the plugin itself lazily.
+		event = "VeryLazy",
 		opts_extend = { "ensure_installed" },
 
 		opts = {
@@ -30,17 +31,7 @@ return {
 			},
 		},
 
-		config = function(_, opts)
-			local ts = require("nvim-treesitter")
-
-			ts.setup({
-				install_dir = vim.fn.stdpath("data") .. "/site",
-			})
-
-			vim.schedule(function()
-				ts.install(opts.ensure_installed)
-			end)
-
+		init = function()
 			local group = vim.api.nvim_create_augroup("UserTreesitter", { clear = true })
 
 			vim.api.nvim_create_autocmd("FileType", {
@@ -62,6 +53,18 @@ return {
 					vim.opt_local.foldexpr = "v:lua.vim.treesitter.foldexpr()"
 				end,
 			})
+		end,
+
+		config = function(_, opts)
+			local ts = require("nvim-treesitter")
+
+			ts.setup({
+				install_dir = vim.fn.stdpath("data") .. "/site",
+			})
+
+			vim.schedule(function()
+				ts.install(opts.ensure_installed)
+			end)
 		end,
 	},
 }

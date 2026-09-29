@@ -6,6 +6,7 @@ return {
 		priority = 1000,
 		opts = {
 			flavour = "mocha",
+			auto_integrations = false,
 			transparent_background = true,
 			term_colors = true,
 			dim_inactive = {
@@ -94,21 +95,22 @@ return {
 			integrations = {
 				barbar = true,
 				blink_cmp = true,
+				flash = true,
+				fzf = true,
 				gitsigns = true,
+				lsp_saga = true,
+				lsp_trouble = true,
+				markview = true,
 				mason = true,
-				noice = true,
-				rainbow_delimiters = true,
-				lspsaga = true,
-				treesitter = true,
-				notify = true,
 				mini = { enabled = true },
+				noice = true,
+				notify = true,
+				rainbow_delimiters = true,
 				snacks = {
 					enabled = true,
 					indent_scope_color = "mauve",
 				},
 				which_key = true,
-				flash = true,
-				lsp_trouble = true,
 			},
 		},
 		config = function(_, opts)
