@@ -8,8 +8,9 @@ return {
 		},
 		cmd = { "Compile", "Recompile" },
 		keys = {
-			{ "<leader>cm", "<CMD>Compile<CR>", desc = "Start compile" },
-			{ "<leader>cc", "<CMD>Recompile<CR>", desc = "Recompile last command" },
+			-- The count prefix is compile-mode's split height: 15 lines instead of 50/50.
+			{ "<leader>cm", "<CMD>15Compile<CR>", desc = "Start compile" },
+			{ "<leader>cc", "<CMD>15Recompile<CR>", desc = "Recompile last command" },
 		},
 
 		init = function()
