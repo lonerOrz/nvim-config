@@ -5,13 +5,19 @@ local M = {}
 --------------------------------------------------------------------------------
 local Storage = {}
 Storage.FILE = vim.fn.stdpath("state") .. "/theme.state"
+Storage.cached = nil
 
 function Storage.get_saved_id()
+	if Storage.cached then
+		return Storage.cached
+	end
 	local ok, lines = pcall(vim.fn.readfile, Storage.FILE)
-	return (ok and lines[1] and lines[1] ~= "") and lines[1] or "catppuccin"
+	Storage.cached = (ok and lines[1] and lines[1] ~= "") and lines[1] or "catppuccin"
+	return Storage.cached
 end
 
 function Storage.save_id(id)
+	Storage.cached = id
 	pcall(vim.fn.writefile, { id }, Storage.FILE)
 end
 
@@ -30,6 +36,9 @@ function Loader.load(id)
 end
 
 function Loader.scan_all()
+	if Loader.cache then
+		return Loader.cache
+	end
 	local themes = {}
 	local files = vim.api.nvim_get_runtime_file("lua/theme/themes/*.lua", true)
 	for _, file in ipairs(files) do
@@ -44,6 +53,7 @@ function Loader.scan_all()
 	table.sort(themes, function(a, b)
 		return a.id < b.id
 	end)
+	Loader.cache = themes
 	return themes
 end
 
@@ -108,6 +118,9 @@ function UI.register_autocmd()
 	})
 end
 
+-- Debounce previews to avoid repeated theme setup while moving selection.
+local preview_timer = vim.uv.new_timer()
+
 function UI.open_picker()
 	local themes = Loader.scan_all()
 	local orig_id = Engine.current_id or Storage.get_saved_id()
@@ -142,6 +155,7 @@ function UI.open_picker()
 			return d.name == n
 		end, themes)[1]
 	end
+
 	fzf.fzf_exec(
 		vim.tbl_map(function(d)
 			return d.name
@@ -160,7 +174,12 @@ function UI.open_picker()
 				if not t then
 					return ""
 				end
-				Engine.preview(t)
+				preview_timer:stop()
+				preview_timer:start(50, 0, function()
+					vim.schedule(function()
+						Engine.preview(t)
+					end)
+				end)
 				return ("%s\nid: %s\nmauve: %s\nbase: %s"):format(t.name, t.id, t.colors.mauve, t.colors.base)
 			end,
 			fn_selected = function(selected)

@@ -7,6 +7,7 @@ local FILETYPES = {
 	scheme = { "scm", "ss", "sld", "sps", "sls" },
 }
 
+-- Register only missing extensions to avoid loading vim.filetype during startup.
 do
 	local extensions = {}
 
@@ -16,7 +17,28 @@ do
 		end
 	end
 
-	vim.filetype.add({ extension = extensions })
+	vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
+		group = vim.api.nvim_create_augroup("LispFiletype", { clear = true }),
+		desc = "Extra Scheme/Racket extensions missing from nvim's filetype.lua",
+		callback = function(args)
+			if vim.bo[args.buf].filetype ~= "" then
+				return
+			end
+
+			local ft = extensions[vim.fn.fnamemodify(args.match, ":e")]
+
+			if ft then
+				vim.bo[args.buf].filetype = ft
+			end
+		end,
+		pattern = (function()
+			local patterns = {}
+			for ext in pairs(extensions) do
+				patterns[#patterns + 1] = "*." .. ext
+			end
+			return patterns
+		end)(),
+	})
 end
 
 local GUILE_INIT = {
@@ -28,13 +50,17 @@ local GUILE_INIT = {
 
 local function guile_command()
 	local init = vim.fs.joinpath(vim.fn.stdpath("state"), "conjure-guile-init.scm")
-	local ok, rc = pcall(vim.fn.writefile, GUILE_INIT, init)
+	local ok, current = pcall(vim.fn.readfile, init)
 
-	if ok and rc == 0 then
-		return ("guile -q --no-auto-compile -l %s --"):format(init)
+	if not ok or table.concat(current, "\n") ~= table.concat(GUILE_INIT, "\n") then
+		local wrote, rc = pcall(vim.fn.writefile, GUILE_INIT, init)
+
+		if not (wrote and rc == 0) then
+			return "guile --"
+		end
 	end
 
-	return "guile --"
+	return ("guile -q --no-auto-compile -l %s --"):format(init)
 end
 
 local function assign(target, key, value)
@@ -53,23 +79,27 @@ local function no_conjure_log_root(markers)
 	end
 end
 
-local CONJURE = {
-	["conjure#client#scheme#stdio#command"] = guile_command(),
-	["conjure#client#scheme#stdio#prompt_pattern"] = "%s*scheme@%b()%s*%[?%d*%]?%s*> ",
-	["conjure#client#scheme#stdio#value_prefix_pattern"] = "^%$%d+ = ",
-	["conjure#client#racket#stdio#auto_enter"] = false,
+-- Built lazily: guile_command() writes conjure-guile-init.scm to disk, which
+-- must not happen on every startup for a buffer that may never be Scheme.
+local function conjure_vars()
+	return {
+		["conjure#client#scheme#stdio#command"] = guile_command(),
+		["conjure#client#scheme#stdio#prompt_pattern"] = "%s*scheme@%b()%s*%[?%d*%]?%s*> ",
+		["conjure#client#scheme#stdio#value_prefix_pattern"] = "^%$%d+ = ",
+		["conjure#client#racket#stdio#auto_enter"] = false,
 
-	["conjure#eval#inline_results"] = true,
-	["conjure#eval#sound"] = false,
+		["conjure#eval#inline_results"] = true,
+		["conjure#eval#sound"] = false,
 
-	["conjure#log#hud#enabled"] = false,
-	["conjure#log#botright"] = true,
-	["conjure#log#split#height"] = 0.3,
-	["conjure#log#wrap"] = true,
+		["conjure#log#hud#enabled"] = false,
+		["conjure#log#botright"] = true,
+		["conjure#log#split#height"] = 0.3,
+		["conjure#log#wrap"] = true,
 
-	["conjure#filetype_suffixes#racket"] = FILETYPES.racket,
-	["conjure#filetype_suffixes#scheme"] = FILETYPES.scheme,
-}
+		["conjure#filetype_suffixes#racket"] = FILETYPES.racket,
+		["conjure#filetype_suffixes#scheme"] = FILETYPES.scheme,
+	}
+end
 
 local function setup_conjure()
 	local eval = require("conjure.eval")
@@ -358,7 +388,7 @@ return {
 		lazy = true,
 
 		init = function()
-			for key, value in pairs(CONJURE) do
+			for key, value in pairs(conjure_vars()) do
 				vim.g[key] = value
 			end
 

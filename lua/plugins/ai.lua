@@ -1,8 +1,8 @@
 return {
 	-- Codeium engine
+	-- No event: lazy.nvim loads Codeium on demand via require().
 	{
 		"Exafunction/windsurf.nvim",
-		event = "VeryLazy",
 		cmd = { "Codeium", "CodeiumAuth", "CodeiumToggle", "CodeiumChat" },
 		keys = {
 			{ "<leader>ac", "<CMD>Codeium Toggle<CR>", mode = { "n" }, desc = "Toggle Codeium completion" },
@@ -27,10 +27,8 @@ return {
 	{
 		"saghen/blink.cmp",
 		optional = true,
-		dependencies = { "Exafunction/windsurf.nvim" },
 		opts = function(_, opts)
 			opts.keymap = opts.keymap or {}
-			-- Trigger Codeium AI completions explicitly
 			opts.keymap["<A-y>"] = {
 				function(cmp)
 					cmp.show({ providers = { "codeium" } })
@@ -67,18 +65,22 @@ return {
 			opts.sections = opts.sections or {}
 			opts.sections.lualine_c = opts.sections.lualine_c or {}
 
+			-- `require()` here would drag codeium in via lazy's loader.
 			local function get_codeium_state()
-				local ok, vt = pcall(require, "codeium.virtual_text")
-				if not ok or not vt or not vt.status then
-					return "idle"
+				local vt = package.loaded["codeium.virtual_text"]
+				if type(vt) ~= "table" or type(vt.status) ~= "function" then
+					return "off"
 				end
-				local status = vt.status()
-				return status and status.state or "idle"
+				local ok, status = pcall(vt.status)
+				return (ok and status and status.state) or "idle"
 			end
 
 			table.insert(opts.sections.lualine_c, {
 				function()
 					local state = get_codeium_state()
+					if state == "off" then
+						return nil
+					end
 					if state == "waiting" then
 						return " Waiting..."
 					end

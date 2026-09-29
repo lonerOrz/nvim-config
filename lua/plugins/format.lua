@@ -44,9 +44,9 @@ return {
 			end,
 		},
 		init = function()
-			-- Initialize state and bind Snacks toggle (<leader>tf)
 			vim.g.enable_autoformat = get_autoformat_state()
-
+		end,
+		config = function()
 			require("snacks").toggle
 				.new({
 					id = "auto_format",
