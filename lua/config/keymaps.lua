@@ -8,6 +8,12 @@ vim.keymap.set("n", "<C-Right>", "<C-w>l", { desc = "Go to right window" })
 vim.keymap.set("n", "<C-Down>", "<C-w>j", { desc = "Go to lower window" })
 vim.keymap.set("n", "<C-Up>", "<C-w>k", { desc = "Go to upper window" })
 
+-- Window Resize
+vim.keymap.set("n", "<C-S-Left>", "<C-w><", { desc = "Decrease window width" })
+vim.keymap.set("n", "<C-S-Right>", "<C-w>>", { desc = "Increase window width" })
+vim.keymap.set("n", "<C-S-Down>", "<C-w>-", { desc = "Decrease window height" })
+vim.keymap.set("n", "<C-S-Up>", "<C-w>+", { desc = "Increase window height" })
+
 -- Line Head & Tail
 vim.keymap.set({ "n", "x" }, "<S-H>", "^", { desc = "Start of line" })
 vim.keymap.set({ "n", "x" }, "<S-L>", "$", { desc = "End of line" })
