@@ -249,45 +249,71 @@ local function setup_conjure()
 			return vim.treesitter.get_node_text(symbol, buf)
 		end
 
-		local function definitions(buf, heads, from_row, boundary)
+		local function position_after(row, col, position)
+			return row > position.row
+				or (row == position.row and col > position.col)
+		end
+
+		local function position_at_or_before(row, col, position)
+			return row < position.row
+				or (row == position.row and col <= position.col)
+		end
+
+		local function definitions(buf, heads, after_position, boundary)
 			local ok, parser = pcall(vim.treesitter.get_parser, buf)
 
 			if not ok or not parser then
-				return nil
+				return nil, false
 			end
 
-			local trees = parser:parse()
+			local ok_parse, trees = pcall(function()
+				return parser:parse()
+			end)
 
-			if not trees or not trees[1] then
-				return nil
+			if not ok_parse or not trees or not trees[1] then
+				return nil, false
 			end
 
 			local found = {}
 
 			for node in trees[1]:root():iter_children() do
-				local _, _, last_row = node:range()
+				local start_row, start_col, end_row, end_col = node:range()
 				local head = head_of(node, buf)
 
-				if last_row >= from_row and last_row < boundary and head and heads[head] then
+				local after_previous = not after_position
+					or position_after(start_row, start_col, after_position)
+
+				local before_current = position_at_or_before(
+					end_row,
+					end_col,
+					boundary
+				)
+
+				if after_previous and before_current and head and heads[head] then
 					found[#found + 1] = vim.treesitter.get_node_text(node, buf)
 				end
 			end
 
 			if #found == 0 then
+				return nil, true
+			end
+
+			return table.concat(found, "\n"), true
+		end
+
+		local function form_position()
+			local ok, node = pcall(ts["get-root"])
+
+			if not ok or not node then
 				return nil
 			end
 
-			return table.concat(found, "\n")
-		end
+			local row, col = node:range()
 
-		local function form_row()
-			local ok, node = pcall(ts["get-root"])
-
-			if ok and node then
-				return select(1, node:range())
-			end
-
-			return vim.fn.line(".") - 1
+			return {
+				row = row,
+				col = col,
+			}
 		end
 
 		local function wrap_eval_str(client, heads, wrap)
@@ -310,52 +336,73 @@ local function setup_conjure()
 				local buf = vim.api.nvim_get_current_buf()
 				local name = vim.api.nvim_buf_get_name(buf)
 
-				if opts.origin == "file" or opts.origin == "buf" or name == "" or log["log-buf?"](name) then
+				if opts.origin == "file"
+					or opts.origin == "buf"
+					or name == ""
+					or log["log-buf?"](name)
+				then
 					return eval_str(opts)
 				end
 
-				local boundary = form_row()
-				local tick = vim.api.nvim_buf_get_changedtick(buf)
-				local previous = installed[buf]
-				local from_row = 0
-
-				if previous and previous.tick == tick then
-					if previous.row >= boundary then
-						return eval_str(opts)
-					end
-
-					from_row = previous.row
+				if not opts.code then
+					return eval_str(opts)
 				end
 
-				local setup = opts.code and definitions(buf, heads, from_row, boundary)
+				local boundary = form_position()
 
-				if not setup then
-					installed[buf] = {
-						tick = tick,
-						row = boundary,
-					}
+				if not boundary then
+					return eval_str(opts)
+				end
 
+				local tick = vim.api.nvim_buf_get_changedtick(buf)
+				local previous = installed[buf]
+				local previous_valid = previous and previous.tick == tick
+
+				-- If evaluating an earlier or identical form, do not
+				-- reinstall definitions that were already synchronized.
+				if previous_valid
+					and not position_after(boundary.row, boundary.col, previous)
+				then
+					return eval_str(opts)
+				end
+
+				local after_position = previous_valid and previous or nil
+				local setup, parsed = definitions(
+					buf,
+					heads,
+					after_position,
+					boundary
+				)
+
+				-- Never advance the cache if parsing failed.
+				if not parsed then
 					return eval_str(opts)
 				end
 
 				local on_result = opts["on-result"]
-
-				return eval_str(vim.tbl_extend("force", {}, opts, {
-					code = wrap(setup, opts.code),
+				local eval_opts = vim.tbl_extend("force", {}, opts, {
 					["on-result"] = function(result)
 						installed[buf] = {
 							tick = tick,
-							row = boundary,
+							row = boundary.row,
+							col = boundary.col,
 						}
 
 						if on_result then
 							on_result(result)
 						end
 					end,
-				}))
+				})
+
+				if setup then
+					eval_opts.code = wrap(setup, opts.code)
+				end
+
+				return eval_str(eval_opts)
 			end)
 		end
 
+		-- Keep Racket and Guile clients independent.
 		wrap_eval_str(racket, SETUP_FORMS.racket, function(setup, form)
 			return ("(begin\n%s\n(void)\n%s)"):format(setup, form)
 		end)
