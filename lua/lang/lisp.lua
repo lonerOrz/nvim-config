@@ -7,7 +7,7 @@ local FILETYPES = {
 	scheme = { "scm", "ss", "sld", "sps", "sls" },
 }
 
--- Register only missing extensions to avoid loading vim.filetype during startup.
+-- Register only missing extensions without explicitly loading vim.filetype.
 do
 	local extensions = {}
 
@@ -17,46 +17,79 @@ do
 		end
 	end
 
+	local patterns = {}
+
+	for ext in pairs(extensions) do
+		patterns[#patterns + 1] = "*." .. ext
+	end
+
 	vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
 		group = vim.api.nvim_create_augroup("LispFiletype", { clear = true }),
 		desc = "Extra Scheme/Racket extensions missing from nvim's filetype.lua",
+		pattern = patterns,
 		callback = function(args)
 			if vim.bo[args.buf].filetype ~= "" then
 				return
 			end
 
-			local ft = extensions[vim.fn.fnamemodify(args.match, ":e")]
+			local ext = vim.fn.fnamemodify(args.match, ":e")
+			local filetype = extensions[ext]
 
-			if ft then
-				vim.bo[args.buf].filetype = ft
+			if filetype then
+				vim.bo[args.buf].filetype = filetype
 			end
 		end,
-		pattern = (function()
-			local patterns = {}
-			for ext in pairs(extensions) do
-				patterns[#patterns + 1] = "*." .. ext
-			end
-			return patterns
-		end)(),
 	})
 end
 
+-- These options affect Guile only, never the Racket REPL.
 local GUILE_INIT = {
 	"(use-modules (system repl common))",
-	"(repl-default-option-set! 'on-error 'backtrace)",
+	"(repl-default-option-set! 'on-error 'report)",
 	"(use-modules ((system repl repl) #:select (%inhibit-welcome-message)))",
 	"(%inhibit-welcome-message #t)",
 }
 
 local function guile_command()
-	local init = vim.fs.joinpath(vim.fn.stdpath("state"), "conjure-guile-init.scm")
-	local ok, current = pcall(vim.fn.readfile, init)
+	local state_dir = vim.fn.stdpath("state")
+	local init = vim.fs.joinpath(state_dir, "conjure-guile-init.scm")
+	local expected = table.concat(GUILE_INIT, "\n")
 
-	if not ok or table.concat(current, "\n") ~= table.concat(GUILE_INIT, "\n") then
-		local wrote, rc = pcall(vim.fn.writefile, GUILE_INIT, init)
+	-- Conjure's Scheme completion module expects command to be a string.
+	-- Its command parser does not safely support paths containing whitespace.
+	if init:find("%s") then
+		vim.notify(
+			("Guile init path contains whitespace; using default REPL settings: %s")
+				:format(init),
+			vim.log.levels.WARN
+		)
 
-		if not (wrote and rc == 0) then
-			return "guile --"
+		return "guile -q --no-auto-compile --"
+	end
+
+	local ok_read, current = pcall(vim.fn.readfile, init)
+
+	if not ok_read or table.concat(current, "\n") ~= expected then
+		vim.fn.mkdir(state_dir, "p")
+
+		if vim.fn.isdirectory(state_dir) == 0 then
+			vim.notify(
+				("Could not create Neovim state directory: %s"):format(state_dir),
+				vim.log.levels.ERROR
+			)
+
+			return "guile -q --no-auto-compile --"
+		end
+
+		local ok_write, rc = pcall(vim.fn.writefile, GUILE_INIT, init)
+
+		if not ok_write or rc ~= 0 then
+			vim.notify(
+				("Could not write Guile init file: %s"):format(init),
+				vim.log.levels.ERROR
+			)
+
+			return "guile -q --no-auto-compile --"
 		end
 	end
 
@@ -71,7 +104,7 @@ local function no_conjure_log_root(markers)
 	return function(bufnr, on_dir)
 		local name = vim.api.nvim_buf_get_name(bufnr)
 
-		if name:match("conjure%-log") then
+		if name == "" or name:match("conjure%-log") then
 			return
 		end
 
@@ -79,14 +112,18 @@ local function no_conjure_log_root(markers)
 	end
 end
 
--- Built lazily: guile_command() writes conjure-guile-init.scm to disk, which
--- must not happen on every startup for a buffer that may never be Scheme.
 local function conjure_vars()
 	return {
 		["conjure#client#scheme#stdio#command"] = guile_command(),
-		["conjure#client#scheme#stdio#prompt_pattern"] = "%s*scheme@%b()%s*%[?%d*%]?%s*> ",
+		["conjure#client#scheme#stdio#prompt_pattern"] =
+			"%s*scheme@%b()%s*%[?%d*%]?%s*> ",
 		["conjure#client#scheme#stdio#value_prefix_pattern"] = "^%$%d+ = ",
+
 		["conjure#client#racket#stdio#auto_enter"] = false,
+
+		-- Conjure's stdio Scheme/Racket clients do not implement def-str.
+		-- Use the LSP mapping configured below for gd instead.
+		["conjure#mapping#def_word"] = false,
 
 		["conjure#eval#inline_results"] = true,
 		["conjure#eval#sound"] = false,
@@ -109,7 +146,7 @@ local function setup_conjure()
 	local scheme = require("conjure.client.scheme.stdio")
 	local racket = require("conjure.client.racket.stdio")
 
-	-- Fallback to word evaluation.
+	-- Fall back to word evaluation when no form can be extracted.
 	do
 		local current_form = eval["current-form"]
 
@@ -138,7 +175,7 @@ local function setup_conjure()
 		end)
 	end
 
-	-- Show feedback for value-less evaluations.
+	-- Show feedback when an evaluation produces no value.
 	do
 		local eval_str = scheme["eval-str"]
 
@@ -164,7 +201,7 @@ local function setup_conjure()
 		end)
 	end
 
-	-- Install preceding definitions from the current buffer before eval.
+	-- Install preceding definitions before evaluating the current form.
 	do
 		local SETUP_FORMS = {
 			racket = {
@@ -329,6 +366,26 @@ local function setup_conjure()
 	end
 end
 
+-- Use LSP for gd instead of Conjure's unsupported def-str feature.
+vim.api.nvim_create_autocmd("LspAttach", {
+	group = vim.api.nvim_create_augroup("LispLspNavigation", {
+		clear = true,
+	}),
+	callback = function(args)
+		local client = vim.lsp.get_client_by_id(args.data.client_id)
+
+		if not client or not client.server_capabilities.definitionProvider then
+			return
+		end
+
+		vim.keymap.set("n", "gd", vim.lsp.buf.definition, {
+			buffer = args.buf,
+			silent = true,
+			desc = "LSP: Go to definition",
+		})
+	end,
+})
+
 return {
 	{
 		"nvim-treesitter/nvim-treesitter",
@@ -344,13 +401,14 @@ return {
 		opts = {
 			servers = {
 				racket_langserver = {
-					cmd = { "racket", "-l", "racket-langserver" },
+					cmd = { "racket", "--lib", "racket-langserver" },
 					filetypes = { "racket" },
 					root_dir = no_conjure_log_root({ "info.rkt", ".git" }),
 				},
 
 				guile_ls = {
 					cmd = { "guile-lsp-server" },
+					-- This matches the "scheme" filetype used by this config.
 					filetypes = { "scheme" },
 					root_dir = no_conjure_log_root({ "guix.scm", ".git" }),
 				},
