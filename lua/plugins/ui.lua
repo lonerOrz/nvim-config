@@ -171,7 +171,6 @@ return {
 				override = {
 					["vim.lsp.util.convert_input_to_markdown_lines"] = true,
 					["vim.lsp.util.stylize_markdown"] = true,
-					["cmp.entry.get_documentation"] = true,
 				},
 			},
 			presets = {
@@ -235,6 +234,8 @@ return {
 				{ "<leader>tp", group = "Profiler", icon = "󰧮" },
 				{ "<leader>u", group = "Utilities", icon = "󱁤" },
 				{ "<leader>y", group = "Yazi Manager", icon = "󰇥" },
+				{ "<leader>o", group = "Org Mode", icon = "" },
+				{ "<leader>z", group = "Zen", icon = "󰍡" },
 
 				-- Leader Top-level Direct Shortcuts
 				{ "<leader><space>", icon = "󰥩", desc = "Find files (Project)" },
@@ -249,7 +250,6 @@ return {
 				{ "z", group = "Fold / View", icon = "󰁮" },
 				{ "]", group = "Next (Hunk / Diag / Ref)", icon = "󰒮" },
 				{ "[", group = "Prev (Hunk / Diag / Ref)", icon = "󰒭" },
-				{ "y", group = "Yank (Copy)", icon = "󰆏" },
 			},
 
 			-- Popup scrolling
@@ -322,8 +322,69 @@ return {
 			},
 			statuscolumn = { enabled = true },
 			terminal = { enabled = true },
+			zen = {
+				enabled = true,
+				toggles = {
+					dim = true,
+					git_signs = false,
+					mini_diff_signs = false,
+				},
+				center = true,
+				show = {
+					statusline = false,
+					tabline = false,
+				},
+				win = { style = "zen" },
+				on_open = function(win)
+					-- 清掉 lspsaga 写到 zen 浮窗的 winbar
+					vim.api.nvim_create_autocmd("CursorMoved", {
+						group = win.augroup,
+						buffer = win.buf,
+						callback = function()
+							if vim.api.nvim_win_is_valid(win.win) then
+								vim.wo[win.win].winbar = ""
+							end
+						end,
+					})
+				end,
+				zoom = {
+					toggles = {},
+					center = false,
+					show = { statusline = false, tabline = false },
+					win = {
+						backdrop = false,
+						width = 0,
+					},
+				},
+			},
 			words = { enabled = true },
 			styles = {
+				zen = {
+					enter = true,
+					fixbuf = false,
+					minimal = false,
+					width = 120,
+					height = 0,
+					backdrop = { transparent = true, blend = 40 },
+					keys = { q = false },
+					zindex = 40,
+					wo = {
+						winhighlight = "NormalFloat:Normal",
+					},
+					w = {
+						snacks_main = true,
+					},
+				},
+				zoom_indicator = {
+					text = "▍ zoom  󰊓  ",
+					minimal = true,
+					enter = false,
+					focusable = false,
+					height = 1,
+					row = 0,
+					col = -1,
+					backdrop = false,
+				},
 				lazygit = {
 					width = 0.9,
 					height = 0.9,
@@ -712,12 +773,20 @@ return {
 				end,
 				desc = "Undo history",
 			},
+			-- Zen Mode (<leader>z)
 			{
-				"<leader>tz",
+				"<leader>zt",
 				function()
 					require("snacks").zen()
 				end,
 				desc = "Toggle Zen Mode",
+			},
+			{
+				"<leader>zz",
+				function()
+					require("snacks").zen.zoom()
+				end,
+				desc = "Toggle Zoom (Maximize)",
 			},
 
 			-- Git Integration (<leader>l)

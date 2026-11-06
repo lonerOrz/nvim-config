@@ -10,7 +10,7 @@ return {
 	{
 		"mason-org/mason.nvim",
 		optional = true,
-		opts = { ensure_installed = { "typescript-language-server", "prettierd", "prettier" } },
+		opts = { ensure_installed = { "vtsls", "prettierd", "prettier" } },
 		opts_extend = { "ensure_installed" },
 	},
 	-- LSP
@@ -18,7 +18,7 @@ return {
 		"neovim/nvim-lspconfig",
 		opts = {
 			servers = {
-				ts_ls = {
+				vtsls = {
 					settings = {
 						typescript = {
 							inlayHints = {

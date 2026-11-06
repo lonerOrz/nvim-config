@@ -48,6 +48,39 @@ vim.keymap.set("n", "<leader>uu", function()
 	require("undotree").open()
 end, { desc = "Open native undotree" })
 
+-- Persistent "auto zen" toggle (<leader>za)
+local zen_toggle_file = vim.fn.stdpath("state") .. "/zen.toggle"
+vim.g.start_in_zen = vim.fn.filereadable(zen_toggle_file) == 1
+Snacks.toggle
+	.new({
+		id = "start_in_zen",
+		name = "Start in Zen",
+		get = function()
+			return vim.g.start_in_zen
+		end,
+		set = function(state)
+			vim.g.start_in_zen = state
+			if state then
+				vim.fn.writefile({ "1" }, zen_toggle_file)
+			else
+				vim.fn.delete(zen_toggle_file)
+			end
+		end,
+	})
+	:map("<leader>za")
+
+vim.api.nvim_create_autocmd("User", {
+	pattern = "VeryLazy",
+	group = vim.api.nvim_create_augroup("ZenStartup", { clear = true }),
+	callback = function()
+		if vim.g.start_in_zen then
+			vim.schedule(function()
+				require("snacks").zen.zoom()
+			end)
+		end
+	end,
+})
+
 -- Floating Preview Scroller
 local function scroll_floating_preview(lines)
 	local blink_ok, blink = pcall(require, "blink.cmp")
