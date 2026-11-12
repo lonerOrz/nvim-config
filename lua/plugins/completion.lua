@@ -54,6 +54,7 @@ return {
 					end,
 					"fallback",
 				},
+				-- Only functional in GUI (Neovide, MacVim); terminals conflate <S-CR> with <CR>.
 				["<S-CR>"] = {
 					function(cmp)
 						cmp.hide()
@@ -137,7 +138,7 @@ return {
 			},
 
 			fuzzy = {
-				implementation = "prefer_rust_with_warning",
+				implementation = "prefer_rust",
 				sorts = {
 					"exact",
 					"score",
