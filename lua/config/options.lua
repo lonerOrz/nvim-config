@@ -68,8 +68,10 @@ vim.opt.showcmd = true
 vim.opt.showcmdloc = "statusline"
 
 -- Persistent Undo
+local undodir = vim.fn.stdpath("state") .. "/undo"
+vim.fn.mkdir(undodir, "p")
 vim.opt.undofile = true
-vim.opt.undodir = vim.fn.stdpath("state") .. "/undo"
+vim.opt.undodir = undodir
 
 -- Disable Netrw
 vim.g.loaded_netrw = 1
