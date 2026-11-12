@@ -46,6 +46,9 @@ return {
 		dependencies = { "nvim-tree/nvim-web-devicons" },
 		config = function()
 			require("lspsaga").setup({
+				symbol_in_winbar = {
+					enable = true,
+				},
 				ui = {
 					border = "rounded",
 					-- Nerd Font code action icon (1 icon + 1 space)

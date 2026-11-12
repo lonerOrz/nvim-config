@@ -98,57 +98,6 @@ return {
 		},
 	},
 
-	-- Buffer Tabline
-	{
-		"romgrk/barbar.nvim",
-		version = "^1.0.0",
-		dependencies = {
-			"nvim-tree/nvim-web-devicons",
-		},
-		init = function()
-			vim.g.barbar_auto_setup = false
-		end,
-		event = { "VeryLazy" },
-		keys = {
-			-- Buffer Navigation (Alt + Arrow Keys)
-			{ "<A-Left>", "<CMD>BufferPrevious<CR>", mode = { "n" }, desc = "Previous buffer" },
-			{ "<A-Right>", "<CMD>BufferNext<CR>", mode = { "n" }, desc = "Next buffer" },
-			{ "<A-<>", "<CMD>BufferMovePrevious<CR>", mode = { "n" }, desc = "Move buffer left" },
-			{ "<A->>", "<CMD>BufferMoveNext<CR>", mode = { "n" }, desc = "Move buffer right" },
-
-			-- Direct Buffer Navigation
-			{ "<A-1>", "<CMD>BufferGoto 1<CR>", mode = { "n" }, desc = "Go to buffer 1" },
-			{ "<A-2>", "<CMD>BufferGoto 2<CR>", mode = { "n" }, desc = "Go to buffer 2" },
-			{ "<A-3>", "<CMD>BufferGoto 3<CR>", mode = { "n" }, desc = "Go to buffer 3" },
-			{ "<A-4>", "<CMD>BufferGoto 4<CR>", mode = { "n" }, desc = "Go to buffer 4" },
-			{ "<A-5>", "<CMD>BufferGoto 5<CR>", mode = { "n" }, desc = "Go to buffer 5" },
-			{ "<A-6>", "<CMD>BufferGoto 6<CR>", mode = { "n" }, desc = "Go to buffer 6" },
-			{ "<A-7>", "<CMD>BufferGoto 7<CR>", mode = { "n" }, desc = "Go to buffer 7" },
-			{ "<A-8>", "<CMD>BufferGoto 8<CR>", mode = { "n" }, desc = "Go to buffer 8" },
-			{ "<A-9>", "<CMD>BufferGoto 9<CR>", mode = { "n" }, desc = "Go to buffer 9" },
-		},
-		opts = {
-			animation = false,
-			auto_hide = 1,
-			clickable = true,
-			icons = {
-				buffer_index = false,
-				filetype = { enabled = true },
-				button = "󰅖",
-				modified = { button = "●" },
-				pinned = { filename = true, icon = "󰐃", devicon = true },
-				separator = { left = "▎", right = "" },
-				separator_at_end = false,
-				diagnostics = {
-					[vim.diagnostic.severity.ERROR] = { enabled = false },
-					[vim.diagnostic.severity.WARN] = { enabled = false },
-					[vim.diagnostic.severity.INFO] = { enabled = false },
-					[vim.diagnostic.severity.HINT] = { enabled = false },
-				},
-			},
-		},
-	},
-
 	-- Rainbow Delimiters
 	{
 		"HiPhish/rainbow-delimiters.nvim",
@@ -239,7 +188,6 @@ return {
 
 				-- Leader Top-level Direct Shortcuts
 				{ "<leader><space>", icon = "󰥩", desc = "Find files (Project)" },
-				{ "<leader>,", icon = "󰓩", desc = "List buffers" },
 				{ "<leader>q", icon = "󰗼", desc = "Quit all" },
 				{ "<leader>L", icon = "󰒲", desc = "Open Lazy UI" },
 				{ "<leader>?", icon = "󰋖", desc = "Show keymaps" },
@@ -546,14 +494,7 @@ return {
 		keys = {
 			-- Terminal & Buffer Tools
 			{
-				"<A-w>",
-				function()
-					require("snacks").bufdelete()
-				end,
-				desc = "Delete buffer",
-			},
-			{
-				"<A-p>",
+				"<C-`>",
 				function()
 					require("snacks").terminal()
 				end,
@@ -568,6 +509,13 @@ return {
 				desc = "Toggle Scratchpad",
 			},
 			{
+				"<leader>bb",
+				function()
+					require("snacks").picker.buffers()
+				end,
+				desc = "List buffers",
+			},
+			{
 				"<leader>bd",
 				function()
 					require("snacks").bufdelete()
@@ -576,9 +524,13 @@ return {
 			},
 			{
 				"<leader>bD",
-				"<CMD>BufferCloseAllButCurrent<CR>",
+				function()
+					require("snacks").bufdelete(nil, true)
+				end,
 				desc = "Delete other buffers",
 			},
+			{ "<A-Left>", "<CMD>bprevious<CR>", desc = "Previous buffer" },
+			{ "<A-Right>", "<CMD>bnext<CR>", desc = "Next buffer" },
 
 			-- Notifications (<leader>n)
 			{
@@ -603,20 +555,6 @@ return {
 					require("snacks").picker.files()
 				end,
 				desc = "Find files (Project)",
-			},
-			{
-				"<leader>,",
-				function()
-					require("snacks").picker.buffers()
-				end,
-				desc = "List buffers",
-			},
-			{
-				"<leader>sb",
-				function()
-					require("snacks").picker.buffers()
-				end,
-				desc = "List buffers",
 			},
 			{
 				"<leader>sf",
