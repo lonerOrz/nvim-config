@@ -59,8 +59,7 @@ local function guile_command()
 	-- Its command parser does not safely support paths containing whitespace.
 	if init:find("%s") then
 		vim.notify(
-			("Guile init path contains whitespace; using default REPL settings: %s")
-				:format(init),
+			("Guile init path contains whitespace; using default REPL settings: %s"):format(init),
 			vim.log.levels.WARN
 		)
 
@@ -73,10 +72,7 @@ local function guile_command()
 		vim.fn.mkdir(state_dir, "p")
 
 		if vim.fn.isdirectory(state_dir) == 0 then
-			vim.notify(
-				("Could not create Neovim state directory: %s"):format(state_dir),
-				vim.log.levels.ERROR
-			)
+			vim.notify(("Could not create Neovim state directory: %s"):format(state_dir), vim.log.levels.ERROR)
 
 			return "guile -q --no-auto-compile --"
 		end
@@ -84,10 +80,7 @@ local function guile_command()
 		local ok_write, rc = pcall(vim.fn.writefile, GUILE_INIT, init)
 
 		if not ok_write or rc ~= 0 then
-			vim.notify(
-				("Could not write Guile init file: %s"):format(init),
-				vim.log.levels.ERROR
-			)
+			vim.notify(("Could not write Guile init file: %s"):format(init), vim.log.levels.ERROR)
 
 			return "guile -q --no-auto-compile --"
 		end
@@ -115,8 +108,7 @@ end
 local function conjure_vars()
 	return {
 		["conjure#client#scheme#stdio#command"] = guile_command(),
-		["conjure#client#scheme#stdio#prompt_pattern"] =
-			"%s*scheme@%b()%s*%[?%d*%]?%s*> ",
+		["conjure#client#scheme#stdio#prompt_pattern"] = "%s*scheme@%b()%s*%[?%d*%]?%s*> ",
 		["conjure#client#scheme#stdio#value_prefix_pattern"] = "^%$%d+ = ",
 
 		["conjure#client#racket#stdio#auto_enter"] = false,
@@ -250,13 +242,11 @@ local function setup_conjure()
 		end
 
 		local function position_after(row, col, position)
-			return row > position.row
-				or (row == position.row and col > position.col)
+			return row > position.row or (row == position.row and col > position.col)
 		end
 
 		local function position_at_or_before(row, col, position)
-			return row < position.row
-				or (row == position.row and col <= position.col)
+			return row < position.row or (row == position.row and col <= position.col)
 		end
 
 		local function definitions(buf, heads, after_position, boundary)
@@ -280,14 +270,9 @@ local function setup_conjure()
 				local start_row, start_col, end_row, end_col = node:range()
 				local head = head_of(node, buf)
 
-				local after_previous = not after_position
-					or position_after(start_row, start_col, after_position)
+				local after_previous = not after_position or position_after(start_row, start_col, after_position)
 
-				local before_current = position_at_or_before(
-					end_row,
-					end_col,
-					boundary
-				)
+				local before_current = position_at_or_before(end_row, end_col, boundary)
 
 				if after_previous and before_current and head and heads[head] then
 					found[#found + 1] = vim.treesitter.get_node_text(node, buf)
@@ -336,11 +321,7 @@ local function setup_conjure()
 				local buf = vim.api.nvim_get_current_buf()
 				local name = vim.api.nvim_buf_get_name(buf)
 
-				if opts.origin == "file"
-					or opts.origin == "buf"
-					or name == ""
-					or log["log-buf?"](name)
-				then
+				if opts.origin == "file" or opts.origin == "buf" or name == "" or log["log-buf?"](name) then
 					return eval_str(opts)
 				end
 
@@ -360,19 +341,12 @@ local function setup_conjure()
 
 				-- If evaluating an earlier or identical form, do not
 				-- reinstall definitions that were already synchronized.
-				if previous_valid
-					and not position_after(boundary.row, boundary.col, previous)
-				then
+				if previous_valid and not position_after(boundary.row, boundary.col, previous) then
 					return eval_str(opts)
 				end
 
 				local after_position = previous_valid and previous or nil
-				local setup, parsed = definitions(
-					buf,
-					heads,
-					after_position,
-					boundary
-				)
+				local setup, parsed = definitions(buf, heads, after_position, boundary)
 
 				-- Never advance the cache if parsing failed.
 				if not parsed then

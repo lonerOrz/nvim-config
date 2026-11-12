@@ -93,7 +93,6 @@ return {
 				}
 			end,
 			integrations = {
-				barbar = true,
 				blink_cmp = true,
 				flash = true,
 				fzf = true,
