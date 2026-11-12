@@ -828,9 +828,7 @@ return {
 					Snacks.toggle.option("relativenumber", { name = "Relative Number" }):map("<leader>tL")
 					Snacks.toggle.diagnostics():map("<leader>td")
 					Snacks.toggle.line_number():map("<leader>tl")
-					Snacks.toggle
-						.option("conceallevel", { off = 0, on = vim.o.conceallevel > 0 and vim.o.conceallevel or 2 })
-						:map("<leader>tc")
+					Snacks.toggle.option("conceallevel", { off = 0, on = 2 }):map("<leader>tc")
 					Snacks.toggle.treesitter():map("<leader>tT")
 					Snacks.toggle
 						.new({
