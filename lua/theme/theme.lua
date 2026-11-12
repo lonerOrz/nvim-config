@@ -111,6 +111,7 @@ function UI.register_autocmd()
 		pattern = "*/lua/theme/themes/*.lua",
 		callback = function(args)
 			local id = vim.fs.basename(args.file):gsub("%.lua$", "")
+			Loader.cache = nil
 			if (Engine.current_id or Storage.get_saved_id()) == id then
 				M.apply(id)
 			end
