@@ -17,7 +17,12 @@ vim.opt.sidescrolloff = 10
 vim.opt.startofline = false
 
 -- Conceal Level
-vim.opt.conceallevel = 2
+vim.api.nvim_create_autocmd("FileType", {
+	pattern = { "markdown", "json", "jsonc", "help" },
+	callback = function()
+		vim.opt_local.conceallevel = 2
+	end,
+})
 
 -- Indentation
 vim.opt.tabstop = 2
