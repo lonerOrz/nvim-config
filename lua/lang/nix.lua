@@ -1,3 +1,7 @@
+-- hostname for nixd expr
+local _h = vim.uv.os_gethostname()
+local _nixos_expr_host = _h:match("^[%a_][%w_]*$") and _h or ('"%s"'):format(_h)
+
 return {
 	-- Treesitter Parser
 	{
@@ -26,7 +30,7 @@ return {
 							options = {
 								nixos = {
 									expr = "(builtins.getFlake (toString ./.)).nixosConfigurations["
-										.. vim.loop.os_gethostname()
+										.. _nixos_expr_host
 										.. "].options",
 								},
 							},
