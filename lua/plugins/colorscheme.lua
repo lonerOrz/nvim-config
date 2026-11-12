@@ -93,7 +93,7 @@ return {
 				}
 			end,
 			integrations = {
-				blink_cmp = true,
+				blink_cmp = { enabled = true, style = "bordered" },
 				flash = true,
 				fzf = true,
 				gitsigns = true,
@@ -103,7 +103,6 @@ return {
 				mason = true,
 				mini = { enabled = true },
 				noice = true,
-				notify = true,
 				rainbow_delimiters = true,
 				snacks = {
 					enabled = true,
