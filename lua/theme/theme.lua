@@ -155,6 +155,13 @@ end
 
 -- Debounce previews to avoid repeated theme setup while moving selection.
 local preview_timer = vim.uv.new_timer()
+vim.api.nvim_create_autocmd("VimLeavePre", {
+	callback = function()
+		if preview_timer and not preview_timer:is_closing() then
+			preview_timer:close()
+		end
+	end,
+})
 
 function UI.open_picker()
 	local themes = Loader.scan_all()
