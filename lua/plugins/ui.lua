@@ -51,53 +51,6 @@ return {
 		end,
 	},
 
-	-- Git Signs & Inline Diff Integration
-	{
-		"lewis6991/gitsigns.nvim",
-		event = { "BufReadPre", "BufNewFile" },
-		opts = {
-			current_line_blame = true,
-			signs = {
-				add = { text = "▎" },
-				change = { text = "▎" },
-				delete = { text = "▎" },
-				topdelete = { text = "▔" },
-				changedelete = { text = "▎" },
-				untracked = { text = "┆" },
-			},
-			on_attach = function(buffer)
-				local gs = require("gitsigns")
-				local function map(mode, l, r, desc)
-					vim.keymap.set(mode, l, r, { buffer = buffer, desc = desc })
-				end
-
-				-- Hunk Navigation
-				map("n", "]h", function()
-					if vim.wo.diff then
-						vim.cmd.normal({ "]c", bang = true })
-					else
-						gs.nav_hunk("next")
-					end
-				end, "Next Git Hunk")
-
-				map("n", "[h", function()
-					if vim.wo.diff then
-						vim.cmd.normal({ "[c", bang = true })
-					else
-						gs.nav_hunk("prev")
-					end
-				end, "Prev Git Hunk")
-
-				-- Actions under <leader>l (Git & Lazygit Group)
-				map("n", "<leader>lh", gs.preview_hunk_inline, "Preview Hunk Inline")
-				map("n", "<leader>lb", function()
-					gs.blame_line({ full = true })
-				end, "Blame Line")
-				map("n", "<leader>lw", gs.toggle_word_diff, "Toggle Inline Word Diff")
-			end,
-		},
-	},
-
 	-- Rainbow Delimiters
 	{
 		"HiPhish/rainbow-delimiters.nvim",
@@ -174,7 +127,7 @@ return {
 				{ "<leader>b", group = "Buffer Tools", icon = "󰓩" },
 				{ "<leader>c", group = "Code & Refactor", icon = "󰅩" },
 				{ "<leader>j", group = "Jump & Motion", icon = "󰁁" },
-				{ "<leader>l", group = "Git & Lazygit", icon = "󰊢" },
+				{ "<leader>g", group = "Git", icon = "󰊢" },
 				{ "<leader>m", group = "Markdown", icon = "󰍔" },
 				{ "<leader>n", group = "Notifications", icon = "󰵅" },
 				{ "<leader>r", group = "Scheme REPL", icon = "" },
@@ -332,10 +285,6 @@ return {
 					row = 0,
 					col = -1,
 					backdrop = false,
-				},
-				lazygit = {
-					width = 0.9,
-					height = 0.9,
 				},
 				terminal = {
 					relative = "editor",
@@ -725,15 +674,6 @@ return {
 					require("snacks").zen.zoom()
 				end,
 				desc = "Toggle Zoom (Maximize)",
-			},
-
-			-- Git Integration (<leader>l)
-			{
-				"<leader>lg",
-				function()
-					require("snacks").lazygit()
-				end,
-				desc = "Open Lazygit",
 			},
 
 			-- Code & Refactor Tools (<leader>c)
