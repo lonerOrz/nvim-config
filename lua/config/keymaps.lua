@@ -94,7 +94,7 @@ local function scroll_floating_preview(lines)
 		if win ~= current_win and config.relative ~= "" then
 			vim.api.nvim_win_call(win, function()
 				local key = lines > 0 and "\x05" or "\x19"
-				vim.cmd("normal! " .. math.abs(lines) .. key)
+				pcall(vim.cmd, "normal! " .. math.abs(lines) .. key)
 			end)
 			return true
 		end
