@@ -38,7 +38,8 @@ return {
 						return false
 					end
 					for _, w in ipairs(vim.fn.win_findbuf(buf)) do
-						if vim.api.nvim_win_get_config(w).zindex then
+						local config = vim.api.nvim_win_get_config(w)
+						if config.relative ~= "" then
 							return false
 						end
 					end
