@@ -26,11 +26,45 @@ end
 --------------------------------------------------------------------------------
 local Loader = {}
 
+local REQUIRED = {
+	"rosewater",
+	"flamingo",
+	"pink",
+	"mauve",
+	"red",
+	"maroon",
+	"peach",
+	"yellow",
+	"green",
+	"teal",
+	"sky",
+	"sapphire",
+	"blue",
+	"lavender",
+	"text",
+	"subtext1",
+	"subtext0",
+	"overlay2",
+	"overlay1",
+	"overlay0",
+	"surface2",
+	"surface1",
+	"surface0",
+	"base",
+	"mantle",
+	"crust",
+}
 function Loader.load(id)
 	package.loaded["theme.themes." .. id] = nil
 	local ok, mod = pcall(require, "theme.themes." .. id)
 	if not ok or type(mod) ~= "table" or not mod.colors then
 		return nil
+	end
+	for _, key in ipairs(REQUIRED) do
+		if not mod.colors[key] then
+			vim.notify(("theme: %s missing color '%s'"):format(id, key), vim.log.levels.WARN)
+			return nil
+		end
 	end
 	return { id = id, name = mod.name or id, colors = mod.colors }
 end
@@ -175,12 +209,14 @@ function UI.open_picker()
 				if not t then
 					return ""
 				end
-				preview_timer:stop()
-				preview_timer:start(50, 0, function()
-					vim.schedule(function()
-						Engine.preview(t)
+				if preview_timer then
+					preview_timer:stop()
+					preview_timer:start(50, 0, function()
+						vim.schedule(function()
+							Engine.preview(t)
+						end)
 					end)
-				end)
+				end
 				return ("%s\nid: %s\nmauve: %s\nbase: %s"):format(t.name, t.id, t.colors.mauve, t.colors.base)
 			end,
 			fn_selected = function(selected)

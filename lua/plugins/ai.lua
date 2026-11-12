@@ -13,6 +13,7 @@ return {
 			"nvim-lua/plenary.nvim",
 		},
 		opts = {
+			-- Disable nvim-cmp source; we use blink.cmp via codeium.blink instead.
 			enable_cmp_source = false,
 			virtual_text = {
 				enabled = false,

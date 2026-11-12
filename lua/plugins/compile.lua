@@ -102,6 +102,7 @@ return {
 				end
 
 				if filetype == "racket" then
+					-- Ensure #lang header exists; bare "racket %" fails on files without it.
 					return "racket %"
 				end
 
