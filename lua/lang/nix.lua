@@ -25,7 +25,9 @@ return {
 							formatting = { command = { "nixfmt" } },
 							options = {
 								nixos = {
-									expr = "(builtins.getFlake (toString ./.)).nixosConfigurations.loneros.options",
+									expr = "(builtins.getFlake (toString ./.)).nixosConfigurations["
+										.. vim.loop.os_gethostname()
+										.. "].options",
 								},
 							},
 						},
