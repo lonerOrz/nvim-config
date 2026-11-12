@@ -102,8 +102,6 @@ return {
 			pcall(vim.keymap.del, { "n", "x" }, "grr")
 			pcall(vim.keymap.del, { "n", "x" }, "gri")
 
-			vim.cmd([[highlight! link DiagnosticHint DiagnosticWarn]])
-
 			local capabilities = vim.lsp.protocol.make_client_capabilities()
 			local ok, blink_cmp = pcall(require, "blink.cmp")
 			if ok then
