@@ -8,7 +8,7 @@ return {
 	},
 	-- Mason
 	{
-		"mason-org/mason.nvim",
+		"WhoIsSethDaniel/mason-tool-installer.nvim",
 		optional = true,
 		opts = { ensure_installed = { "vtsls", "prettierd", "prettier" } },
 		opts_extend = { "ensure_installed" },

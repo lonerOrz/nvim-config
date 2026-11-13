@@ -2,36 +2,20 @@ return {
 	-- Mason Dependency Manager
 	{
 		"mason-org/mason.nvim",
-		cmd = { "Mason", "MasonInstall", "MasonUpdate" },
+		opts = {},
+	},
+
+	-- Automatic tool installer
+	{
+		"WhoIsSethDaniel/mason-tool-installer.nvim",
+		lazy = false,
+		dependencies = { "mason-org/mason.nvim" },
 		opts_extend = { "ensure_installed" },
 		opts = {
-			ensure_installed = {},
+			run_on_start = true,
+			start_delay = 3000, -- 延迟3秒
+			ensure_installed = {}, -- 基础列表，各 lang 模块会通过 opts_extend 追加
 		},
-		config = function(_, opts)
-			require("mason").setup(opts)
-			local mr = require("mason-registry")
-			vim.defer_fn(function()
-				local missing = {}
-				for _, tool in ipairs(opts.ensure_installed or {}) do
-					if not mr.get_package(tool):is_installed() then
-						missing[#missing + 1] = tool
-					end
-				end
-				if #missing == 0 then
-					return
-				end
-				local function install()
-					for _, tool in ipairs(missing) do
-						mr.get_package(tool):install()
-					end
-				end
-				if mr.refresh then
-					mr.refresh(install)
-				else
-					install()
-				end
-			end, 150)
-		end,
 	},
 
 	-- Lspsaga
