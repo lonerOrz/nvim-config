@@ -10,7 +10,6 @@ return {
 		config = function(_, opts)
 			require("mason").setup(opts)
 			local mr = require("mason-registry")
-
 			vim.defer_fn(function()
 				local missing = {}
 				for _, tool in ipairs(opts.ensure_installed or {}) do
@@ -18,17 +17,14 @@ return {
 						missing[#missing + 1] = tool
 					end
 				end
-
 				if #missing == 0 then
 					return
 				end
-
 				local function install()
 					for _, tool in ipairs(missing) do
 						mr.get_package(tool):install()
 					end
 				end
-
 				if mr.refresh then
 					mr.refresh(install)
 				else
@@ -44,6 +40,21 @@ return {
 		event = "LspAttach",
 		cmd = "Lspsaga",
 		dependencies = { "nvim-tree/nvim-web-devicons" },
+		init = function() -- when enable symbol_in_winbar
+			vim.api.nvim_create_autocmd({ "BufWinEnter", "BufEnter" }, {
+				callback = function()
+					if vim.bo.buftype ~= "" then
+						return
+					end
+					if vim.api.nvim_win_get_config(0).relative ~= "" then
+						return
+					end
+					if vim.wo.winbar == "" then
+						vim.wo.winbar = " "
+					end
+				end,
+			})
+		end,
 		config = function()
 			require("lspsaga").setup({
 				symbol_in_winbar = {
@@ -182,7 +193,6 @@ return {
 				mode = { "n" },
 				desc = "Prev diagnostic",
 			},
-
 			{ "<leader>cd", "<CMD>Trouble diagnostics toggle<CR>", desc = "Buffer diagnostics" },
 			{ "<leader>cs", "<CMD>Trouble symbols toggle focus=false<CR>", desc = "Document symbols" },
 		},
