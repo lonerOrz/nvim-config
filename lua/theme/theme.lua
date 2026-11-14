@@ -57,7 +57,6 @@ local REQUIRED = {
 }
 
 function Loader.load(id)
-	package.loaded["theme.themes." .. id] = nil
 	local ok, mod = pcall(require, "theme.themes." .. id)
 	if not ok or type(mod) ~= "table" or not mod.colors then
 		return nil
@@ -69,6 +68,12 @@ function Loader.load(id)
 		end
 	end
 	return { id = id, name = mod.name or id, colors = mod.colors }
+end
+
+-- 显式失效 + 重读，仅用于磁盘上的主题文件变更
+function Loader.reload(id)
+	package.loaded["theme.themes." .. id] = nil
+	return Loader.load(id)
 end
 
 function Loader.scan_all()
@@ -157,9 +162,10 @@ function UI.register_autocmd()
 		callback = function(args)
 			local id = vim.fs.basename(args.file):gsub("%.lua$", "")
 			Loader.cache = nil
-			if (Engine.current_id or Storage.get_saved_id()) == id then
+			local theme = Loader.reload(id)
+			if theme and (Engine.current_id or Storage.get_saved_id()) == id then
 				-- 编辑中的主题可能暂时无效，静默失败，避免打断编辑
-				pcall(M.apply, id)
+				pcall(Engine.preview, theme)
 			end
 		end,
 	})
