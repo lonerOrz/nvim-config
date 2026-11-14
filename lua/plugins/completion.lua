@@ -6,8 +6,12 @@ return {
 		dependencies = {
 			"nvim-tree/nvim-web-devicons",
 			"folke/lazydev.nvim",
+			"saghen/blink.lib",
 		},
-		version = "1.*",
+		build = function()
+			---@diagnostic disable-next-line: undefined-field
+			require("blink.cmp").build():pwait()
+		end,
 
 		---@module 'blink.cmp'
 		---@type blink.cmp.Config
@@ -38,10 +42,8 @@ return {
 					end,
 					"fallback",
 				},
-
 				["<C-u>"] = { "scroll_documentation_up", "fallback" },
 				["<C-d>"] = { "scroll_documentation_down", "fallback" },
-
 				["<Tab>"] = {
 					function(cmp)
 						return cmp.accept()
@@ -54,6 +56,7 @@ return {
 					end,
 					"fallback",
 				},
+				-- Only functional in GUI (Neovide, MacVim); terminals conflate <S-CR> with <CR>.
 				["<S-CR>"] = {
 					function(cmp)
 						cmp.hide()
@@ -61,7 +64,6 @@ return {
 					end,
 					"fallback",
 				},
-
 				["<A-/>"] = {
 					function(cmp)
 						if cmp.is_menu_visible() then
@@ -72,7 +74,6 @@ return {
 					end,
 					"fallback",
 				},
-
 				["<A-n>"] = {
 					function(cmp)
 						cmp.show({ providers = { "buffer" } })
@@ -92,7 +93,6 @@ return {
 			sources = {
 				default = { "lazydev", "lsp", "path", "snippets", "buffer" },
 				per_filetype = {},
-
 				providers = {
 					lazydev = {
 						name = "LazyDev",
@@ -137,12 +137,8 @@ return {
 			},
 
 			fuzzy = {
-				implementation = "prefer_rust_with_warning",
-				sorts = {
-					"exact",
-					"score",
-					"sort_text",
-				},
+				implementation = "prefer_rust",
+				sorts = { "exact", "score", "sort_text" },
 			},
 
 			completion = {
@@ -152,6 +148,7 @@ return {
 					border = "rounded",
 					max_height = 20,
 					draw = {
+						padding = 1, -- 显式声明，消除 LuaLS 的 missing-fields 警告
 						columns = { { "label", "label_description", gap = 1 }, { "kind_icon", "kind" } },
 						components = {
 							kind_icon = {
@@ -186,8 +183,8 @@ return {
 						winhighlight = "Normal:BlinkCmpDoc,FloatBorder:BlinkCmpDocBorder,EndOfBuffer:BlinkCmpDoc",
 						scrollbar = true,
 						direction_priority = {
-							menu_north = { "e", "w", "n", "s" },
-							menu_south = { "e", "w", "s", "n" },
+							menu_north = { "e", "w", "s", "n" },
+							menu_south = { "e", "w", "n", "s" },
 						},
 					},
 				},
@@ -195,33 +192,29 @@ return {
 					enabled = true,
 					show_with_selection = true,
 					show_without_selection = false,
-					show_with_menu = true,
-					show_without_menu = true,
+					show_with_menu = false,
+					show_without_menu = false,
 				},
 			},
 
 			signature = {
-				enabled = true,
+				enabled = false,
 				window = {
 					min_width = 1,
 					max_width = 100,
-					max_height = 10,
+					max_height = 6,
 					border = "rounded",
 					winblend = 0,
 					winhighlight = "Normal:BlinkCmpSignatureHelp,FloatBorder:BlinkCmpSignatureHelpBorder",
 					scrollbar = false,
-					direction_priority = { "n" },
+					direction_priority = { "n", "s" },
 					treesitter_highlighting = true,
 					show_documentation = true,
 				},
 			},
 
 			cmdline = {
-				completion = {
-					menu = {
-						auto_show = true,
-					},
-				},
+				completion = { menu = { auto_show = true } },
 				keymap = {
 					preset = "none",
 					["<A-j>"] = {

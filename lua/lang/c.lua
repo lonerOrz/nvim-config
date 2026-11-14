@@ -16,7 +16,7 @@ return {
 	},
 	-- Mason
 	{
-		"mason-org/mason.nvim",
+		"WhoIsSethDaniel/mason-tool-installer.nvim",
 		optional = true,
 		opts = {
 			ensure_installed = not is_nixos and { "clangd", "clang-format" } or { "clang-format" },

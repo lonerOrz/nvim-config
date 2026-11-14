@@ -1,6 +1,14 @@
--- Pre Tools
+-- Racket / Scheme support: REPL (conjure), LSP, treesitter, formatting.
+--
+-- Pre-tools:
 --   Racket: raco pkg install --auto --no-docs racket-langserver fmt syntax-color-lib compatibility-lib
 --   Guile:  guile, guile-lsp-server, schemat on $PATH.
+--
+-- NOTE: setup_conjure() monkey-patches several internal functions of
+-- conjure's stdio clients (eval.current-form, scheme.format-msg,
+-- scheme.eval-str, racket/scheme.eval-str, start/stop). Re-verify these
+-- patches after upgrading Olical/conjure. The pinned commit is recorded
+-- in lazy-lock.json.
 
 local FILETYPES = {
 	racket = { "rkt", "rktd", "rktl", "scrbl" },
@@ -17,11 +25,9 @@ do
 		end
 	end
 
-	local patterns = {}
-
-	for ext in pairs(extensions) do
-		patterns[#patterns + 1] = "*." .. ext
-	end
+	local patterns = vim.tbl_map(function(ext)
+		return "*." .. ext
+	end, vim.tbl_keys(extensions))
 
 	vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
 		group = vim.api.nvim_create_augroup("LispFiletype", { clear = true }),
@@ -59,8 +65,7 @@ local function guile_command()
 	-- Its command parser does not safely support paths containing whitespace.
 	if init:find("%s") then
 		vim.notify(
-			("Guile init path contains whitespace; using default REPL settings: %s")
-				:format(init),
+			("Guile init path contains whitespace; using default REPL settings: %s"):format(init),
 			vim.log.levels.WARN
 		)
 
@@ -73,10 +78,7 @@ local function guile_command()
 		vim.fn.mkdir(state_dir, "p")
 
 		if vim.fn.isdirectory(state_dir) == 0 then
-			vim.notify(
-				("Could not create Neovim state directory: %s"):format(state_dir),
-				vim.log.levels.ERROR
-			)
+			vim.notify(("Could not create Neovim state directory: %s"):format(state_dir), vim.log.levels.ERROR)
 
 			return "guile -q --no-auto-compile --"
 		end
@@ -84,20 +86,13 @@ local function guile_command()
 		local ok_write, rc = pcall(vim.fn.writefile, GUILE_INIT, init)
 
 		if not ok_write or rc ~= 0 then
-			vim.notify(
-				("Could not write Guile init file: %s"):format(init),
-				vim.log.levels.ERROR
-			)
+			vim.notify(("Could not write Guile init file: %s"):format(init), vim.log.levels.ERROR)
 
 			return "guile -q --no-auto-compile --"
 		end
 	end
 
 	return ("guile -q --no-auto-compile -l %s --"):format(init)
-end
-
-local function assign(target, key, value)
-	target[key] = value
 end
 
 local function no_conjure_log_root(markers)
@@ -115,8 +110,7 @@ end
 local function conjure_vars()
 	return {
 		["conjure#client#scheme#stdio#command"] = guile_command(),
-		["conjure#client#scheme#stdio#prompt_pattern"] =
-			"%s*scheme@%b()%s*%[?%d*%]?%s*> ",
+		["conjure#client#scheme#stdio#prompt_pattern"] = "%s*scheme@%b()%s*%[?%d*%]?%s*> ",
 		["conjure#client#scheme#stdio#value_prefix_pattern"] = "^%$%d+ = ",
 
 		["conjure#client#racket#stdio#auto_enter"] = false,
@@ -138,11 +132,211 @@ local function conjure_vars()
 	}
 end
 
+--------------------------------------------------------------------------------
+-- Definition-cache helpers (pure, file-scope so they are not rebuilt on
+-- every setup_conjure() call).
+--------------------------------------------------------------------------------
+
+local SETUP_FORMS = {
+	racket = {
+		["define"] = true,
+		["define-syntax"] = true,
+		["define-syntax-rule"] = true,
+		["define-values"] = true,
+		["define-record-type"] = true,
+		["define-struct"] = true,
+		["define-match-expander"] = true,
+		["define-runtime-path"] = true,
+		["define-sequence-syntax"] = true,
+		["struct"] = true,
+		["require"] = true,
+	},
+
+	scheme = {
+		["define"] = true,
+		["define*"] = true,
+		["define-syntax"] = true,
+		["define-syntax-rule"] = true,
+		["define-values"] = true,
+		["define-record-type"] = true,
+		["define-public"] = true,
+		["define-constant"] = true,
+		["define-once"] = true,
+		["define-module"] = true,
+		["use-modules"] = true,
+		["use-syntax"] = true,
+		["import"] = true,
+	},
+}
+
+local function head_of(node, buf)
+	if node:type() ~= "list" then
+		return nil
+	end
+
+	local symbol = node:child(1)
+
+	if not symbol then
+		return nil
+	end
+
+	return vim.treesitter.get_node_text(symbol, buf)
+end
+
+local function position_after(row, col, position)
+	return row > position.row or (row == position.row and col > position.col)
+end
+
+local function position_at_or_before(row, col, position)
+	return row < position.row or (row == position.row and col <= position.col)
+end
+
+local function definitions(buf, heads, after_position, boundary)
+	local ok, parser = pcall(vim.treesitter.get_parser, buf)
+
+	if not ok or not parser then
+		return nil, false
+	end
+
+	local ok_parse, trees = pcall(function()
+		return parser:parse()
+	end)
+
+	if not ok_parse or not trees or not trees[1] then
+		return nil, false
+	end
+
+	local found = {}
+
+	for node in trees[1]:root():iter_children() do
+		local start_row, start_col, end_row, end_col = node:range()
+		local head = head_of(node, buf)
+
+		local after_previous = not after_position or position_after(start_row, start_col, after_position)
+
+		local before_current = position_at_or_before(end_row, end_col, boundary)
+
+		if after_previous and before_current and head and heads[head] then
+			found[#found + 1] = vim.treesitter.get_node_text(node, buf)
+		end
+	end
+
+	if #found == 0 then
+		return nil, true
+	end
+
+	return table.concat(found, "\n"), true
+end
+
+local function form_position()
+	local ok, ts = pcall(require, "conjure.tree-sitter")
+
+	if not ok then
+		return nil
+	end
+
+	local ok_root, node = pcall(ts["get-root"])
+
+	if not ok_root or not node then
+		return nil
+	end
+
+	local row, col = node:range()
+
+	return {
+		row = row,
+		col = col,
+	}
+end
+
+local function wrap_eval_str(client, heads, wrap)
+	local ok_log, log = pcall(require, "conjure.log")
+	if not ok_log then
+		return
+	end
+
+	local eval_str = client["eval-str"]
+	local start = client.start
+	local stop = client.stop
+	local installed = {}
+
+	client.start = function(...)
+		installed = {}
+		return start(...)
+	end
+
+	client.stop = function(...)
+		installed = {}
+		return stop(...)
+	end
+
+	client["eval-str"] = function(opts)
+		local buf = vim.api.nvim_get_current_buf()
+		local name = vim.api.nvim_buf_get_name(buf)
+
+		if opts.origin == "file" or opts.origin == "buf" or name == "" or log["log-buf?"](name) then
+			return eval_str(opts)
+		end
+
+		if not opts.code then
+			return eval_str(opts)
+		end
+
+		local boundary = form_position()
+
+		if not boundary then
+			return eval_str(opts)
+		end
+
+		local tick = vim.api.nvim_buf_get_changedtick(buf)
+		local previous = installed[buf]
+		local previous_valid = previous and previous.tick == tick
+
+		-- If evaluating an earlier or identical form, do not
+		-- reinstall definitions that were already synchronized.
+		if previous_valid and not position_after(boundary.row, boundary.col, previous) then
+			return eval_str(opts)
+		end
+
+		local after_position = previous_valid and previous or nil
+		local setup, parsed = definitions(buf, heads, after_position, boundary)
+
+		-- Never advance the cache if parsing failed.
+		if not parsed then
+			return eval_str(opts)
+		end
+
+		local on_result = opts["on-result"]
+		local eval_opts = vim.tbl_extend("force", {}, opts, {
+			["on-result"] = function(result)
+				installed[buf] = {
+					tick = tick,
+					row = boundary.row,
+					col = boundary.col,
+				}
+
+				if on_result then
+					on_result(result)
+				end
+			end,
+		})
+
+		if setup then
+			eval_opts.code = wrap(setup, opts.code)
+		end
+
+		return eval_str(eval_opts)
+	end
+end
+
+--------------------------------------------------------------------------------
+-- Conjure patches
+--------------------------------------------------------------------------------
+
 local function setup_conjure()
 	local eval = require("conjure.eval")
 	local extract = require("conjure.extract")
 	local log = require("conjure.log")
-	local ts = require("conjure.tree-sitter")
 	local scheme = require("conjure.client.scheme.stdio")
 	local racket = require("conjure.client.racket.stdio")
 
@@ -150,36 +344,37 @@ local function setup_conjure()
 	do
 		local current_form = eval["current-form"]
 
-		assign(eval, "current-form", function(opts)
+		eval["current-form"] = function(opts)
 			local ok, form = pcall(extract.form, {})
 
 			if ok and form and form.content and form.content ~= "" then
 				return current_form(opts)
 			end
 
-			return eval.word()
-		end)
+			-- Preserve opts (silent, origin, on-result...) on the fallback path.
+			return eval.word(opts)
+		end
 	end
 
 	-- Hide empty Scheme output.
 	do
 		local format_msg = scheme["format-msg"]
 
-		assign(scheme, "format-msg", function(msg)
+		scheme["format-msg"] = function(msg)
 			local lines = format_msg(msg)
 			local empty_output = scheme["comment-prefix"] .. "(out) "
 
 			return vim.tbl_filter(function(line)
 				return line ~= empty_output
 			end, lines)
-		end)
+		end
 	end
 
 	-- Show feedback when an evaluation produces no value.
 	do
 		local eval_str = scheme["eval-str"]
 
-		assign(scheme, "eval-str", function(opts)
+		scheme["eval-str"] = function(opts)
 			local on_result = opts["on-result"]
 
 			if opts.silent then
@@ -198,240 +393,23 @@ local function setup_conjure()
 			end
 
 			return eval_str(opts)
-		end)
+		end
 	end
 
 	-- Install preceding definitions before evaluating the current form.
-	do
-		local SETUP_FORMS = {
-			racket = {
-				["define"] = true,
-				["define-syntax"] = true,
-				["define-syntax-rule"] = true,
-				["define-values"] = true,
-				["define-record-type"] = true,
-				["define-struct"] = true,
-				["define-match-expander"] = true,
-				["define-runtime-path"] = true,
-				["define-sequence-syntax"] = true,
-				["struct"] = true,
-				["require"] = true,
-			},
+	-- Keep Racket and Guile clients independent.
+	wrap_eval_str(racket, SETUP_FORMS.racket, function(setup, form)
+		return ("(begin\n%s\n(void)\n%s)"):format(setup, form)
+	end)
 
-			scheme = {
-				["define"] = true,
-				["define*"] = true,
-				["define-syntax"] = true,
-				["define-syntax-rule"] = true,
-				["define-values"] = true,
-				["define-record-type"] = true,
-				["define-public"] = true,
-				["define-constant"] = true,
-				["define-once"] = true,
-				["define-module"] = true,
-				["use-modules"] = true,
-				["use-syntax"] = true,
-				["import"] = true,
-			},
-		}
-
-		local function head_of(node, buf)
-			if node:type() ~= "list" then
-				return nil
-			end
-
-			local symbol = node:child(1)
-
-			if not symbol then
-				return nil
-			end
-
-			return vim.treesitter.get_node_text(symbol, buf)
-		end
-
-		local function position_after(row, col, position)
-			return row > position.row
-				or (row == position.row and col > position.col)
-		end
-
-		local function position_at_or_before(row, col, position)
-			return row < position.row
-				or (row == position.row and col <= position.col)
-		end
-
-		local function definitions(buf, heads, after_position, boundary)
-			local ok, parser = pcall(vim.treesitter.get_parser, buf)
-
-			if not ok or not parser then
-				return nil, false
-			end
-
-			local ok_parse, trees = pcall(function()
-				return parser:parse()
-			end)
-
-			if not ok_parse or not trees or not trees[1] then
-				return nil, false
-			end
-
-			local found = {}
-
-			for node in trees[1]:root():iter_children() do
-				local start_row, start_col, end_row, end_col = node:range()
-				local head = head_of(node, buf)
-
-				local after_previous = not after_position
-					or position_after(start_row, start_col, after_position)
-
-				local before_current = position_at_or_before(
-					end_row,
-					end_col,
-					boundary
-				)
-
-				if after_previous and before_current and head and heads[head] then
-					found[#found + 1] = vim.treesitter.get_node_text(node, buf)
-				end
-			end
-
-			if #found == 0 then
-				return nil, true
-			end
-
-			return table.concat(found, "\n"), true
-		end
-
-		local function form_position()
-			local ok, node = pcall(ts["get-root"])
-
-			if not ok or not node then
-				return nil
-			end
-
-			local row, col = node:range()
-
-			return {
-				row = row,
-				col = col,
-			}
-		end
-
-		local function wrap_eval_str(client, heads, wrap)
-			local eval_str = client["eval-str"]
-			local start = client.start
-			local stop = client.stop
-			local installed = {}
-
-			assign(client, "start", function(...)
-				installed = {}
-				return start(...)
-			end)
-
-			assign(client, "stop", function(...)
-				installed = {}
-				return stop(...)
-			end)
-
-			assign(client, "eval-str", function(opts)
-				local buf = vim.api.nvim_get_current_buf()
-				local name = vim.api.nvim_buf_get_name(buf)
-
-				if opts.origin == "file"
-					or opts.origin == "buf"
-					or name == ""
-					or log["log-buf?"](name)
-				then
-					return eval_str(opts)
-				end
-
-				if not opts.code then
-					return eval_str(opts)
-				end
-
-				local boundary = form_position()
-
-				if not boundary then
-					return eval_str(opts)
-				end
-
-				local tick = vim.api.nvim_buf_get_changedtick(buf)
-				local previous = installed[buf]
-				local previous_valid = previous and previous.tick == tick
-
-				-- If evaluating an earlier or identical form, do not
-				-- reinstall definitions that were already synchronized.
-				if previous_valid
-					and not position_after(boundary.row, boundary.col, previous)
-				then
-					return eval_str(opts)
-				end
-
-				local after_position = previous_valid and previous or nil
-				local setup, parsed = definitions(
-					buf,
-					heads,
-					after_position,
-					boundary
-				)
-
-				-- Never advance the cache if parsing failed.
-				if not parsed then
-					return eval_str(opts)
-				end
-
-				local on_result = opts["on-result"]
-				local eval_opts = vim.tbl_extend("force", {}, opts, {
-					["on-result"] = function(result)
-						installed[buf] = {
-							tick = tick,
-							row = boundary.row,
-							col = boundary.col,
-						}
-
-						if on_result then
-							on_result(result)
-						end
-					end,
-				})
-
-				if setup then
-					eval_opts.code = wrap(setup, opts.code)
-				end
-
-				return eval_str(eval_opts)
-			end)
-		end
-
-		-- Keep Racket and Guile clients independent.
-		wrap_eval_str(racket, SETUP_FORMS.racket, function(setup, form)
-			return ("(begin\n%s\n(void)\n%s)"):format(setup, form)
-		end)
-
-		wrap_eval_str(scheme, SETUP_FORMS.scheme, function(setup, form)
-			return ("(begin\n%s\n(values)\n%s)"):format(setup, form)
-		end)
-	end
+	wrap_eval_str(scheme, SETUP_FORMS.scheme, function(setup, form)
+		return ("(begin\n%s\n(values)\n%s)"):format(setup, form)
+	end)
 end
 
--- Use LSP for gd instead of Conjure's unsupported def-str feature.
-vim.api.nvim_create_autocmd("LspAttach", {
-	group = vim.api.nvim_create_augroup("LispLspNavigation", {
-		clear = true,
-	}),
-	callback = function(args)
-		local client = vim.lsp.get_client_by_id(args.data.client_id)
-
-		if not client or not client.server_capabilities.definitionProvider then
-			return
-		end
-
-		vim.keymap.set("n", "gd", vim.lsp.buf.definition, {
-			buffer = args.buf,
-			silent = true,
-			desc = "LSP: Go to definition",
-		})
-	end,
-})
+--------------------------------------------------------------------------------
+-- Plugin specs
+--------------------------------------------------------------------------------
 
 return {
 	{
@@ -490,7 +468,6 @@ return {
 	{
 		"Olical/conjure",
 		ft = { "racket", "scheme" },
-		lazy = true,
 
 		init = function()
 			for key, value in pairs(conjure_vars()) do
@@ -518,18 +495,24 @@ return {
 				function()
 					local current_win = vim.api.nvim_get_current_win()
 
-					for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+					-- Search every tab, not just the current one.
+					for _, win in ipairs(vim.api.nvim_list_wins()) do
 						local buf = vim.api.nvim_win_get_buf(win)
 						local name = vim.api.nvim_buf_get_name(buf)
 
 						if name:match("conjure%-log") then
-							vim.api.nvim_win_close(win, true)
+							pcall(vim.api.nvim_win_close, win, true)
 							return
 						end
 					end
 
-					vim.cmd("ConjureLogSplit")
-					vim.api.nvim_set_current_win(current_win)
+					if not pcall(vim.cmd, "ConjureLogSplit") then
+						return
+					end
+
+					if vim.api.nvim_win_is_valid(current_win) then
+						pcall(vim.api.nvim_set_current_win, current_win)
+					end
 				end,
 				desc = "Toggle REPL",
 			},

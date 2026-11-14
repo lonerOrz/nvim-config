@@ -2,40 +2,20 @@ return {
 	-- Mason Dependency Manager
 	{
 		"mason-org/mason.nvim",
-		cmd = { "Mason", "MasonInstall", "MasonUpdate" },
+		opts = {},
+	},
+
+	-- Automatic tool installer
+	{
+		"WhoIsSethDaniel/mason-tool-installer.nvim",
+		lazy = false,
+		dependencies = { "mason-org/mason.nvim" },
 		opts_extend = { "ensure_installed" },
 		opts = {
-			ensure_installed = {},
+			run_on_start = true,
+			start_delay = 3000, -- 延迟3秒
+			ensure_installed = {}, -- 基础列表，各 lang 模块会通过 opts_extend 追加
 		},
-		config = function(_, opts)
-			require("mason").setup(opts)
-			local mr = require("mason-registry")
-
-			vim.defer_fn(function()
-				local missing = {}
-				for _, tool in ipairs(opts.ensure_installed or {}) do
-					if not mr.get_package(tool):is_installed() then
-						missing[#missing + 1] = tool
-					end
-				end
-
-				if #missing == 0 then
-					return
-				end
-
-				local function install()
-					for _, tool in ipairs(missing) do
-						mr.get_package(tool):install()
-					end
-				end
-
-				if mr.refresh then
-					mr.refresh(install)
-				else
-					install()
-				end
-			end, 150)
-		end,
 	},
 
 	-- Lspsaga
@@ -44,8 +24,26 @@ return {
 		event = "LspAttach",
 		cmd = "Lspsaga",
 		dependencies = { "nvim-tree/nvim-web-devicons" },
+		init = function() -- when enable symbol_in_winbar
+			vim.api.nvim_create_autocmd({ "BufWinEnter", "BufEnter" }, {
+				callback = function()
+					if vim.bo.buftype ~= "" then
+						return
+					end
+					if vim.api.nvim_win_get_config(0).relative ~= "" then
+						return
+					end
+					if vim.wo.winbar == "" then
+						vim.wo.winbar = " "
+					end
+				end,
+			})
+		end,
 		config = function()
 			require("lspsaga").setup({
+				symbol_in_winbar = {
+					enable = true,
+				},
 				ui = {
 					border = "rounded",
 					-- Nerd Font code action icon (1 icon + 1 space)
@@ -98,8 +96,6 @@ return {
 			pcall(vim.keymap.del, { "n", "x" }, "gra")
 			pcall(vim.keymap.del, { "n", "x" }, "grr")
 			pcall(vim.keymap.del, { "n", "x" }, "gri")
-
-			vim.cmd([[highlight! link DiagnosticHint DiagnosticWarn]])
 
 			local capabilities = vim.lsp.protocol.make_client_capabilities()
 			local ok, blink_cmp = pcall(require, "blink.cmp")
@@ -181,7 +177,6 @@ return {
 				mode = { "n" },
 				desc = "Prev diagnostic",
 			},
-
 			{ "<leader>cd", "<CMD>Trouble diagnostics toggle<CR>", desc = "Buffer diagnostics" },
 			{ "<leader>cs", "<CMD>Trouble symbols toggle focus=false<CR>", desc = "Document symbols" },
 		},

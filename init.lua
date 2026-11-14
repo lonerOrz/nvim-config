@@ -2,5 +2,6 @@
 vim.env.PATH = vim.env.PATH .. ":" .. vim.fn.stdpath("data") .. "/mason/bin:/bin"
 
 require("config.options")
+require("config.fold")
 require("config.lazy")
 require("config.keymaps")

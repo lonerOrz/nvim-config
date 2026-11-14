@@ -1,7 +1,7 @@
 return {
 	name = "Gruvbox Dark",
 	colors = {
-		rosewater = "#ebdbb2",
+		rosewater = "#d3869b",
 		flamingo = "#fe8019",
 		pink = "#d3869b",
 		mauve = "#d3869b",
@@ -20,12 +20,12 @@ return {
 		subtext0 = "#d5c4a1",
 		overlay2 = "#bdae93",
 		overlay1 = "#a89984",
-		overlay0 = "#7c6f64",
-		surface2 = "#504945",
-		surface1 = "#3c3836",
-		surface0 = "#282828",
-		base = "#1d2021",
-		mantle = "#141617",
-		crust = "#0d0e0f",
+		overlay0 = "#928374",
+		surface2 = "#665c54",
+		surface1 = "#504945",
+		surface0 = "#3c3836",
+		base = "#282828",
+		mantle = "#1d2021",
+		crust = "#141617",
 	},
 }

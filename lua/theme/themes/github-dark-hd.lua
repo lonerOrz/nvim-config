@@ -3,7 +3,7 @@ return {
 	colors = {
 		rosewater = "#ffc799",
 		flamingo = "#ffa657",
-		pink = "#f47067",
+		pink = "#f778ba",
 		mauve = "#d2a8ff",
 		red = "#ff7b72",
 		maroon = "#ffa198",

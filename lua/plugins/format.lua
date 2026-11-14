@@ -39,14 +39,16 @@ return {
 			},
 			format_on_save = function(_)
 				if vim.g.enable_autoformat then
-					return { timeout_ms = 500, lsp_fallback = true }
+					return { timeout_ms = 3000, lsp_fallback = true }
 				end
 			end,
 		},
 		init = function()
 			vim.g.enable_autoformat = get_autoformat_state()
 		end,
-		config = function()
+		config = function(_, opts)
+			require("conform").setup(opts)
+
 			require("snacks").toggle
 				.new({
 					id = "auto_format",

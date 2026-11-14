@@ -9,7 +9,7 @@ return {
 
 	-- Mason
 	{
-		"mason-org/mason.nvim",
+		"WhoIsSethDaniel/mason-tool-installer.nvim",
 		optional = true,
 		opts = { ensure_installed = { "rust-analyzer" } },
 		opts_extend = { "ensure_installed" },
@@ -28,10 +28,10 @@ return {
 								loadOutDirsFromCheck = true,
 								buildScripts = { enable = true },
 							},
-							checkOnSave = true,
 							check = {
 								command = "clippy",
 								extraArgs = { "--no-deps" },
+								onSave = true,
 							},
 							procMacro = {
 								enable = true,
