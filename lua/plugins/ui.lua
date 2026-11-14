@@ -11,6 +11,7 @@ return {
 		},
 
 		opts = (function()
+			-- Catppuccin Mocha 调色板：只取一次，闭包捕获，避免每次状态栏刷新重算
 			local function get_palette()
 				local ok, palettes = pcall(require, "catppuccin.palettes")
 				if not ok then
@@ -20,6 +21,7 @@ return {
 				local success, colors = pcall(palettes.get_palette, "mocha")
 				return success and colors or nil
 			end
+			local palette = get_palette()
 
 			local macro_recording = {
 				function()
@@ -28,10 +30,9 @@ return {
 				end,
 
 				color = function()
-					local C = get_palette()
-					return C and {
-						fg = C.base,
-						bg = C.red,
+					return palette and {
+						fg = palette.base,
+						bg = palette.red,
 					} or nil
 				end,
 
@@ -42,9 +43,8 @@ return {
 				"%S",
 
 				color = function()
-					local C = get_palette()
-					return C and {
-						fg = C.lavender,
+					return palette and {
+						fg = palette.lavender,
 					} or nil
 				end,
 
