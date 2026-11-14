@@ -25,6 +25,7 @@ end
 -- Loader Layer
 --------------------------------------------------------------------------------
 local Loader = {}
+Loader.cache = nil
 
 local REQUIRED = {
 	"rosewater",
@@ -54,6 +55,7 @@ local REQUIRED = {
 	"mantle",
 	"crust",
 }
+
 function Loader.load(id)
 	package.loaded["theme.themes." .. id] = nil
 	local ok, mod = pcall(require, "theme.themes." .. id)
@@ -101,14 +103,20 @@ local Engine = {
 }
 
 function Engine.preview(theme)
-	Engine.current_id = theme.id
-	Engine.theme = theme
-
 	local final_opts = vim.tbl_deep_extend("force", Engine.base_opts, {
 		color_overrides = { all = theme.colors },
 	})
 
-	require("catppuccin").setup(final_opts)
+	-- 先确认 catppuccin 可用，再更新内部状态，避免状态与实际主题不一致
+	local ok, catppuccin = pcall(require, "catppuccin")
+	if not ok then
+		vim.notify("theme: catppuccin module not available", vim.log.levels.ERROR)
+		return
+	end
+
+	Engine.current_id = theme.id
+	Engine.theme = theme
+	catppuccin.setup(final_opts)
 	vim.cmd.colorscheme("catppuccin")
 end
 
@@ -121,6 +129,9 @@ end
 -- UI Layer
 --------------------------------------------------------------------------------
 local UI = {}
+
+-- 代际计数：用于取消过期的预览请求
+local preview_generation = 0
 
 function UI.register_command()
 	vim.api.nvim_create_user_command("Theme", function(args)
@@ -147,21 +158,12 @@ function UI.register_autocmd()
 			local id = vim.fs.basename(args.file):gsub("%.lua$", "")
 			Loader.cache = nil
 			if (Engine.current_id or Storage.get_saved_id()) == id then
-				M.apply(id)
+				-- 编辑中的主题可能暂时无效，静默失败，避免打断编辑
+				pcall(M.apply, id)
 			end
 		end,
 	})
 end
-
--- Debounce previews to avoid repeated theme setup while moving selection.
-local preview_timer = vim.uv.new_timer()
-vim.api.nvim_create_autocmd("VimLeavePre", {
-	callback = function()
-		if preview_timer and not preview_timer:is_closing() then
-			preview_timer:close()
-		end
-	end,
-})
 
 function UI.open_picker()
 	local themes = Loader.scan_all()
@@ -173,14 +175,25 @@ function UI.open_picker()
 			break
 		end
 	end
+
+	-- 预先构建 name -> theme 映射，避免每次 preview 都线性扫描
+	local by_name = {}
+	for _, d in ipairs(themes) do
+		if not by_name[d.name] then
+			by_name[d.name] = d
+		end
+	end
+
 	local ok, fzf = pcall(require, "fzf-lua")
 	if not ok then
-		return vim.ui.select(themes, {
+		vim.ui.select(themes, {
 			prompt = "Select Colorscheme:",
 			format_item = function(d)
 				return ("%-20s (%s)"):format(d.name, d.id)
 			end,
 		}, function(selected)
+			-- 取消任何待定的预览
+			preview_generation = preview_generation + 1
 			if selected then
 				M.apply(selected.id)
 			else
@@ -190,12 +203,7 @@ function UI.open_picker()
 				end
 			end
 		end)
-	end
-
-	local by_name = function(n)
-		return vim.tbl_filter(function(d)
-			return d.name == n
-		end, themes)[1]
+		return
 	end
 
 	fzf.fzf_exec(
@@ -212,23 +220,27 @@ function UI.open_picker()
 				preview = { layout = "horizontal", horizontal = "right:45%" },
 			},
 			preview = function(items)
-				local t = items and by_name(items[1])
+				local t = items and by_name[items[1]]
 				if not t then
 					return ""
 				end
-				if preview_timer then
-					preview_timer:stop()
-					preview_timer:start(50, 0, function()
-						vim.schedule(function()
-							Engine.preview(t)
-						end)
-					end)
-				end
+
+				-- 用独立 defer + 代际检查，避免共享 timer 的竞态
+				preview_generation = preview_generation + 1
+				local gen = preview_generation
+				vim.defer_fn(function()
+					if gen == preview_generation then
+						Engine.preview(t)
+					end
+				end, 50)
+
 				return ("%s\nid: %s\nmauve: %s\nbase: %s"):format(t.name, t.id, t.colors.mauve, t.colors.base)
 			end,
 			fn_selected = function(selected)
+				-- 取消所有待定的预览，避免选择后又被旧 timer 覆盖
+				preview_generation = preview_generation + 1
 				for _, n in ipairs(selected or {}) do
-					local t = by_name(n)
+					local t = by_name[n]
 					if t then
 						return M.apply(t.id)
 					end
@@ -267,6 +279,13 @@ function M.init(plugin_opts)
 	local theme = Loader.load(Engine.current_id) or Loader.load("catppuccin")
 	if theme then
 		Engine.render(theme)
+	else
+		-- 双重 fallback 都失败，至少给用户明确提示并回退到 default
+		vim.notify(
+			("theme: no valid theme found (saved_id=%s), falling back to default"):format(tostring(Engine.current_id)),
+			vim.log.levels.WARN
+		)
+		pcall(vim.cmd.colorscheme, "default")
 	end
 
 	UI.register_command()

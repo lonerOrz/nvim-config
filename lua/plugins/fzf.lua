@@ -1,6 +1,6 @@
 return {
 	"ibhagwan/fzf-lua",
-	event = "VeryLazy",
+	cmd = "FzfLua",
 	dependencies = { "nvim-tree/nvim-web-devicons" },
 	keys = {
 		-- Code actions (with live diff preview) (<leader>c)

@@ -1,54 +1,108 @@
 return {
-	-- Statusline Lualine
+	-- Statusline: Lualine
 	{
 		"nvim-lualine/lualine.nvim",
-		dependencies = {
-			"nvim-tree/nvim-web-devicons",
-		},
+		dependencies = { "nvim-tree/nvim-web-devicons" },
 		opts_extend = { "sections.lualine_c", "sections.lualine_x" },
-		opts = {
-			options = {
-				theme = "catppuccin-mocha",
-				always_divide_middle = false,
-			},
-			sections = {
-				lualine_a = { "mode" },
-				lualine_b = { "branch", "diff", "diagnostics" },
-				lualine_c = { "lsp_status" },
-				lualine_x = {
-					{
-						"%S",
-						color = "Statement",
-						padding = { left = 1, right = 1 },
-					},
-				},
-				lualine_y = { "encoding", "fileformat", "filetype", "progress" },
-				lualine_z = { "location" },
-			},
-		},
-		config = function(_, opts)
-			local function show_macro_recording()
-				local recording_register = vim.fn.reg_recording()
-				if recording_register == "" then
-					return ""
-				else
-					return "󰑋 " .. recording_register
+
+		opts = (function()
+			-- Catppuccin Mocha palette
+			local function get_palette()
+				local ok, palettes = pcall(require, "catppuccin.palettes")
+				if not ok then
+					return nil
 				end
+
+				local success, colors = pcall(palettes.get_palette, "mocha")
+
+				return success and colors or nil
 			end
 
+			-- Macro recording indicator
 			local macro_recording = {
-				show_macro_recording,
-				color = function()
-					local c = require("theme.theme").palette()
-					return { fg = c.base, bg = c.red }
+				function()
+					local reg = vim.fn.reg_recording()
+					return reg == "" and "" or ("󰑋 " .. reg)
 				end,
-				separator = { left = "", right = "" },
-				padding = 0,
+
+				color = function()
+					local C = get_palette()
+					return C and {
+						fg = C.base,
+						bg = C.red,
+					} or nil
+				end,
+
+				padding = { left = 1, right = 1 },
 			}
 
-			table.insert(opts.sections.lualine_x, 1, macro_recording)
-			require("lualine").setup(opts)
-		end,
+			-- Session indicator
+			local session_status = {
+				"%S",
+
+				color = function()
+					local C = get_palette()
+					return C and {
+						fg = C.lavender,
+					} or nil
+				end,
+
+				padding = { left = 1, right = 1 },
+			}
+
+			return {
+				options = {
+					theme = "catppuccin-mocha",
+
+					-- No separators: spacing creates visual hierarchy
+					component_separators = "",
+					section_separators = "",
+
+					always_divide_middle = false,
+				},
+
+				sections = {
+					-- Left: Mode
+					lualine_a = {
+						{
+							"mode",
+							padding = { left = 2, right = 2 },
+						},
+					},
+
+					-- Git & Diagnostics
+					lualine_b = {
+						"branch",
+						"diff",
+						"diagnostics",
+					},
+
+					-- LSP
+					lualine_c = {
+						"lsp_status",
+					},
+
+					-- Macro & Session
+					lualine_x = {
+						macro_recording,
+						session_status,
+					},
+
+					-- File information
+					lualine_y = {
+						"encoding",
+						"fileformat",
+						"filetype",
+						"progress",
+					},
+
+					-- Cursor position
+					lualine_z = {
+						"location",
+					},
+				},
+			}
+		end)(),
 	},
 
 	-- Rainbow Delimiters
@@ -96,35 +150,34 @@ return {
 		event = "VeryLazy",
 
 		opts = {
-			-- modern / classic / helix
-			preset = "helix",
+			preset = "helix", -- 布局预设：classic / modern / helix
+			delay = 0, -- 立即弹出，不等待
 
-			-- Show immediately
-			delay = 0,
-
-			-- Vim builtin / operator / text-object help
 			plugins = {
+				-- presets 只为 Vim/Neovim 原生按键提供“描述”，不创建任何实际映射。
+				-- 它解决的是“有哪些键”，分组名称和图标仍需在 spec 中显式指定。
 				presets = {
-					operators = true,
-					motions = true,
-					text_objects = true,
-					windows = true,
-					nav = true,
-					z = true,
-					g = true,
+					operators = true, -- d / y / c 等操作符
+					motions = true, -- w / b / $ / 0 等移动命令
+					text_objects = true, -- iw / aw / i" 等文本对象
+					windows = true, -- <C-w> 下的窗口管理键
+					nav = true, -- H / L / M / [ / ] 等导航
+					z = true, -- zc / zo / z= / z<CR> 等折叠与拼写键
+					g = true, -- gg / gf / gi 等 g 前缀命令
 				},
 
-				marks = true,
-				registers = true,
+				marks = true, -- ' 和 ` 的标记列表
+				registers = true, -- " 的寄存器列表（INSERT 下 <C-r>）
 
 				spelling = {
-					enabled = true,
-					suggestions = 20,
+					enabled = true, -- 按 z= 时显示拼写建议
+					suggestions = 20, -- 最多显示 20 条建议
 				},
 			},
 
+			-- 为分组命名 + 配图标。
 			spec = {
-				-- Leader Root Groups
+				-- Leader 根分组
 				{ "<leader>a", group = "AI & Agent", icon = "󰚩" },
 				{ "<leader>b", group = "Buffer Tools", icon = "󰓩" },
 				{ "<leader>c", group = "Code & Refactor", icon = "󰅩" },
@@ -141,27 +194,20 @@ return {
 				{ "<leader>o", group = "Org Mode", icon = "" },
 				{ "<leader>z", group = "Zen", icon = "󰍡" },
 
-				-- Leader Top-level Direct Shortcuts
-				{ "<leader><space>", icon = "󰥩", desc = "Find files (Project)" },
-				{ "<leader>q", icon = "󰗼", desc = "Quit all" },
-				{ "<leader>L", icon = "󰒲", desc = "Open Lazy UI" },
-				{ "<leader>?", icon = "󰋖", desc = "Show keymaps" },
-
-				-- Builtin Namespaces & Operators
+				-- 内置预设前缀
 				{ "g", group = "Goto / LSP Actions", icon = "󱔗" },
 				{ "gz", group = "Surround", icon = "󰑤", mode = { "n", "x" } },
 				{ "z", group = "Fold / View", icon = "󰁮" },
+				{ "<C-w>", group = "Windows", icon = "" }, -- 对应 presets.windows
 				{ "]", group = "Next (Hunk / Diag / Ref)", icon = "󰒮" },
 				{ "[", group = "Prev (Hunk / Diag / Ref)", icon = "󰒭" },
 			},
 
-			-- Popup scrolling
 			keys = {
-				scroll_down = "<C-j>",
-				scroll_up = "<C-k>",
+				scroll_down = "<C-j>", -- 弹窗内向下滚动
+				scroll_up = "<C-k>", -- 弹窗内向上滚动
 			},
 
-			-- Window appearance
 			win = {
 				width = 0.5,
 				padding = { 1, 2 },
@@ -170,15 +216,12 @@ return {
 				border = "rounded",
 			},
 
-			-- Column layout
 			layout = {
-				width = {
-					min = 20,
-				},
+				width = { min = 20 },
 				spacing = 3,
 			},
 
-			-- Expand groups that have no description
+			-- 展开没有描述的分组
 			expand = function(node)
 				return not node.desc
 			end,
@@ -188,7 +231,7 @@ return {
 			{
 				"<leader>?",
 				function()
-					require("which-key").show()
+					require("which-key").show({ global = false }) -- 规范签名；global 默认 true
 				end,
 				desc = "Show keymaps",
 			},
