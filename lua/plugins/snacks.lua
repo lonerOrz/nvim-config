@@ -1,49 +1,88 @@
 return {
-	-- Multifunctional Suite
 	{
 		"folke/snacks.nvim",
 		priority = 1000,
 		lazy = false,
+
 		opts = {
+			-- Core
 			bigfile = { enabled = true },
 			explorer = { enabled = false },
+			input = { enabled = true },
+			statuscolumn = { enabled = true },
+			terminal = { enabled = true },
+			words = { enabled = true },
+
+			-- Image
 			image = {
 				enabled = true,
-				doc = { inline = false, float = true, max_width = 80, max_height = 40 },
-				math = { latex = { font_size = "small" } },
+				doc = {
+					inline = false,
+					float = true,
+					max_width = 80,
+					max_height = 40,
+				},
+				math = {
+					latex = { font_size = "small" },
+				},
 			},
+
+			-- Indent
 			indent = {
 				enabled = true,
 				animate = { enabled = false },
 				indent = { only_scope = true },
-				scope = { enabled = true, underline = true },
+				scope = {
+					enabled = true,
+					underline = true,
+				},
 				chunk = { enabled = true },
 			},
-			input = { enabled = true },
-			notifier = { enabled = true, style = "notification" },
+
+			-- Notifier
+			notifier = {
+				enabled = true,
+				timeout = 3500,
+				style = "compact",
+			},
+
+			-- Picker
 			picker = {
 				enabled = true,
-				previewers = { git = { builtin = false, args = {} } },
-				sources = { spelling = { layout = { preset = "select" } } },
 				layout = { preset = "telescope" },
+				previewers = {
+					git = {
+						builtin = false,
+						args = {},
+					},
+				},
+				sources = {
+					spelling = {
+						layout = { preset = "select" },
+					},
+				},
 			},
-			statuscolumn = { enabled = true },
-			terminal = { enabled = true },
+
+			-- Zen Mode
 			zen = {
 				enabled = true,
+				center = true,
+
 				toggles = {
 					dim = true,
 					git_signs = false,
 					mini_diff_signs = false,
 				},
-				center = true,
+
 				show = {
 					statusline = false,
 					tabline = false,
 				},
+
 				win = { style = "zen" },
+
 				on_open = function(win)
-					-- 清掉 lspsaga 写到 zen 浮窗的 winbar
+					-- Remove the winbar injected by LSPSaga.
 					vim.api.nvim_create_autocmd("CursorMoved", {
 						group = win.augroup,
 						buffer = win.buf,
@@ -54,17 +93,22 @@ return {
 						end,
 					})
 				end,
+
 				zoom = {
 					toggles = {},
 					center = false,
-					show = { statusline = false, tabline = false },
+					show = {
+						statusline = false,
+						tabline = false,
+					},
 					win = {
 						backdrop = false,
 						width = 0,
 					},
 				},
 			},
-			words = { enabled = true },
+
+			-- Window Styles
 			styles = {
 				zen = {
 					enter = true,
@@ -72,7 +116,10 @@ return {
 					minimal = false,
 					width = 120,
 					height = 0,
-					backdrop = { transparent = true, blend = 40 },
+					backdrop = {
+						transparent = true,
+						blend = 40,
+					},
 					keys = { q = false },
 					zindex = 40,
 					wo = {
@@ -82,6 +129,7 @@ return {
 						snacks_main = true,
 					},
 				},
+
 				zoom_indicator = {
 					text = "▍ zoom  󰊓  ",
 					minimal = true,
@@ -92,6 +140,7 @@ return {
 					col = -1,
 					backdrop = false,
 				},
+
 				terminal = {
 					relative = "editor",
 					border = "rounded",
@@ -102,10 +151,13 @@ return {
 					zindex = 50,
 				},
 			},
+
+			-- Dashboard
 			dashboard = {
 				enabled = true,
 
 				sections = {
+					-- Logo
 					function()
 						return {
 							align = "center",
@@ -121,6 +173,7 @@ return {
 						}
 					end,
 
+					-- Neovim Version
 					function()
 						local v = vim.version()
 
@@ -135,11 +188,9 @@ return {
 						}
 					end,
 
-					{
-						align = "center",
-						padding = 1,
-					},
+					{ align = "center", padding = 1 },
 
+					-- Description
 					{
 						align = "center",
 						text = {
@@ -157,12 +208,9 @@ return {
 						},
 					},
 
-					{
-						align = "center",
-						text = { "" },
-					},
+					{ align = "center", text = { "" } },
 
-					-- Lazy.nvim
+					-- Quick Actions
 					{
 						align = "center",
 						action = ":Lazy",
@@ -174,7 +222,6 @@ return {
 						},
 					},
 
-					-- New File
 					{
 						align = "center",
 						action = ":ene | startinsert",
@@ -186,7 +233,6 @@ return {
 						},
 					},
 
-					-- Mason
 					{
 						align = "center",
 						action = ":Mason",
@@ -198,7 +244,6 @@ return {
 						},
 					},
 
-					-- Config
 					{
 						align = "center",
 						action = ":lua Snacks.dashboard.pick('files', {cwd = vim.fn.stdpath('config')})",
@@ -210,7 +255,6 @@ return {
 						},
 					},
 
-					-- Quit
 					{
 						align = "center",
 						action = ":qa",
@@ -222,12 +266,9 @@ return {
 						},
 					},
 
-					{
-						align = "center",
-						text = { "" },
-					},
+					{ align = "center", text = { "" } },
 
-					-- startup
+					-- Startup Statistics
 					function()
 						local stats = require("lazy.stats").stats()
 						local ms = math.floor(stats.startuptime * 100 + 0.5) / 100
@@ -246,8 +287,10 @@ return {
 				},
 			},
 		},
+
+		-- Keymaps
 		keys = {
-			-- Terminal & Buffer Tools
+			-- Terminal & Buffers
 			{
 				"<C-`>",
 				function()
@@ -261,7 +304,7 @@ return {
 				function()
 					require("snacks").scratch()
 				end,
-				desc = "Toggle Scratchpad",
+				desc = "Toggle scratchpad",
 			},
 			{
 				"<leader>bb",
@@ -287,7 +330,7 @@ return {
 			{ "<A-Left>", "<CMD>bprevious<CR>", desc = "Previous buffer" },
 			{ "<A-Right>", "<CMD>bnext<CR>", desc = "Next buffer" },
 
-			-- Notifications (<leader>n)
+			-- Notifications & Messages
 			{
 				"<leader>ns",
 				function()
@@ -302,35 +345,58 @@ return {
 				end,
 				desc = "Dismiss notifications",
 			},
+			{
+				"<leader>nm",
+				function()
+					require("noice").cmd("all")
+				end,
+				desc = "Message history",
+			},
+			{
+				"<leader>nl",
+				function()
+					require("noice").cmd("last")
+				end,
+				desc = "Last message",
+			},
+			{
+				"<leader>ne",
+				function()
+					require("noice").cmd("errors")
+				end,
+				desc = "Message errors",
+			},
 
-			-- Search & Pickers (<leader>s)
+			-- Search & Pickers
 			{
 				"<leader><space>",
 				function()
 					require("snacks").picker.files()
 				end,
-				desc = "Find files (Project)",
+				desc = "Find files (project)",
 			},
 			{
 				"<leader>sf",
 				function()
 					require("snacks").picker.files()
 				end,
-				desc = "Find files (Project)",
+				desc = "Find files (project)",
 			},
 			{
 				"<leader>sd",
 				function()
-					require("snacks").picker.files({ cwd = vim.fn.expand("%:p:h") })
+					require("snacks").picker.files({
+						cwd = vim.fn.expand("%:p:h"),
+					})
 				end,
-				desc = "Find files (Current dir)",
+				desc = "Find files (current directory)",
 			},
 			{
 				"<leader>sH",
 				function()
 					require("snacks").picker.files({ cwd = "~" })
 				end,
-				desc = "Find files (Home dir)",
+				desc = "Find files (home directory)",
 			},
 			{
 				"<leader>sp",
@@ -351,7 +417,7 @@ return {
 				function()
 					require("snacks").picker.grep()
 				end,
-				desc = "Grep text (Project)",
+				desc = "Grep text (project)",
 			},
 			{
 				"<leader>sl",
@@ -466,23 +532,24 @@ return {
 				end,
 				desc = "Undo history",
 			},
-			-- Zen Mode (<leader>z)
+
+			-- Zen Mode
 			{
 				"<leader>zt",
 				function()
 					require("snacks").zen()
 				end,
-				desc = "Toggle Zen Mode",
+				desc = "Toggle zen mode",
 			},
 			{
 				"<leader>zz",
 				function()
 					require("snacks").zen.zoom()
 				end,
-				desc = "Toggle Zoom (Maximize)",
+				desc = "Toggle zoom",
 			},
 
-			-- Code & Refactor Tools (<leader>c)
+			-- Code & Refactoring
 			{
 				"<leader>cR",
 				function()
@@ -491,7 +558,7 @@ return {
 				desc = "Rename current file",
 			},
 
-			-- LSP Symbols (g)
+			-- LSP Symbols
 			{
 				"gs",
 				function()
@@ -507,7 +574,7 @@ return {
 				desc = "Workspace symbols",
 			},
 
-			-- Reference Jump
+			-- References
 			{
 				"]]",
 				function()
@@ -517,29 +584,34 @@ return {
 				mode = { "n", "t" },
 			},
 			{
-				"[[",
+				"[ [",
 				function()
 					require("snacks").words.jump(-vim.v.count1)
 				end,
-				desc = "Prev reference",
+				desc = "Previous reference",
 				mode = { "n", "t" },
 			},
 		},
 
+		-- Initialization
 		init = function()
 			local Snacks = require("snacks")
+
 			vim.api.nvim_create_autocmd("User", {
 				pattern = "VeryLazy",
 				callback = function()
+					-- Debug helpers
 					_G.dd = function(...)
 						Snacks.debug.inspect(...)
 					end
+
 					_G.bt = function()
 						Snacks.debug.backtrace()
 					end
+
 					vim.print = _G.dd
 
-					-- UI Toggles (<leader>t)
+					-- UI Toggles
 					Snacks.toggle
 						.new({
 							id = "Animation",
@@ -552,6 +624,7 @@ return {
 							end,
 						})
 						:map("<leader>ta")
+
 					Snacks.toggle
 						.new({
 							id = "scroll_anima",
@@ -568,6 +641,7 @@ return {
 							end,
 						})
 						:map("<leader>tS")
+
 					Snacks.toggle.dim():map("<leader>tD")
 					Snacks.toggle.option("spell", { name = "Spelling" }):map("<leader>ts")
 					Snacks.toggle.option("wrap", { name = "Wrap" }):map("<leader>tw")
@@ -576,6 +650,7 @@ return {
 					Snacks.toggle.line_number():map("<leader>tl")
 					Snacks.toggle.option("conceallevel", { off = 0, on = 2 }):map("<leader>tc")
 					Snacks.toggle.treesitter():map("<leader>tT")
+
 					Snacks.toggle
 						.new({
 							id = "git_blame",
@@ -588,9 +663,15 @@ return {
 							end,
 						})
 						:map("<leader>tB")
+
 					Snacks.toggle
-						.option("background", { off = "light", on = "dark", name = "Dark Background" })
+						.option("background", {
+							off = "light",
+							on = "dark",
+							name = "Dark Background",
+						})
 						:map("<leader>tb")
+
 					Snacks.toggle.inlay_hints():map("<leader>th")
 					Snacks.toggle.indent():map("<leader>tg")
 					Snacks.toggle.profiler():map("<leader>tpp")
