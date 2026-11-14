@@ -86,14 +86,6 @@ vim.opt.guicursor = {
 	"a:blinkon500-blinkoff500-blinkwait500",
 }
 
--- Folding Configuration
--- Folding is set per window in plugins/treesitter.lua
-vim.o.foldenable = true
-vim.o.foldcolumn = "1"
-vim.o.foldlevel = 99
-vim.o.foldlevelstart = 99
-vim.o.foldtext = ""
-
 -- Native Trim Trailing Whitespace
 vim.api.nvim_create_autocmd("BufWritePre", {
 	group = vim.api.nvim_create_augroup("NativeTrimWhitespace", { clear = true }),

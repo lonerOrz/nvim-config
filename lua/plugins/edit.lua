@@ -16,7 +16,20 @@ return {
 
 	{
 		"echasnovski/mini.surround",
-		event = "VeryLazy",
+		keys = function(_, keys)
+			local plugin = require("lazy.core.config").spec.plugins["mini.surround"]
+			local opts = require("lazy.core.plugin").values(plugin, "opts", false)
+
+			local mappings = {
+				{ opts.mappings.add, desc = "Add Surrounding", mode = { "n", "x" } },
+				{ opts.mappings.delete, desc = "Delete Surrounding" },
+				{ opts.mappings.replace, desc = "Replace Surrounding" },
+			}
+			mappings = vim.tbl_filter(function(m)
+				return m[1] and #m[1] > 0
+			end, mappings)
+			return vim.list_extend(mappings, keys)
+		end,
 		opts = {
 			mappings = {
 				add = "gza", -- Add surrounding
@@ -113,12 +126,13 @@ return {
 			{
 				"<leader>sT",
 				function()
+					---@diagnostic disable-next-line: undefined-field
 					require("snacks").picker.todo_comments()
 				end,
 				desc = "Pick todos (All, incl. NOTE)",
 			},
 		},
-		config = true,
+		opts = {},
 	},
 
 	-- UNIX Shell Commands Helper
